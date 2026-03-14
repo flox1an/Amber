@@ -192,7 +192,7 @@ fun BunkerConnectRequestScreen(
                             } else {
                                 Color.Transparent
                             },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                         )
                         .padding(4.dp)
                         .selectable(
@@ -239,7 +239,7 @@ fun BunkerConnectRequestScreen(
                             .border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.outline,
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(16.dp),
                             )
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -313,9 +313,9 @@ fun BunkerConnectRequestScreen(
                 ) {
                     ElevatedButton(
                         colors = ButtonDefaults.buttonColors().copy(
-                            contentColor = Color.Black,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
                         ),
-                        shape = RoundedCornerShape(20),
+                        shape = RoundedCornerShape(12.dp),
                         content = {
                             Text(stringResource(R.string.permissions))
                         },
@@ -373,7 +373,7 @@ fun BunkerConnectRequestScreen(
                     onReject(RememberType.NEVER)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF6B00),
+                    containerColor = MaterialTheme.colorScheme.error,
                 ),
                 text = stringResource(R.string.cancel),
             )

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -56,6 +57,7 @@ import com.greenart7c3.nostrsigner.service.EventNotificationConsumer
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.RememberType
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.nip46RemoteSigner.BunkerRequestConnect
 import com.vitorpamplona.quartz.nip46RemoteSigner.BunkerRequestSign
@@ -666,10 +668,11 @@ private fun BunkerRequestCard(context: Context, bunkerRequest: AmberBunkerReques
 
     Card(
         Modifier.padding(4.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors().copy(
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
-        border = BorderStroke(1.dp, Color.Gray),
+        border = BorderStroke(1.dp, AmberColors.amberSubtle()),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -681,7 +684,7 @@ private fun BunkerRequestCard(context: Context, bunkerRequest: AmberBunkerReques
                 checked = bunkerRequest.checked.value,
                 onCheckedChange = { bunkerRequest.checked.value = !bunkerRequest.checked.value },
                 colors = CheckboxDefaults.colors().copy(
-                    uncheckedBorderColor = Color.Gray,
+                    uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             )
             Column(
@@ -691,12 +694,12 @@ private fun BunkerRequestCard(context: Context, bunkerRequest: AmberBunkerReques
             ) {
                 Text(
                     text = label,
-                    color = if (bunkerRequest.checked.value) Color.Unspecified else Color.Gray,
+                    color = if (bunkerRequest.checked.value) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (preview.isNotBlank()) {
                     Text(
                         text = preview,
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                     )
                 }
