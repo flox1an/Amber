@@ -40,11 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -122,7 +120,6 @@ fun requestIgnoreBatteryOptimizations(context: Context) {
     }
 }
 
-@SuppressLint("ConfigurationScreenWidthHeight")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -142,10 +139,6 @@ fun MainScreen(
     val destinationRoute = navBackStackEntry?.destination?.route ?: ""
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp.dp
-    val percentage = (screenWidthDp * 0.93f)
-    val verticalPadding = (screenWidthDp - percentage)
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission(),
@@ -366,15 +359,12 @@ fun MainScreen(
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f)
                         } else {
                             Modifier
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
                         }
                         IncomingRequestScreen(
                             modifier = modifier,
@@ -399,9 +389,7 @@ fun MainScreen(
                             QrCodeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f),
+                                    .padding(padding),
                                 content = content,
                             )
                         }
@@ -414,9 +402,7 @@ fun MainScreen(
                         ApplicationsScreen(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                             account = account,
                             navController = navController,
                         )
@@ -426,15 +412,10 @@ fun MainScreen(
                 composable(
                     Route.Settings.route,
                     content = {
-                        val scrollState = rememberScrollState()
                         SettingsScreen(
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                             accountStateViewModel,
                             account,
                             navController,
@@ -453,8 +434,6 @@ fun MainScreen(
                                 .consumeWindowInsets(padding)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f)
                                 .imePadding(),
                             onShowQrCode = {
                                 Amber.instance.applicationIOScope.launch(Dispatchers.Main) {
@@ -476,8 +455,6 @@ fun MainScreen(
                                 .consumeWindowInsets(padding)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f)
                                 .imePadding(),
                         )
                     },
@@ -497,8 +474,6 @@ fun MainScreen(
                                     .consumeWindowInsets(padding)
                                     .verticalScrollbar(scrollState)
                                     .verticalScroll(scrollState)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f)
                                     .imePadding(),
                                 account = account,
                                 selectedPackage = packageName,
@@ -513,10 +488,10 @@ fun MainScreen(
                     content = {
                         LogsScreen(
                             PaddingValues(
-                                top = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                                top = padding.calculateTopPadding(),
                                 bottom = padding.calculateBottomPadding(),
-                                start = padding.calculateStartPadding(LayoutDirection.Ltr) + verticalPadding,
-                                end = padding.calculateEndPadding(LayoutDirection.Ltr) + verticalPadding,
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr),
                             ),
                             account = account,
                         )
@@ -535,9 +510,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                         )
                     },
                 )
@@ -549,9 +522,7 @@ fun MainScreen(
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                         )
                     },
                 )
@@ -564,9 +535,7 @@ fun MainScreen(
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                         )
                     },
                 )
@@ -581,9 +550,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                             account = account,
                             navController = navController,
                         )
@@ -597,9 +564,7 @@ fun MainScreen(
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                             navController = navController,
                         )
                     },
@@ -617,9 +582,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                         )
                     },
                 )
@@ -638,9 +601,7 @@ fun MainScreen(
                                 .consumeWindowInsets(padding)
                                 .imePadding()
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                         )
                     },
                 )
@@ -659,9 +620,7 @@ fun MainScreen(
                                     .fillMaxSize()
                                     .padding(padding)
                                     .verticalScrollbar(scrollState)
-                                    .verticalScroll(scrollState)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f),
+                                    .verticalScroll(scrollState),
                             )
                         }
                     },
@@ -676,12 +635,12 @@ fun MainScreen(
                                 account = account,
                                 key = key,
                                 paddingValues = PaddingValues(
-                                    top = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                                    top = padding.calculateTopPadding(),
                                     bottom = padding.calculateBottomPadding(),
-                                    start = padding.calculateStartPadding(LayoutDirection.Ltr) + verticalPadding,
-                                    end = padding.calculateEndPadding(LayoutDirection.Ltr) + verticalPadding,
+                                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                    end = padding.calculateEndPadding(LayoutDirection.Ltr),
                                 ),
-                                topPadding = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                                topPadding = padding.calculateTopPadding(),
                                 modifier =
                                 Modifier
                                     .fillMaxSize()
@@ -697,12 +656,12 @@ fun MainScreen(
                         ActivitiesScreen(
                             account = account,
                             paddingValues = PaddingValues(
-                                top = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                                top = padding.calculateTopPadding(),
                                 bottom = padding.calculateBottomPadding(),
-                                start = padding.calculateStartPadding(LayoutDirection.Ltr) + verticalPadding,
-                                end = padding.calculateEndPadding(LayoutDirection.Ltr) + verticalPadding,
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr),
                             ),
-                            topPadding = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                            topPadding = padding.calculateTopPadding(),
                             modifier =
                             Modifier
                                 .fillMaxSize()
@@ -721,10 +680,10 @@ fun MainScreen(
                                 url = localUrl,
                                 account = account,
                                 paddingValues = PaddingValues(
-                                    top = padding.calculateTopPadding() + (verticalPadding * 1.5f),
+                                    top = padding.calculateTopPadding(),
                                     bottom = padding.calculateBottomPadding(),
-                                    start = padding.calculateStartPadding(LayoutDirection.Ltr) + verticalPadding,
-                                    end = padding.calculateEndPadding(LayoutDirection.Ltr) + verticalPadding,
+                                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                                    end = padding.calculateEndPadding(LayoutDirection.Ltr),
                                 ),
                             )
                         }
@@ -743,8 +702,6 @@ fun MainScreen(
                                     .padding(padding)
                                     .verticalScrollbar(scrollState)
                                     .verticalScroll(scrollState)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f)
                                     .imePadding(),
                                 key = key,
                                 account = account,
@@ -760,9 +717,7 @@ fun MainScreen(
                         SetupPinScreen(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                             navController = navController,
                         )
                     },
@@ -776,9 +731,7 @@ fun MainScreen(
                             ConfirmPinScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f),
+                                    .padding(padding),
                                 pin = pin,
                                 navController = navController,
                             )
@@ -792,9 +745,7 @@ fun MainScreen(
                         SeeDetailsScreen(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .padding(padding),
                             onBack = {
                                 navController.popBackStack()
                             },
@@ -811,9 +762,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                             navController = navController,
                         )
                     },
@@ -828,9 +777,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                             account = account,
                         )
                     },
@@ -845,9 +792,7 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
+                                .verticalScroll(scrollState),
                             onPost = {
                                 scope.launch(Dispatchers.IO) {
                                     LocalPreferences.updateProxy(context, true, it)
@@ -883,9 +828,7 @@ fun MainScreen(
                                     .fillMaxSize()
                                     .padding(padding)
                                     .verticalScrollbar(scrollState)
-                                    .verticalScroll(scrollState)
-                                    .padding(horizontal = verticalPadding)
-                                    .padding(top = verticalPadding * 1.5f),
+                                    .verticalScroll(scrollState),
                                 account = account,
                                 accountStateViewModel = accountStateViewModel,
                                 npub = key,
@@ -902,8 +845,6 @@ fun MainScreen(
                                 .fillMaxSize()
                                 .padding(padding)
                                 .consumeWindowInsets(padding)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f)
                                 .imePadding(),
                             account = account,
                             onDismiss = {
