@@ -385,7 +385,7 @@ private fun AccountBackupCard(
                     Icon(
                         imageVector = Icons.Outlined.CheckCircle,
                         contentDescription = "Backed up",
-                        tint = Color(0xFF4CAF50),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp),
                     )
                 } else {
@@ -729,7 +729,7 @@ private fun BackupIconButton(
     modifier: Modifier = Modifier,
     icon: @Composable () -> Unit,
     text: String,
-    colors: ButtonColors = ButtonDefaults.buttonColors().copy(contentColor = Color.Black),
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     onClick: () -> Unit,
 ) {
     Button(

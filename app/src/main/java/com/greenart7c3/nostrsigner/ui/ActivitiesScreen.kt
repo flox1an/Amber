@@ -122,6 +122,7 @@ fun ActivitiesScreen(
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -182,7 +183,7 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
                     text = activity.translatedPermission,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (activity.accepted) Color.Unspecified else Color.Gray,
+                    color = if (activity.accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 if (parsedEvent != null) {
@@ -220,7 +221,7 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
-                        color = if (activity.accepted) Color.Unspecified else Color.Gray,
+                        color = if (activity.accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
@@ -230,13 +231,13 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             Icon(
                 if (activity.accepted) Icons.Default.Check else Icons.Default.Close,
                 contentDescription = null,
-                tint = if (activity.accepted) Color(0xFF1D8802) else Color(0xFFFF6B00),
+                tint = if (activity.accepted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(start = 10.dp, top = 4.dp, bottom = 16.dp),
             )
         }
@@ -274,7 +275,7 @@ fun ApplicationName(
         text = name.ifBlank { key.toShortenHex() },
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        color = if (accepted) Color.Unspecified else Color.Gray,
+        color = if (accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
         fontWeight = FontWeight.Bold,
     )
 }

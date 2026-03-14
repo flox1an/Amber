@@ -1,11 +1,13 @@
 package com.greenart7c3.nostrsigner.ui.actions
 
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.greenart7c3.nostrsigner.R
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 
 @Composable
 fun LogoutDialog(
@@ -31,6 +33,9 @@ fun LogoutDialog(
                 onClick = {
                     onConfirm()
                 },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = AmberColors.error(),
+                ),
             ) {
                 Text(text = stringResource(R.string.logout))
             }

@@ -111,7 +111,7 @@ fun SeeDetailsScreen(
                     colors = CardDefaults.cardColors().copy(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),
-                    border = BorderStroke(1.dp, Color.Gray),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -127,7 +127,7 @@ fun SeeDetailsScreen(
                                 intent.checked.value = !intent.checked.value
                             },
                             colors = CheckboxDefaults.colors().copy(
-                                uncheckedBorderColor = Color.Gray,
+                                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
                             ),
                         )
 
@@ -163,7 +163,7 @@ fun SeeDetailsScreen(
                                 .weight(1f)
                                 .padding(vertical = 8.dp),
                             text = data.ifBlank { message },
-                            color = if (intent.checked.value) Color.Unspecified else Color.Gray,
+                            color = if (intent.checked.value) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -176,7 +176,7 @@ fun SeeDetailsScreen(
                     colors = CardDefaults.cardColors().copy(
                         containerColor = MaterialTheme.colorScheme.background,
                     ),
-                    border = BorderStroke(1.dp, Color.Gray),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -192,7 +192,7 @@ fun SeeDetailsScreen(
                                 bunkerRequest.checked.value = !bunkerRequest.checked.value
                             },
                             colors = CheckboxDefaults.colors().copy(
-                                uncheckedBorderColor = Color.Gray,
+                                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
                             ),
                         )
 
@@ -228,7 +228,7 @@ fun SeeDetailsScreen(
                                 .weight(1f)
                                 .padding(vertical = 8.dp),
                             text = data.ifBlank { message },
-                            color = if (bunkerRequest.checked.value) Color.Unspecified else Color.Gray,
+                            color = if (bunkerRequest.checked.value) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }

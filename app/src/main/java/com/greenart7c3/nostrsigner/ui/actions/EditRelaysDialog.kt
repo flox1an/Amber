@@ -630,7 +630,7 @@ fun ActiveRelaysScreen(
                             fontSize = 24.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = if (isConnected) Color.Unspecified else Color.Gray,
+                            color = if (isConnected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         TrustScoreBadge(
                             score = trustScores[relay.url],
@@ -647,7 +647,7 @@ fun ActiveRelaysScreen(
                             fontSize = 16.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = if (isConnected) Color.Unspecified else Color.Gray,
+                            color = if (isConnected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
 

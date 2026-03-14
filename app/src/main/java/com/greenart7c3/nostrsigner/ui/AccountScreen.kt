@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -200,12 +199,10 @@ fun InformationDialog(
                     Icon(
                         imageVector = Icons.Outlined.Close,
                         contentDescription = null,
-                        tint = Color.Black,
                     )
                     Spacer(Modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.no),
-                        color = Color.Black,
                     )
                 }
             }
@@ -222,12 +219,10 @@ fun InformationDialog(
                     Icon(
                         imageVector = Icons.Outlined.Done,
                         contentDescription = null,
-                        tint = Color.Black,
                     )
                     Spacer(Modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.yes),
-                        color = Color.Black,
                     )
                 }
             }
@@ -258,12 +253,10 @@ fun InformationDialog(
                     Icon(
                         imageVector = Icons.Outlined.Done,
                         contentDescription = null,
-                        tint = Color.Black,
                     )
                     Spacer(Modifier.width(5.dp))
                     Text(
                         text = stringResource(R.string.ok),
-                        color = Color.Black,
                     )
                 }
             }

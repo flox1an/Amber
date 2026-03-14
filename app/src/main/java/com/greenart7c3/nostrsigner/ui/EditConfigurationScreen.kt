@@ -35,7 +35,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -232,7 +231,7 @@ fun EditConfigurationScreen(
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        border = BorderStroke(1.dp, Color.LightGray),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                         colors = CardDefaults.cardColors().copy(
                             containerColor = MaterialTheme.colorScheme.background,
                         ),
@@ -276,7 +275,7 @@ fun EditConfigurationScreen(
                         Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        border = BorderStroke(1.dp, Color.LightGray),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                         colors = CardDefaults.cardColors().copy(
                             containerColor = MaterialTheme.colorScheme.background,
                         ),
@@ -295,7 +294,7 @@ fun EditConfigurationScreen(
                                     .padding(start = 8.dp),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = Color.LightGray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -357,7 +356,7 @@ fun EditConfigurationScreen(
                     }
                 },
                 text = stringResource(R.string.delete_application),
-                textColor = Color.White,
+                textColor = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }
