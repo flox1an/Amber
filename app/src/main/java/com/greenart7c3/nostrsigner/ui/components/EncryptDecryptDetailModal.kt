@@ -58,7 +58,7 @@ fun EncryptDecryptDetailModal(
         Scaffold(
             bottomBar = {
                 Box(
-                    Modifier.background(MaterialTheme.colorScheme.primary),
+                    Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
                 ) {
                     IconRow(
                         center = true,

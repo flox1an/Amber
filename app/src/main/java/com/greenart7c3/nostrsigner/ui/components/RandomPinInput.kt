@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -32,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -101,7 +101,7 @@ fun RandomPinInput(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp)
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(20)),
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -125,7 +125,7 @@ fun RandomPinInput(
         ) {
             itemsIndexed(randomNumbers.dropLast(1)) { _, number ->
                 Button(
-                    shape = RoundedCornerShape(20),
+                    shape = RoundedCornerShape(12.dp),
                     onClick = {
                         if (selectedPin.length < 6) {
                             selectedPin += number.toString()
@@ -135,7 +135,7 @@ fun RandomPinInput(
                 ) {
                     Text(
                         number.toString(),
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.scale(1.50f),
                     )
                 }
@@ -143,7 +143,7 @@ fun RandomPinInput(
 
             item {
                 Button(
-                    shape = RoundedCornerShape(20),
+                    shape = RoundedCornerShape(12.dp),
                     onClick = {
                         if (selectedPin.isNotEmpty()) {
                             selectedPin = selectedPin.dropLast(1) // Remove last digit
@@ -156,14 +156,14 @@ fun RandomPinInput(
                     Icon(
                         Icons.AutoMirrored.Filled.Backspace,
                         contentDescription = "Erase",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
 
             item {
                 Button(
-                    shape = RoundedCornerShape(20),
+                    shape = RoundedCornerShape(12.dp),
                     onClick = {
                         if (selectedPin.length < 6) {
                             selectedPin += randomNumbers.last().toString()
@@ -175,7 +175,7 @@ fun RandomPinInput(
                 ) {
                     Text(
                         randomNumbers.last().toString(),
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.scale(1.50f),
                     )
                 }
@@ -183,7 +183,7 @@ fun RandomPinInput(
 
             item {
                 Button(
-                    shape = RoundedCornerShape(20),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = selectedPin.length >= 4,
                     onClick = {
                         if (selectedPin.length >= 4) {
@@ -197,7 +197,7 @@ fun RandomPinInput(
                     Icon(
                         Icons.Default.Done,
                         contentDescription = "Done",
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }

@@ -1,7 +1,6 @@
 package com.greenart7c3.nostrsigner.ui.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
@@ -42,7 +42,7 @@ fun AmberNavigationBar(
     ) {
         Row(
             Modifier
-                .padding(horizontal = 40.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items.forEach {
@@ -95,11 +95,9 @@ fun AmberNavigationBar(
                                 painterResource(it.icon),
                                 it.route,
                                 tint = if (selected) {
-                                    Color.Black
-                                } else if (isSystemInDarkTheme()) {
-                                    Color.White
+                                    MaterialTheme.colorScheme.primary
                                 } else {
-                                    Color.Black
+                                    Color(0xFF555555)
                                 },
                             )
                         }

@@ -1,5 +1,6 @@
 package com.greenart7c3.nostrsigner.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 
 @Composable
 fun AmberButton(
@@ -27,7 +30,7 @@ fun AmberButton(
     onClick: () -> Unit,
     enabled: Boolean = true,
     colors: ButtonColors = ButtonDefaults.buttonColors().copy(
-        contentColor = Color.Black,
+        contentColor = MaterialTheme.colorScheme.onPrimary,
     ),
     textColor: Color = Color.Unspecified,
     text: String,
@@ -39,7 +42,7 @@ fun AmberButton(
         horizontalArrangement = Arrangement.Center,
     ) {
         Button(
-            shape = RoundedCornerShape(20),
+            shape = RoundedCornerShape(12.dp),
             enabled = enabled,
             onClick = onClick,
             colors = colors,
@@ -59,7 +62,7 @@ fun AmberButton(
                     color = textColor,
                     textAlign = textAlign,
                     maxLines = maxLines,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
         }
@@ -85,7 +88,7 @@ fun AmberElevatedButton(
             colors = ButtonDefaults.elevatedButtonColors(
                 containerColor = contentColor,
             ),
-            shape = RoundedCornerShape(20),
+            shape = RoundedCornerShape(12.dp),
             enabled = enabled,
             onClick = onClick,
             modifier = Modifier
@@ -104,9 +107,42 @@ fun AmberElevatedButton(
                     color = textColor,
                     textAlign = textAlign,
                     maxLines = maxLines,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun AmberDangerButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    text: String,
+) {
+    Row(
+        modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Button(
+            shape = RoundedCornerShape(12.dp),
+            enabled = enabled,
+            onClick = onClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AmberColors.errorBg(),
+                contentColor = AmberColors.error(),
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            contentPadding = PaddingValues(vertical = 14.dp),
+            border = BorderStroke(1.dp, AmberColors.error().copy(alpha = 0.2f)),
+        ) {
+            Text(
+                text = text,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }

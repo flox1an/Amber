@@ -74,7 +74,7 @@ fun TrustScoreBadge(
             modifier = Modifier
                 .background(
                     color = trustLevel.color,
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(20.dp),
                 )
                 .padding(horizontal = 6.dp, vertical = 2.dp),
             contentAlignment = Alignment.Center,

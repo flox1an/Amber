@@ -13,9 +13,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 
 @Composable
 fun AmberWarningCard(
@@ -27,8 +27,8 @@ fun AmberWarningCard(
         Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(8.dp),
+                color = AmberColors.amberMuted(),
+                shape = RoundedCornerShape(16.dp),
             ),
         contentAlignment = Alignment.Center,
     ) {
@@ -39,7 +39,7 @@ fun AmberWarningCard(
             Text(
                 text = message,
                 modifier = Modifier.wrapContentSize(),
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             TextButton(
                 onClick = onClick,
@@ -47,7 +47,7 @@ fun AmberWarningCard(
                     Text(
                         text = buttonText,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 },
             )

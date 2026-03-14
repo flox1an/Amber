@@ -1,7 +1,6 @@
 package com.greenart7c3.nostrsigner.ui.components
 
 import android.view.ViewTreeObserver
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
@@ -99,7 +97,6 @@ fun SimpleSearchBar(
                                 onSearch(textFieldState.text.toString())
                                 expanded = false
                             }
-                            .background(Color.Red)
                             .fillMaxWidth(),
                     )
                 }
