@@ -31,7 +31,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -264,7 +263,7 @@ fun SettingsScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(stringResource(R.string.database_size_mb, sizeInMBFormatted), color = Color.Gray)
+                Text(stringResource(R.string.database_size_mb, sizeInMBFormatted), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 AmberButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.clear_logs_and_activity),
@@ -417,7 +416,7 @@ fun SettingsRow(
                 Text(
                     text = stringResource(description),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )

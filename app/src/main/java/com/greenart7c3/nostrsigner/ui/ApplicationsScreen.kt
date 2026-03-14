@@ -2,17 +2,24 @@ package com.greenart7c3.nostrsigner.ui
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,12 +35,10 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.paging.Pager
@@ -43,12 +48,12 @@ import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.LocalPreferences
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.Account
-import com.greenart7c3.nostrsigner.models.TimeUtils
 import com.greenart7c3.nostrsigner.service.KillSwitchReceiver
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
 import com.greenart7c3.nostrsigner.ui.components.AmberWarningCard
 import com.greenart7c3.nostrsigner.ui.navigation.Route
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import com.vitorpamplona.quartz.nip01Core.relay.normalizer.displayUrl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,44 +122,61 @@ fun ApplicationsScreen(
 
         if (lazyPagingItems.itemCount == 0) {
             item {
-                Text(
-                    modifier = Modifier.padding(top = 8.dp),
-                    text = stringResource(R.string.congratulations_your_new_account_is_ready),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-            }
-            item {
-                Text(
-                    buildAnnotatedString {
-                        append(stringResource(R.string.your_account_is_ready_to_use))
-                        withLink(
-                            LinkAnnotation.Url(
-                                "https://" + stringResource(R.string.nostr_app),
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        textDecoration = TextDecoration.Underline,
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 48.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = stringResource(R.string.congratulations_your_new_account_is_ready),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            buildAnnotatedString {
+                                append(stringResource(R.string.your_account_is_ready_to_use))
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        "https://" + stringResource(R.string.nostr_app),
+                                        styles = TextLinkStyles(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.Underline,
+                                            ),
+                                        ),
                                     ),
-                                ),
-                            ),
-                        ) {
-                            append(" " + stringResource(R.string.nostr_app))
-                        }
-                        append(" or ")
-                        withLink(
-                            LinkAnnotation.Url(
-                                if (Amber.instance.isZapstoreInstalled()) "zapstore://" else stringResource(R.string.zapstore_website),
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        textDecoration = TextDecoration.Underline,
+                                ) {
+                                    append(" " + stringResource(R.string.nostr_app))
+                                }
+                                append(" or ")
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        if (Amber.instance.isZapstoreInstalled()) "zapstore://" else stringResource(R.string.zapstore_website),
+                                        styles = TextLinkStyles(
+                                            style = SpanStyle(
+                                                textDecoration = TextDecoration.Underline,
+                                            ),
+                                        ),
                                     ),
-                                ),
-                            ),
-                        ) {
-                            append(stringResource(R.string.zapstore))
-                        }
-                    },
-                )
+                                ) {
+                                    append(stringResource(R.string.zapstore))
+                                }
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         } else {
             item {
@@ -170,57 +192,56 @@ fun ApplicationsScreen(
             items(lazyPagingItems.itemCount) { index ->
                 val applicationWithHistory = lazyPagingItems[index]
                 applicationWithHistory?.let {
-                    Row(
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .clickable {
                                 navController.navigate("Permission/${applicationWithHistory.key}")
                             },
-                        verticalAlignment = Alignment.CenterVertically,
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.dp, AmberColors.amberSubtle()),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                modifier = Modifier.padding(top = 16.dp),
-                                text = applicationWithHistory.name.ifBlank { applicationWithHistory.key.toShortenHex() },
-                                fontSize = 24.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            if (applicationWithHistory.relays.isNotEmpty()) {
-                                Text(
-                                    modifier = Modifier.padding(top = 4.dp),
-                                    text = applicationWithHistory.relays.joinToString { it.displayUrl() },
-                                    fontSize = 16.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 Text(
-                                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
-                                    text = applicationWithHistory.key.toShortenHex(),
-                                    fontSize = 16.sp,
+                                    text = applicationWithHistory.name.ifBlank { applicationWithHistory.key.toShortenHex() },
+                                    style = MaterialTheme.typography.titleMedium,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
+                                if (applicationWithHistory.relays.isNotEmpty()) {
+                                    Text(
+                                        text = applicationWithHistory.relays.joinToString { it.displayUrl() },
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
                                 Text(
-                                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
-                                    text = if (applicationWithHistory.lastUsed == 0L) stringResource(R.string.never) else TimeUtils.formatLongToCustomDateTime(applicationWithHistory.lastUsed * 1000),
-                                    fontSize = 16.sp,
+                                    text = applicationWithHistory.key.toShortenHex(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
-
-                            Spacer(Modifier.weight(1f))
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.primary,
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }

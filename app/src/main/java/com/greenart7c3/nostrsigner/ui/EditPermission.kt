@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -30,7 +29,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
@@ -52,10 +50,10 @@ import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.Permission
 import com.greenart7c3.nostrsigner.ui.actions.RemoveAllPermissionsDialog
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
+import com.greenart7c3.nostrsigner.ui.components.AmberDangerButton
 import com.greenart7c3.nostrsigner.ui.components.AmberToggles
 import com.greenart7c3.nostrsigner.ui.components.ToggleOption
 import com.greenart7c3.nostrsigner.ui.components.TrustScoreBadge
-import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.utils.TimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -223,16 +221,12 @@ fun EditPermission(
         }
 
         if (permissions.isNotEmpty()) {
-            AmberButton(
+            AmberDangerButton(
                 modifier = Modifier.padding(top = 60.dp, bottom = 60.dp),
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = primaryVariant,
-                ),
                 onClick = {
                     wantsToRemovePermissions = true
                 },
                 text = stringResource(R.string.remove_all_permissions),
-                textColor = Color.White,
             )
         }
     }
@@ -491,7 +485,7 @@ fun RelayCard(
         Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        border = BorderStroke(1.dp, Color.LightGray),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         colors = CardDefaults.cardColors().copy(
             containerColor = MaterialTheme.colorScheme.background,
         ),

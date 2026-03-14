@@ -276,7 +276,7 @@ fun MainPage(
                     Text(
                         text = stringResource(R.string.a_nostr_secure_signer),
                         fontSize = 16.sp,
-                        color = Color(0xFFC98500),
+                        color = MaterialTheme.colorScheme.primary,
                     )
 
                     Image(
@@ -290,7 +290,7 @@ fun MainPage(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         AmberElevatedButton(
-                            contentColor = Color(0xFF4C4C4C),
+                            contentColor = MaterialTheme.colorScheme.surfaceContainer,
                             textColor = MaterialTheme.colorScheme.primary,
                             onClick = {
                                 scope.launch {
@@ -325,7 +325,7 @@ fun MainPage(
 
                     Text(
                         modifier = Modifier.padding(bottom = 20.dp),
-                        color = Color(0xFF8C8C8C),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         text = buildAnnotatedString {
                             withStyle(
                                 style = ParagraphStyle(
@@ -515,12 +515,11 @@ fun SignUpPage(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color(0xFFFFDE9E)),
+                                    .background(MaterialTheme.colorScheme.primaryContainer),
                             ) {
                                 Text(
                                     text = keyPair.pubKey.toNpub(),
                                     modifier = Modifier.padding(10.dp),
-                                    color = Color.Black,
                                 )
                             }
                             Spacer(Modifier.height(8.dp))
@@ -887,7 +886,7 @@ fun LoginPage(
                                     }
                                     .focusRequester(focusRequester)
                                     .padding(vertical = 20.dp),
-                                shape = RoundedCornerShape(18.dp),
+                                shape = RoundedCornerShape(12.dp),
                                 value = key.value,
                                 onValueChange = { value ->
                                     key.value = value
@@ -987,7 +986,7 @@ fun LoginPage(
                                             contentType = ContentType.Password
                                         }
                                         .padding(bottom = 20.dp),
-                                    shape = RoundedCornerShape(18.dp),
+                                    shape = RoundedCornerShape(12.dp),
                                     value = password.value,
                                     onValueChange = { value ->
                                         password.value = value
