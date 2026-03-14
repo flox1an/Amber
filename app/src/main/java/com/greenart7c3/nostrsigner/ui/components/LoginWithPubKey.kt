@@ -218,7 +218,7 @@ fun LoginWithPubKey(
                             } else {
                                 Color.Transparent
                             },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                         )
                         .padding(4.dp)
                         .selectable(
@@ -266,10 +266,7 @@ fun LoginWithPubKey(
                     contentAlignment = Alignment.Center,
                 ) {
                     ElevatedButton(
-                        colors = ButtonDefaults.buttonColors().copy(
-                            contentColor = Color.Black,
-                        ),
-                        shape = RoundedCornerShape(20),
+                        shape = RoundedCornerShape(12.dp),
                         content = {
                             Text(stringResource(R.string.permissions))
                         },

@@ -6,11 +6,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -44,7 +44,7 @@ fun AmberFloatingButton(
                     Icon(
                         ImageVector.vectorResource(R.drawable.settings),
                         contentDescription = stringResource(R.string.edit_relays),
-                        tint = Color.Black,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 },
                 modifier = Modifier
@@ -58,7 +58,7 @@ fun AmberFloatingButton(
                 onClick = {
                     navController.navigate(Route.DefaultRelays.route)
                 },
-                shape = RoundedCornerShape(24),
+                shape = RoundedCornerShape(16.dp),
             )
         }
     }

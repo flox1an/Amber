@@ -59,7 +59,7 @@ fun ChooseSignPolicy(
                     } else {
                         Color.Transparent
                     },
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(16.dp),
                 )
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,

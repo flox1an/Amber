@@ -18,7 +18,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Permission
@@ -41,7 +40,7 @@ fun EnabledPermissions(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
-                border = BorderStroke(1.dp, Color.LightGray),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 colors = CardDefaults.cardColors().copy(
                     containerColor = MaterialTheme.colorScheme.background,
                 ),
