@@ -2,7 +2,10 @@ package com.greenart7c3.nostrsigner.ui
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -30,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -39,6 +45,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.paging.Pager
@@ -57,6 +64,55 @@ import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import com.vitorpamplona.quartz.nip01Core.relay.normalizer.displayUrl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private val HEX_REGEX = Regex("^[0-9a-fA-F]{64}$")
+
+private fun String.isHexKey() = HEX_REGEX.matches(this)
+
+@Composable
+private fun AppIcon(key: String, name: String) {
+    if (!key.isHexKey()) {
+        val appInfo = remember(key) {
+            runCatching {
+                Amber.instance.packageManager.getApplicationInfo(key, 0)
+            }.getOrNull()
+        }
+        val icon: Drawable? = remember(appInfo) {
+            appInfo?.let {
+                runCatching { Amber.instance.packageManager.getApplicationIcon(it) }.getOrNull()
+            }
+        }
+        if (icon != null) {
+            Image(
+                bitmap = icon.toBitmap().asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+            )
+            return
+        }
+    }
+
+    val displayName = name.ifBlank { key }
+    val firstLetter = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = CircleShape,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = firstLetter,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
 
 @Composable
 fun ApplicationsScreen(
@@ -210,7 +266,12 @@ fun ApplicationsScreen(
                                 .fillMaxWidth()
                                 .padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
+                            AppIcon(
+                                key = applicationWithHistory.key,
+                                name = applicationWithHistory.name,
+                            )
                             Column(
                                 modifier = Modifier.weight(1f),
                                 verticalArrangement = Arrangement.spacedBy(4.dp),
