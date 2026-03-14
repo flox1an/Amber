@@ -58,7 +58,7 @@ import com.greenart7c3.nostrsigner.service.ApplicationNameCache
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.RememberType
-import com.greenart7c3.nostrsigner.ui.theme.orange
+import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.nip57Zaps.LnZapRequestEvent
 import com.vitorpamplona.quartz.utils.TimeUtils
 import kotlin.collections.forEach
@@ -208,7 +208,7 @@ fun IntentMultiEventHomeScreen(
             AmberButton(
                 Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = orange,
+                    containerColor = primaryVariant,
                 ),
                 onClick = {
                     Amber.instance.applicationIOScope.launch {

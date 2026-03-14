@@ -25,41 +25,79 @@ import com.halilibo.richtext.ui.resolveDefaults
 
 val Shapes =
     Shapes(
-        small = RoundedCornerShape(4.dp),
-        medium = RoundedCornerShape(4.dp),
-        large = RoundedCornerShape(0.dp),
+        small = RoundedCornerShape(12.dp),
+        medium = RoundedCornerShape(16.dp),
+        large = RoundedCornerShape(24.dp),
     )
 
 val Size35dp = 35.dp
 
-val ButtonBorder = RoundedCornerShape(20.dp)
+val ButtonBorder = RoundedCornerShape(12.dp)
 val Size20Modifier = Modifier.size(20.dp)
 
-val primaryColor = Color(0xFFFFCA62)
-val primaryVariant = Color(0xFFC8541A)
-val secondaryColor = Color(0xFFFFCA62)
-val orange = Color(0xFFFF6B00)
+// New primary colors
+val primaryColor = Color(0xFFD4AF55)
+val primaryVariant = Color(0xFFB8922E)
+val secondaryColor = Color(0xFFD4AF55)
+
+// Semantic colors
+val AmberSubtleDark = Color(0xFFD4AF55).copy(alpha = 0.08f)
+val AmberMutedDark = Color(0xFFD4AF55).copy(alpha = 0.12f)
+val AmberSubtleLight = Color(0xFFB8922E).copy(alpha = 0.06f)
+val AmberMutedLight = Color(0xFFB8922E).copy(alpha = 0.10f)
+val SuccessColor = Color(0xFF66BB6A)
+val SuccessBgDark = Color(0xFF4CAF50).copy(alpha = 0.15f)
+val SuccessColorLight = Color(0xFF2E7D32)
+val SuccessBgLight = Color(0xFF2E7D32).copy(alpha = 0.10f)
+val WarningColor = Color(0xFFFFB74D)
+val WarningBgDark = Color(0xFFFFB74D).copy(alpha = 0.15f)
+val WarningColorLight = Color(0xFFE65100)
+val WarningBgLight = Color(0xFFE65100).copy(alpha = 0.10f)
+val ErrorColor = Color(0xFFEF5350)
+val ErrorBgDark = Color(0xFFEF5350).copy(alpha = 0.15f)
+val ErrorColorLight = Color(0xFFC62828)
+val ErrorBgLight = Color(0xFFC62828).copy(alpha = 0.10f)
+
 val RichTextDefaults = RichTextStyle().resolveDefaults()
 
 private val DarkColorPalette =
     darkColorScheme(
         primary = primaryColor,
-        onPrimary = Color.White,
+        onPrimary = Color(0xFF0F0F14),
         secondary = primaryVariant,
         tertiary = secondaryColor,
-        primaryContainer = secondaryColor,
-        secondaryContainer = secondaryColor,
+        primaryContainer = Color(0xFFD4AF55).copy(alpha = 0.15f),
+        secondaryContainer = Color(0xFFD4AF55).copy(alpha = 0.15f),
+        background = Color(0xFF0F0F14),
+        surface = Color(0xFF16161D),
+        surfaceContainer = Color(0xFF1A1A24),
+        surfaceContainerHigh = Color(0xFF1A1A24),
+        surfaceContainerHighest = Color(0xFF1A1A24),
+        onSurface = Color(0xFFE8E4E0),
+        onSurfaceVariant = Color(0xFF888888),
+        outline = Color.White.copy(alpha = 0.06f),
+        outlineVariant = Color.White.copy(alpha = 0.04f),
+        error = ErrorColor,
     )
 
 private val LightColorPalette =
     lightColorScheme(
-        primary = primaryColor,
-        secondary = primaryVariant,
-        tertiary = secondaryColor,
-        primaryContainer = secondaryColor,
-        secondaryContainer = secondaryColor,
-        surface = Color(0xFFFFDE9E),
-        surfaceContainer = Color(0xFFFFDE9E),
+        primary = Color(0xFFB8922E),
+        onPrimary = Color.White,
+        secondary = Color(0xFFB8922E),
+        tertiary = Color(0xFFB8922E),
+        primaryContainer = Color(0xFFB8922E).copy(alpha = 0.10f),
+        secondaryContainer = Color(0xFFB8922E).copy(alpha = 0.10f),
+        background = Color(0xFFFFFBF5),
+        surface = Color(0xFFF5EFE6),
+        surfaceContainer = Color.White,
+        surfaceContainerHigh = Color.White,
+        surfaceContainerHighest = Color.White,
+        onSurface = Color(0xFF1C1B1F),
+        onSurfaceVariant = Color(0xFF666666),
+        outline = Color.Black.copy(alpha = 0.08f),
+        outlineVariant = Color.Black.copy(alpha = 0.04f),
+        error = ErrorColorLight,
     )
 
 @Suppress("DEPRECATION")
@@ -69,7 +107,7 @@ fun NostrSignerTheme(
     content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) DarkColorPalette else LightColorPalette
-    val typography = if (darkTheme) TypographyDark else Typography
+    val typography = Typography
 
     MaterialTheme(
         colorScheme = colors,

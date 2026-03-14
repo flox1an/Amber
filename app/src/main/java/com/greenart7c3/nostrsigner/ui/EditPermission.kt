@@ -55,7 +55,7 @@ import com.greenart7c3.nostrsigner.ui.components.AmberButton
 import com.greenart7c3.nostrsigner.ui.components.AmberToggles
 import com.greenart7c3.nostrsigner.ui.components.ToggleOption
 import com.greenart7c3.nostrsigner.ui.components.TrustScoreBadge
-import com.greenart7c3.nostrsigner.ui.theme.orange
+import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.utils.TimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -226,7 +226,7 @@ fun EditPermission(
             AmberButton(
                 modifier = Modifier.padding(top = 60.dp, bottom = 60.dp),
                 colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = orange,
+                    containerColor = primaryVariant,
                 ),
                 onClick = {
                     wantsToRemovePermissions = true
