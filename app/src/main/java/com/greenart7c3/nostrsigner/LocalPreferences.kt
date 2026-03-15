@@ -421,6 +421,12 @@ object LocalPreferences {
         }
     }
 
+    fun getAccountPicture(context: Context, npub: String): String {
+        sharedPrefs(context, npub).apply {
+            return getString(PrefKeys.PROFILE_URL.key, "") ?: ""
+        }
+    }
+
     fun updateProxy(
         context: Context,
         useProxy: Boolean,

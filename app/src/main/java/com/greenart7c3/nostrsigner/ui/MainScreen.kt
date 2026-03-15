@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -263,6 +264,7 @@ fun MainScreen(
                     intents = intents,
                     bunkerRequests = bunkerRequests,
                     packageName = packageName,
+                    navController = navController,
                 )
             }
         },
@@ -291,7 +293,13 @@ fun MainScreen(
                 )
             }
         },
-    ) { padding ->
+    ) { scaffoldPadding ->
+        val padding = PaddingValues(
+            top = scaffoldPadding.calculateTopPadding() + 8.dp,
+            bottom = scaffoldPadding.calculateBottomPadding(),
+            start = scaffoldPadding.calculateStartPadding(LayoutDirection.Ltr),
+            end = scaffoldPadding.calculateEndPadding(LayoutDirection.Ltr),
+        )
         var isLoading by remember { mutableStateOf(false) }
         if (isLoading) {
             CenterCircularProgressIndicator(Modifier.padding(padding))
@@ -353,19 +361,12 @@ fun MainScreen(
                     content = {
                         val scrollState = rememberScrollState()
 
-                        val modifier = if (intents.isEmpty() || packageName == null || destinationRoute != Route.IncomingRequest.route) {
-                            Modifier
-                                .fillMaxSize()
-                                .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                        } else {
-                            Modifier
-                                .fillMaxSize()
-                                .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                        }
+                        val modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .padding(horizontal = 16.dp)
+                            .verticalScrollbar(scrollState)
+                            .verticalScroll(scrollState)
                         IncomingRequestScreen(
                             modifier = modifier,
                             intents = intents,
@@ -389,7 +390,8 @@ fun MainScreen(
                             QrCodeScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding),
+                                    .padding(padding)
+                                    .padding(horizontal = 16.dp),
                                 content = content,
                             )
                         }
@@ -465,16 +467,11 @@ fun MainScreen(
                     arguments = listOf(navArgument("packageName") { type = NavType.StringType }),
                     content = {
                         it.arguments?.getString("packageName")?.let { packageName ->
-                            val scrollState = rememberScrollState()
                             EditPermission(
                                 modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .consumeWindowInsets(padding)
-                                    .verticalScrollbar(scrollState)
-                                    .verticalScroll(scrollState)
-                                    .imePadding(),
+                                    .padding(padding),
                                 account = account,
                                 selectedPackage = packageName,
                                 navController = navController,
@@ -490,8 +487,8 @@ fun MainScreen(
                             PaddingValues(
                                 top = padding.calculateTopPadding(),
                                 bottom = padding.calculateBottomPadding(),
-                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                                end = padding.calculateEndPadding(LayoutDirection.Ltr),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                             ),
                             account = account,
                         )
@@ -509,6 +506,7 @@ fun MainScreen(
                             Modifier
                                 .fillMaxSize()
                                 .padding(padding)
+                                .padding(horizontal = 16.dp)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState),
                         )
@@ -535,7 +533,8 @@ fun MainScreen(
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding),
+                                .padding(padding)
+                                .padding(horizontal = 16.dp),
                         )
                     },
                 )
@@ -543,14 +542,11 @@ fun MainScreen(
                 composable(
                     Route.SignPolicy.route,
                     content = {
-                        val scrollState = rememberScrollState()
                         SignPolicySettingsScreen(
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState),
+                                .padding(padding),
                             account = account,
                             navController = navController,
                         )
@@ -573,7 +569,6 @@ fun MainScreen(
                 composable(
                     Route.NewApplication.route,
                     content = {
-                        val scrollState = rememberScrollState()
                         NewApplicationScreen(
                             account = account,
                             navController = navController,
@@ -581,8 +576,7 @@ fun MainScreen(
                             Modifier
                                 .fillMaxSize()
                                 .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState),
+                                .padding(horizontal = 16.dp),
                         )
                     },
                 )
@@ -590,18 +584,13 @@ fun MainScreen(
                 composable(
                     Route.NewNsecBunker.route,
                     content = {
-                        val scrollState = rememberScrollState()
                         NewNsecBunkerScreen(
                             account = account,
                             navController = navController,
                             modifier =
                             Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .consumeWindowInsets(padding)
-                                .imePadding()
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState),
+                                .padding(padding),
                         )
                     },
                 )
@@ -611,16 +600,13 @@ fun MainScreen(
                     arguments = listOf(navArgument("key") { type = NavType.StringType }),
                     content = {
                         it.arguments?.getString("key")?.let { key ->
-                            val scrollState = rememberScrollState()
                             NewNsecBunkerCreatedScreen(
                                 account = account,
                                 key = key,
                                 modifier =
                                 Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .verticalScrollbar(scrollState)
-                                    .verticalScroll(scrollState),
+                                    .padding(padding),
                             )
                         }
                     },
@@ -637,8 +623,8 @@ fun MainScreen(
                                 paddingValues = PaddingValues(
                                     top = padding.calculateTopPadding(),
                                     bottom = padding.calculateBottomPadding(),
-                                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                                    end = padding.calculateEndPadding(LayoutDirection.Ltr),
+                                    start = padding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
+                                    end = padding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                                 ),
                                 topPadding = padding.calculateTopPadding(),
                                 modifier =
@@ -658,8 +644,8 @@ fun MainScreen(
                             paddingValues = PaddingValues(
                                 top = padding.calculateTopPadding(),
                                 bottom = padding.calculateBottomPadding(),
-                                start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                                end = padding.calculateEndPadding(LayoutDirection.Ltr),
+                                start = padding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
+                                end = padding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                             ),
                             topPadding = padding.calculateTopPadding(),
                             modifier =
@@ -682,8 +668,8 @@ fun MainScreen(
                                 paddingValues = PaddingValues(
                                     top = padding.calculateTopPadding(),
                                     bottom = padding.calculateBottomPadding(),
-                                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                                    end = padding.calculateEndPadding(LayoutDirection.Ltr),
+                                    start = padding.calculateStartPadding(LayoutDirection.Ltr) + 16.dp,
+                                    end = padding.calculateEndPadding(LayoutDirection.Ltr) + 16.dp,
                                 ),
                             )
                         }
@@ -717,7 +703,8 @@ fun MainScreen(
                         SetupPinScreen(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(padding),
+                                .padding(padding)
+                                .padding(horizontal = 16.dp),
                             navController = navController,
                         )
                     },
@@ -731,7 +718,8 @@ fun MainScreen(
                             ConfirmPinScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding),
+                                    .padding(padding)
+                                    .padding(horizontal = 16.dp),
                                 pin = pin,
                                 navController = navController,
                             )
@@ -756,14 +744,12 @@ fun MainScreen(
                 composable(
                     Route.RelaysScreen.route,
                     content = {
-                        val scrollState = rememberScrollState()
                         RelaysScreen(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(padding)
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState),
+                                .padding(padding),
                             navController = navController,
+                            account = account,
                         )
                     },
                 )
@@ -776,6 +762,7 @@ fun MainScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(padding)
+                                .padding(horizontal = 16.dp)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState),
                             account = account,
@@ -791,6 +778,7 @@ fun MainScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(padding)
+                                .padding(horizontal = 16.dp)
                                 .verticalScrollbar(scrollState)
                                 .verticalScroll(scrollState),
                             onPost = {
@@ -822,13 +810,10 @@ fun MainScreen(
                     arguments = listOf(navArgument("key") { type = NavType.StringType }),
                     content = {
                         it.arguments?.getString("key")?.let { key ->
-                            val scrollState = rememberScrollState()
                             EditProfileScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(padding)
-                                    .verticalScrollbar(scrollState)
-                                    .verticalScroll(scrollState),
+                                    .padding(padding),
                                 account = account,
                                 accountStateViewModel = accountStateViewModel,
                                 npub = key,

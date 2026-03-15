@@ -114,6 +114,7 @@
     <string name="do_you_really_want_to_disable_tor_text">Your data will be immediately transferred in the regular network</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="or">or</string>
     <string name="could_not_connect_to_tor">Could not connect to Tor</string>
     <string name="relays">Relays</string>
     <string name="push_notifications">Push notifications</string>
@@ -578,7 +579,7 @@
     <string name="reconnect">Reconnect</string>
     <string name="of_connected_relays">%1$d of %2$d connected relays</string>
     <string name="proxy">Proxy</string>
-    <string name="default_relay_text">Default</string>
+    <string name="default_relay_text">Reset to defaults</string>
     <string name="enable_kill_switch">Enable kill switch</string>
     <string name="disable_kill_switch">Disable kill switch</string>
     <string name="kill_switch_message">Kill Switch enabled, remote login and profile fetching will not work</string>
@@ -586,7 +587,7 @@
     <string name="one_hour">One hour</string>
     <string name="one_day">One day</string>
     <string name="one_week">One week</string>
-    <string name="delete_after">Delete after</string>
+    <string name="delete_after">Connection expires</string>
     <string name="crashreport_found">Crash Report found</string>
     <string name="would_you_like_to_send_the_recent_crash_report_to_amber_in_a_dm_no_personal_information_will_be_shared">Would you like to send the recent crash report to Amber in a DM? No personal information will be shared</string>
     <string name="copy_crash_report_to_clipboard">Would you like to copy the crash report to your clipboard and open a Client to send it to Amber?</string>

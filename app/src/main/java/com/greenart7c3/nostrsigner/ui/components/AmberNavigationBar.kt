@@ -1,12 +1,10 @@
 package com.greenart7c3.nostrsigner.ui.components
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
@@ -26,7 +24,6 @@ import com.greenart7c3.nostrsigner.BuildFlavorChecker
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.ui.CenterCircularProgressIndicator
 import com.greenart7c3.nostrsigner.ui.navigation.Route
-import com.greenart7c3.nostrsigner.ui.theme.fromHex
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,19 +42,19 @@ fun AmberNavigationBar(
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items.forEach {
-                val selected = destinationRoute == it.route
+            items.forEach { item ->
+                val selected = destinationRoute == item.route
                 NavigationBarItem(
                     selected = selected,
                     onClick = {
-                        onClick(it)
+                        onClick(item)
                     },
                     icon = {
-                        if (it.route == Route.Accounts.route) {
+                        if (item.route == Route.Accounts.route) {
                             if (!profileUrl.isNullOrBlank() && !BuildFlavorChecker.isOfflineFlavor()) {
                                 SubcomposeAsyncImage(
                                     profileUrl,
-                                    it.route,
+                                    item.route,
                                     Modifier
                                         .clip(
                                             RoundedCornerShape(50),
@@ -67,33 +64,33 @@ fun AmberNavigationBar(
                                     loading = {
                                         CenterCircularProgressIndicator(Modifier)
                                     },
-                                    error = { error ->
+                                    error = {
                                         Icon(
                                             Icons.Outlined.Person,
-                                            it.route,
-                                            modifier = Modifier.border(
-                                                2.dp,
-                                                Color.fromHex(account.hexKey.slice(0..5)),
-                                                CircleShape,
-                                            ),
+                                            item.route,
+                                            tint = if (selected) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                Color(0xFF555555)
+                                            },
                                         )
                                     },
                                 )
                             } else {
                                 Icon(
                                     Icons.Outlined.Person,
-                                    it.route,
-                                    modifier = Modifier.border(
-                                        2.dp,
-                                        Color.fromHex(account.hexKey.slice(0..5)),
-                                        CircleShape,
-                                    ),
+                                    item.route,
+                                    tint = if (selected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        Color(0xFF555555)
+                                    },
                                 )
                             }
                         } else {
                             Icon(
-                                painterResource(it.icon),
-                                it.route,
+                                painterResource(item.icon),
+                                item.route,
                                 tint = if (selected) {
                                     MaterialTheme.colorScheme.primary
                                 } else {

@@ -30,7 +30,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -105,7 +104,6 @@ import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.service.AccountExportService
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
 import com.greenart7c3.nostrsigner.ui.components.AmberElevatedButton
-import com.greenart7c3.nostrsigner.ui.components.IconRow
 import com.greenart7c3.nostrsigner.ui.components.TitleExplainer
 import com.greenart7c3.nostrsigner.ui.navigation.Route
 import com.greenart7c3.nostrsigner.ui.theme.RichTextDefaults
@@ -116,7 +114,6 @@ import com.halilibo.richtext.ui.material3.RichText
 import com.vitorpamplona.quartz.nip01Core.crypto.KeyPair
 import com.vitorpamplona.quartz.nip06KeyDerivation.Bip39Mnemonics
 import com.vitorpamplona.quartz.nip06KeyDerivation.Nip06
-import com.vitorpamplona.quartz.nip19Bech32.toNpub
 import com.vitorpamplona.quartz.utils.RandomInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -445,17 +442,11 @@ fun SignUpPage(
     onFinish: () -> Unit,
 ) {
     var loading by remember { mutableStateOf(false) }
-    val configuration = LocalConfiguration.current
-    val screenWidthDp = configuration.screenWidthDp.dp
-    val percentage = (screenWidthDp * 0.93f)
-    val verticalPadding = (screenWidthDp - percentage)
     var nickname by remember { mutableStateOf(TextFieldValue()) }
     var keyPair by remember { mutableStateOf(KeyPair()) }
-    val state = rememberPagerState {
-        2
-    }
     val context = LocalContext.current
     var seedWords by remember { mutableStateOf(setOf<String>()) }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
@@ -472,329 +463,99 @@ fun SignUpPage(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    when (state.currentPage) {
-                        0 -> {
-                            Text(text = stringResource(R.string.generate_a_new_key))
-                        }
-                        else -> {
-                            Text(text = stringResource(R.string.permissions_and_connection))
-                        }
+                navigationIcon = {
+                    IconButton(
+                        onClick = { scope.launch { navController.navigateUp() } },
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.back),
+                            contentDescription = stringResource(R.string.go_back),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
                     }
+                },
+                title = {
+                    Text(text = stringResource(R.string.generate_a_new_key))
                 },
             )
         },
-        bottomBar = {
-            BottomAppBar {
-                IconRow(
-                    center = true,
-                    title = stringResource(R.string.go_back),
-                    icon = ImageVector.vectorResource(R.drawable.back),
-                    onClick = {
-                        if (state.currentPage > 0) {
-                            scope.launch {
-                                state.animateScrollToPage(state.currentPage - 1)
-                            }
-                        } else {
-                            scope.launch {
-                                navController.navigateUp()
-                            }
-                        }
-                    },
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        },
-    ) {
+    ) { paddingValues ->
         if (loading) {
             CenterCircularProgressIndicator(
                 Modifier.fillMaxSize(),
                 stringResource(R.string.do_not_leave_the_app_until_the_key_is_generated),
             )
         } else {
-            HorizontalPager(
-                modifier = Modifier
-                    .fillMaxSize(),
-                state = state,
-                userScrollEnabled = false,
-            ) { page ->
-                when (page) {
-                    0 -> {
-                        val scrollState = rememberScrollState()
-                        val keyboardController = LocalSoftwareKeyboardController.current
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(it)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f)
-                                .imePadding(),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.your_nostr_account_is_ready),
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp),
-                            )
-                            Text(
-                                text = stringResource(R.string.your_nostr_account_explainer),
-                                modifier = Modifier.padding(bottom = 8.dp),
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.primaryContainer),
-                            ) {
-                                Text(
-                                    text = keyPair.pubKey.toNpub(),
-                                    modifier = Modifier.padding(10.dp),
-                                )
-                            }
-                            Spacer(Modifier.height(8.dp))
-                            Text(stringResource(R.string.you_will_find_it_in_your_account_section_so_you_don_t_need_to_copy_it_right_now))
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp)
+                    .imePadding(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.weight(0.2f))
 
-                            Text(
-                                text = stringResource(R.string.please_add_a_nickname_later_you_will_able_to_personalise_your_full_profile_bio_pic_etc_using_your_preferred_nostr_client),
-                                modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
-                            )
-                            OutlinedTextField(
-                                value = nickname,
-                                onValueChange = { value ->
-                                    nickname = value
-                                },
-                                placeholder = {
-                                    Text(
-                                        stringResource(R.string.nickname),
-                                        color = TextFieldDefaults.colors().unfocusedPlaceholderColor,
-                                    )
-                                },
-                                keyboardOptions = KeyboardOptions(
-                                    capitalization = KeyboardCapitalization.None,
-                                    autoCorrectEnabled = false,
-                                    imeAction = ImeAction.Done,
-                                ),
-                                keyboardActions = KeyboardActions(
-                                    onDone = {
-                                        keyboardController?.hide()
-                                    },
-                                ),
-                                modifier = Modifier.fillMaxWidth(),
-                            )
+                Text(
+                    text = stringResource(R.string.nickname),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = stringResource(R.string.please_add_a_nickname_later_you_will_able_to_personalise_your_full_profile_bio_pic_etc_using_your_preferred_nostr_client),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
+                    textAlign = TextAlign.Center,
+                )
 
-                            AmberButton(
-                                enabled = nickname.text.isNotBlank(),
-                                modifier = Modifier.padding(vertical = 40.dp),
-                                onClick = {
-                                    if (nickname.text.isBlank()) {
-                                        Toast.makeText(
-                                            context,
-                                            "Nickname is required",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                        return@AmberButton
-                                    }
-                                    keyboardController?.hide()
-                                    scope.launch {
-                                        state.animateScrollToPage(1)
-                                    }
-                                },
-                                text = stringResource(R.string.continue_button),
-                            )
-                        }
-                    }
-
-                    1 -> {
-                        val scrollState = rememberScrollState()
-                        val radioOptions = listOf(
-                            TitleExplainer(
-                                title = stringResource(R.string.sign_policy_basic),
-                                explainer = stringResource(R.string.sign_policy_basic_explainer),
-                            ),
-                            TitleExplainer(
-                                title = stringResource(R.string.sign_policy_manual),
-                                explainer = stringResource(R.string.sign_policy_manual_explainer),
-                            ),
+                OutlinedTextField(
+                    value = nickname,
+                    onValueChange = { value -> nickname = value },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.nickname),
+                            color = TextFieldDefaults.colors().unfocusedPlaceholderColor,
                         )
-                        var selectedOption by remember { mutableIntStateOf(0) }
-                        var useProxy by remember { mutableStateOf(false) }
-                        var proxyPort by remember { mutableStateOf(TextFieldValue("9050")) }
-                        Column(
-                            Modifier
-                                .fillMaxSize()
-                                .verticalScrollbar(scrollState)
-                                .verticalScroll(scrollState)
-                                .padding(it)
-                                .padding(horizontal = verticalPadding)
-                                .padding(top = verticalPadding * 1.5f),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.sign_policy_explainer),
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Done,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide() },
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+
+                Spacer(Modifier.weight(0.3f))
+
+                AmberButton(
+                    enabled = nickname.text.isNotBlank(),
+                    onClick = {
+                        keyboardController?.hide()
+                        Amber.instance.applicationIOScope.launch {
+                            loading = true
+                            accountViewModel.newKey(
+                                useProxy = false,
+                                signPolicy = 0,
+                                proxyPort = 9050,
+                                seedWords = seedWords,
+                                name = nickname.text,
                             )
-                            Column(
-                                Modifier.padding(vertical = 10.dp),
-                            ) {
-                                radioOptions.forEachIndexed { index, option ->
-                                    Row(
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .selectable(
-                                                selected = selectedOption == index,
-                                                onClick = {
-                                                    selectedOption = index
-                                                },
-                                            )
-                                            .border(
-                                                width = 1.dp,
-                                                color = if (selectedOption == index) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    Color.Transparent
-                                                },
-                                                shape = RoundedCornerShape(8.dp),
-                                            )
-                                            .padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        RadioButton(
-                                            selected = selectedOption == index,
-                                            onClick = {
-                                                selectedOption = index
-                                            },
-                                        )
-                                        Column(
-                                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                                        ) {
-                                            Text(
-                                                text = option.title,
-                                                modifier = Modifier.padding(start = 16.dp),
-                                                style = MaterialTheme.typography.titleLarge,
-                                            )
-                                            option.explainer?.let { explainer ->
-                                                Text(
-                                                    text = explainer,
-                                                    modifier = Modifier.padding(start = 16.dp),
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
+                            loading = false
+                            Amber.instance.applicationIOScope.launch(Dispatchers.Main) {
+                                onFinish()
                             }
-
-                            if (LocalPreferences.allSavedAccounts(context).isEmpty()) {
-                                Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(vertical = 20.dp)
-                                        .clickable {
-                                            useProxy = !useProxy
-                                        },
-                                ) {
-                                    Switch(
-                                        modifier = Modifier.scale(0.85f),
-                                        checked = useProxy,
-                                        onCheckedChange = { value ->
-                                            useProxy = value
-                                        },
-                                    )
-                                    Text(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(start = 8.dp),
-                                        text = stringResource(R.string.connect_through_your_orbot_setup),
-                                    )
-                                }
-
-                                if (useProxy) {
-                                    val myMarkDownStyle =
-                                        RichTextDefaults.copy(
-                                            stringStyle = RichTextDefaults.stringStyle?.copy(
-                                                linkStyle = TextLinkStyles(
-                                                    SpanStyle(
-                                                        textDecoration = TextDecoration.Underline,
-                                                        color = MaterialTheme.colorScheme.primary,
-                                                    ),
-                                                ),
-                                            ),
-                                        )
-                                    val content1 = stringResource(R.string.connect_through_your_orbot_setup_markdown2)
-
-                                    val astNode1 =
-                                        remember {
-                                            CommonmarkAstNodeParser(CommonMarkdownParseOptions.MarkdownWithLinks).parse(content1)
-                                        }
-
-                                    RichText(
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        style = myMarkDownStyle,
-                                        renderer = null,
-                                    ) {
-                                        BasicMarkdown(astNode1)
-                                    }
-
-                                    OutlinedTextField(
-                                        value = proxyPort,
-                                        onValueChange = { value ->
-                                            proxyPort = value
-                                        },
-                                        label = {
-                                            Text(
-                                                text = stringResource(R.string.orbot_socks_port),
-                                                color = TextFieldDefaults.colors().unfocusedPlaceholderColor,
-                                            )
-                                        },
-                                        placeholder = {
-                                            Text(
-                                                stringResource(R.string.orbot_socks_port),
-                                                color = TextFieldDefaults.colors().unfocusedPlaceholderColor,
-                                            )
-                                        },
-                                        keyboardOptions = KeyboardOptions(
-                                            capitalization = KeyboardCapitalization.None,
-                                            autoCorrectEnabled = false,
-                                            imeAction = ImeAction.Next,
-                                            keyboardType = KeyboardType.Number,
-                                        ),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 20.dp),
-                                    )
-                                }
-                            }
-                            AmberButton(
-                                modifier = Modifier
-                                    .padding(vertical = 20.dp),
-                                onClick = {
-                                    if (proxyPort.text.toIntOrNull() == null) {
-                                        Toast.makeText(
-                                            context,
-                                            "Invalid port number",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                        return@AmberButton
-                                    }
-
-                                    Amber.instance.applicationIOScope.launch {
-                                        loading = true
-                                        accountViewModel.newKey(
-                                            useProxy = useProxy,
-                                            signPolicy = selectedOption,
-                                            proxyPort = proxyPort.text.toInt(),
-                                            seedWords = seedWords,
-                                            name = nickname.text,
-                                        )
-                                        loading = false
-                                        Amber.instance.applicationIOScope.launch(Dispatchers.Main) {
-                                            onFinish()
-                                        }
-                                    }
-                                },
-                                text = stringResource(R.string.finish),
-                            )
                         }
-                    }
-                }
+                    },
+                    text = stringResource(R.string.finish),
+                )
+
+                Spacer(Modifier.height(32.dp))
             }
         }
     }
@@ -838,6 +599,27 @@ fun LoginPage(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (pageState.currentPage > 0) {
+                                scope.launch {
+                                    pageState.animateScrollToPage(pageState.currentPage - 1)
+                                }
+                            } else {
+                                scope.launch {
+                                    navController.navigateUp()
+                                }
+                            }
+                        },
+                    ) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.back),
+                            contentDescription = stringResource(R.string.go_back),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                },
                 title = {
                     if (pageState.currentPage == 0) {
                         Text(text = stringResource(R.string.add_a_key))
@@ -846,27 +628,6 @@ fun LoginPage(
                     }
                 },
             )
-        },
-        bottomBar = {
-            BottomAppBar {
-                IconRow(
-                    center = true,
-                    title = stringResource(R.string.go_back),
-                    icon = ImageVector.vectorResource(R.drawable.back),
-                    onClick = {
-                        if (pageState.currentPage > 0) {
-                            scope.launch {
-                                pageState.animateScrollToPage(pageState.currentPage - 1)
-                            }
-                        } else {
-                            scope.launch {
-                                navController.navigateUp()
-                            }
-                        }
-                    },
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         },
     ) {
         HorizontalPager(

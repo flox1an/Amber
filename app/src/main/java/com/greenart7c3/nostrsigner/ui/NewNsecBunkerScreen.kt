@@ -1,24 +1,31 @@
 package com.greenart7c3.nostrsigner.ui
 
 import android.content.ClipData
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,18 +38,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.greenart7c3.nostrsigner.Amber
@@ -66,28 +73,19 @@ fun NewNsecBunkerScreen(
     val secret = remember { mutableStateOf(UUID.randomUUID().toString()) }
     var name by remember { mutableStateOf(TextFieldValue(AnnotatedString(""))) }
     val context = LocalContext.current
-
-    val relays =
-        remember {
-            mutableStateListOf(*Amber.instance.settings.defaultRelays.toTypedArray())
-        }
-
-    val textFieldRelay = remember {
-        mutableStateOf(TextFieldValue(""))
-    }
+    val relays = remember { mutableStateListOf(*Amber.instance.settings.defaultRelays.toTypedArray()) }
+    val textFieldRelay = remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
     val isLoading = remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-    val deleteAfterItems =
-        persistentListOf(
-            TitleExplainer(stringResource(DeleteAfterType.NEVER.resourceId)),
-            TitleExplainer(stringResource(DeleteAfterType.FIVE_MINUTES.resourceId)),
-            TitleExplainer(stringResource(DeleteAfterType.TEN_MINUTES.resourceId)),
-            TitleExplainer(stringResource(DeleteAfterType.ONE_HOUR.resourceId)),
-            TitleExplainer(stringResource(DeleteAfterType.ONE_DAY.resourceId)),
-            TitleExplainer(stringResource(DeleteAfterType.ONE_WEEK.resourceId)),
-        )
+    val deleteAfterItems = persistentListOf(
+        TitleExplainer(stringResource(DeleteAfterType.NEVER.resourceId)),
+        TitleExplainer(stringResource(DeleteAfterType.FIVE_MINUTES.resourceId)),
+        TitleExplainer(stringResource(DeleteAfterType.TEN_MINUTES.resourceId)),
+        TitleExplainer(stringResource(DeleteAfterType.ONE_HOUR.resourceId)),
+        TitleExplainer(stringResource(DeleteAfterType.ONE_DAY.resourceId)),
+        TitleExplainer(stringResource(DeleteAfterType.ONE_WEEK.resourceId)),
+    )
     var deleteAfterIndex by remember { mutableIntStateOf(DeleteAfterType.NEVER.screenCode) }
 
     LaunchedEffect(Unit) {
@@ -97,151 +95,237 @@ fun NewNsecBunkerScreen(
     if (isLoading.value) {
         CenterCircularProgressIndicator(
             modifier = Modifier,
-            text = "Testing the relay...",
+            text = stringResource(R.string.testing_relay),
         )
     } else {
-        Column(
-            modifier = modifier
-                .fillMaxSize(),
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            Text(stringResource(R.string.create_nsecbunker_description))
+            // Description
+            item {
+                Text(
+                    stringResource(R.string.create_nsecbunker_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text(stringResource(R.string.name)) },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    },
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .padding(vertical = 20.dp),
-            )
+            // Name field
+            item {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.name)) },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Done,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
+                )
+            }
 
-            Box {
-                SettingsRow(
-                    R.string.delete_after,
-                    null,
-                    deleteAfterItems,
-                    deleteAfterIndex,
+            // Delete after setting
+            item {
+                var showDialog by remember { mutableStateOf(false) }
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text(stringResource(R.string.delete_after)) },
+                        text = {
+                            Column {
+                                deleteAfterItems.forEachIndexed { index, item ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                deleteAfterIndex = index
+                                                showDialog = false
+                                            }
+                                            .padding(vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        RadioButton(
+                                            selected = deleteAfterIndex == index,
+                                            onClick = {
+                                                deleteAfterIndex = index
+                                                showDialog = false
+                                            },
+                                        )
+                                        Text(
+                                            text = item.title,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {},
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.delete_after).uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showDialog = true },
                 ) {
-                    deleteAfterIndex = it
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.delete_after),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                text = deleteAfterItems[deleteAfterIndex].title,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
 
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    value = textFieldRelay.value.text,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done,
-                    ),
-                    onValueChange = {
-                        textFieldRelay.value = TextFieldValue(it)
-                    },
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            scope.launch(Dispatchers.IO) {
-                                onAddRelay(
-                                    textFieldRelay,
-                                    isLoading,
-                                    relays,
-                                    scope,
-                                    account = account,
-                                    context,
-                                    onDone = {
-                                    },
-                                )
-                            }
-                        },
-                    ),
-                    label = {
-                        Text(stringResource(R.string.wss))
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            colors = IconButtonDefaults.iconButtonColors().copy(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    onAddRelay(
-                                        textFieldRelay,
-                                        isLoading,
-                                        relays,
-                                        scope,
-                                        account = account,
-                                        context,
-                                        onDone = {
-                                        },
+            // Relays section
+            item {
+                Text(
+                    text = stringResource(R.string.relays).uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                if (relays.isNotEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        Column {
+                            relays.forEachIndexed { index, relay ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = relay.url,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    IconButton(onClick = { relays.removeAt(index) }) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Remove",
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                                if (index < relays.lastIndex) {
+                                    HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        modifier = Modifier.padding(start = 16.dp),
                                     )
                                 }
-                            },
-                        ) {
-                            Icon(
-                                Icons.Default.Add,
-                                null,
-                            )
+                            }
                         }
-                    },
-                )
+                    }
+                }
+
+                // Add relay field
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = textFieldRelay.value.text,
+                        onValueChange = { textFieldRelay.value = TextFieldValue(it) },
+                        label = { Text(stringResource(R.string.wss)) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.None,
+                            autoCorrectEnabled = false,
+                            imeAction = ImeAction.Done,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                scope.launch(Dispatchers.IO) {
+                                    onAddRelay(textFieldRelay, isLoading, relays, scope, account, context, onDone = {})
+                                }
+                            },
+                        ),
+                    )
+                    Surface(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clickable {
+                                scope.launch(Dispatchers.IO) {
+                                    onAddRelay(textFieldRelay, isLoading, relays, scope, account, context, onDone = {})
+                                }
+                            },
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                    ) {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add",
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.padding(12.dp),
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Create button
+            item {
+                val title = stringResource(R.string.relays)
+                val noRelaysMessage = stringResource(R.string.no_relays_added)
+                val noNameMessage = stringResource(R.string.name_cannot_be_empty)
 
-            relays.forEachIndexed { index, relay ->
-                RelayCard(
-                    relay = relay.url,
+                AmberButton(
+                    text = stringResource(R.string.create),
                     onClick = {
-                        relays.removeAt(index)
-                    },
-                )
-            }
-
-            val title = stringResource(R.string.relays)
-            val noRelaysMessage = stringResource(R.string.no_relays_added)
-            val noNameMessage = stringResource(R.string.name_cannot_be_empty)
-
-            AmberButton(
-                Modifier.padding(top = 20.dp),
-                text = stringResource(R.string.create),
-                onClick = {
-                    if (relays.isEmpty()) {
-                        ToastManager.toast(
-                            title,
-                            noRelaysMessage,
-                        )
-
-                        return@AmberButton
-                    }
-
-                    if (name.text.isBlank()) {
-                        ToastManager.toast(
-                            title,
-                            noNameMessage,
-                        )
-
-                        return@AmberButton
-                    }
-
-                    scope.launch(Dispatchers.IO) {
-                        val deleteAfter = deleteAfterToSeconds(parseDeleteAfterType(deleteAfterIndex))
-
-                        val application =
-                            ApplicationEntity(
+                        if (relays.isEmpty()) {
+                            ToastManager.toast(title, noRelaysMessage)
+                            return@AmberButton
+                        }
+                        if (name.text.isBlank()) {
+                            ToastManager.toast(title, noNameMessage)
+                            return@AmberButton
+                        }
+                        scope.launch(Dispatchers.IO) {
+                            val deleteAfter = deleteAfterToSeconds(parseDeleteAfterType(deleteAfterIndex))
+                            val application = ApplicationEntity(
                                 key = secret.value,
                                 name = name.text,
                                 relays = relays,
@@ -257,16 +341,14 @@ fun NewNsecBunkerScreen(
                                 deleteAfter = deleteAfter,
                                 lastUsed = 0L,
                             )
-
-                        Amber.instance.getDatabase(account.npub).dao().insertApplication(
-                            application,
-                        )
-                        scope.launch(Dispatchers.Main) {
-                            navController.navigate("NewNsecBunkerCreated/${secret.value}")
+                            Amber.instance.getDatabase(account.npub).dao().insertApplication(application)
+                            scope.launch(Dispatchers.Main) {
+                                navController.navigate("NewNsecBunkerCreated/${secret.value}")
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
     }
 }
@@ -305,15 +387,12 @@ fun NewNsecBunkerCreatedScreen(
             }
         }
 
-        Column(
-            modifier = modifier
-                .fillMaxSize(),
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
+            item {
                 Text(
                     text = stringResource(R.string.your_nsec_bunker_has_been_created),
                     style = MaterialTheme.typography.headlineSmall,
@@ -321,35 +400,45 @@ fun NewNsecBunkerCreatedScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Text(
+                    stringResource(R.string.use_this_url_in_your_app),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
-            Text(stringResource(R.string.use_this_url_in_your_app))
+            item {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Text(
+                        bunkerUri,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(16.dp),
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            item {
+                QrCodeDrawer(bunkerUri)
+            }
 
-            Text(
-                bunkerUri,
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            QrCodeDrawer(bunkerUri)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            AmberButton(
-                onClick = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(
-                            ClipEntry(
-                                ClipData.newPlainText("", bunkerUri),
-                            ),
-                        )
-                    }
-                },
-                text = stringResource(R.string.copy_to_clipboard),
-            )
+            item {
+                AmberButton(
+                    onClick = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(
+                                ClipEntry(
+                                    ClipData.newPlainText("", bunkerUri),
+                                ),
+                            )
+                        }
+                    },
+                    text = stringResource(R.string.copy_to_clipboard),
+                )
+            }
         }
     }
 }

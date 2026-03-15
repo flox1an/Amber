@@ -24,9 +24,10 @@ fun SimpleQrCodeScanner(onScan: (String?) -> Unit) {
     val scanOptions =
         ScanOptions().apply {
             setDesiredBarcodeFormats(ScanOptions.QR_CODE)
-            setPrompt("Point to the QR Code")
+            setPrompt("")
             setBeepEnabled(false)
             setOrientationLocked(false)
+            setCaptureActivity(CustomScannerActivity::class.java)
             addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN)
         }
 

@@ -20,33 +20,38 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.greenart7c3.nostrsigner.Amber
 
-private val HEX_REGEX = Regex("^[0-9a-fA-F]{64}$")
-
-private fun String.isHexKey() = HEX_REGEX.matches(this)
-
 @Composable
 fun AppIcon(key: String, name: String, size: Dp = 40.dp) {
-    if (!key.isHexKey()) {
-        val appInfo = remember(key) {
+    // Try to load Android app icon using key as package name first,
+    // then try name as package name (for bunker apps where key is hex but name might be a package)
+    val icon: Drawable? = remember(key, name) {
+        // Try key as package name
+        val fromKey = runCatching {
+            val appInfo = Amber.instance.packageManager.getApplicationInfo(key, 0)
+            Amber.instance.packageManager.getApplicationIcon(appInfo)
+        }.getOrNull()
+        if (fromKey != null) return@remember fromKey
+
+        // Try name as package name (some apps store package name in the name field)
+        if (name.contains(".") && name != key) {
             runCatching {
-                Amber.instance.packageManager.getApplicationInfo(key, 0)
+                val appInfo = Amber.instance.packageManager.getApplicationInfo(name, 0)
+                Amber.instance.packageManager.getApplicationIcon(appInfo)
             }.getOrNull()
+        } else {
+            null
         }
-        val icon: Drawable? = remember(appInfo) {
-            appInfo?.let {
-                runCatching { Amber.instance.packageManager.getApplicationIcon(it) }.getOrNull()
-            }
-        }
-        if (icon != null) {
-            Image(
-                bitmap = icon.toBitmap().asImageBitmap(),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(size)
-                    .clip(RoundedCornerShape(8.dp)),
-            )
-            return
-        }
+    }
+
+    if (icon != null) {
+        Image(
+            bitmap = icon.toBitmap().asImageBitmap(),
+            contentDescription = null,
+            modifier = Modifier
+                .size(size)
+                .clip(RoundedCornerShape(8.dp)),
+        )
+        return
     }
 
     val displayName = name.ifBlank { key }

@@ -5,20 +5,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,15 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.Pager
@@ -52,10 +49,8 @@ import com.greenart7c3.nostrsigner.service.ApplicationNameCache
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.components.AppIcon
-import com.greenart7c3.nostrsigner.ui.components.EventSection
 import com.greenart7c3.nostrsigner.ui.components.SimpleSearchBar
-import com.greenart7c3.nostrsigner.ui.components.TagsSection
-import com.greenart7c3.nostrsigner.ui.components.copyToClipboard
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -68,16 +63,12 @@ fun ActivitiesScreen(
     account: Account,
 ) {
     val database = Amber.instance.getHistoryDatabase(account.npub)
-
     val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
 
     val pager = remember(searchQuery) {
         Pager(
-            PagingConfig(
-                pageSize = 20,
-                enablePlaceholders = false,
-            ),
+            PagingConfig(pageSize = 20, enablePlaceholders = false),
         ) {
             if (searchQuery.isEmpty()) {
                 database.dao().getAllHistoryPaging()
@@ -88,39 +79,31 @@ fun ActivitiesScreen(
     }
 
     val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
-
     val textFieldState by remember { mutableStateOf(TextFieldState(initialText = searchQuery)) }
 
-    Column(
-        modifier = modifier.padding(top = topPadding),
-    ) {
+    Column(modifier = modifier) {
         SimpleSearchBar(
             modifier = Modifier
-                .padding(start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr), end = paddingValues.calculateRightPadding(LayoutDirection.Ltr))
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             textFieldState = textFieldState,
-            onSearch = {
-                searchQuery = it
-            },
+            onSearch = { searchQuery = it },
             searchResults = supportedKindNumbers.map { it.toLocalizedString(context, true) },
         )
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
-                if (lazyPagingItems.itemCount == 0) {
+            if (lazyPagingItems.itemCount == 0) {
+                item {
                     Text(
                         stringResource(R.string.no_activities_found),
-                        Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                            .padding(top = 32.dp),
+                        style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -138,13 +121,12 @@ fun ActivitiesScreen(
                 when (loadState.refresh) {
                     is LoadState.Loading -> item {
                         Log.d("ActivitiesScreen", "Loading...")
-                        Text("Loading...", Modifier.padding(16.dp))
+                        CenterCircularProgressIndicator(Modifier.padding(16.dp))
                     }
                     is LoadState.Error -> item {
-                        Log.d("ActivitiesScreen", "Error loading data")
                         Text("Error loading data", Modifier.padding(16.dp))
                     }
-                    is LoadState.NotLoading -> { }
+                    is LoadState.NotLoading -> {}
                 }
             }
         }
@@ -153,7 +135,6 @@ fun ActivitiesScreen(
 
 @Composable
 fun ActivityRow(activity: HistoryEntity, account: Account) {
-    val clipboard = LocalClipboard.current
     val parsedEvent = remember(activity.content) {
         if (activity.content.isBlank()) {
             null
@@ -162,87 +143,134 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
         }
     }
 
-    Column {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // App icon
+            ApplicationIconWithName(
+                key = activity.pkKey,
+                account = account,
+            )
+
+            // Content
             Column(
-                modifier = Modifier.fillMaxWidth(0.9f),
-                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                ApplicationName(
+                // App name + time row
+                ApplicationNameRow(
                     key = activity.pkKey,
-                    accepted = activity.accepted,
                     account = account,
+                    time = activity.time,
                 )
 
+                // Permission type
                 Text(
                     text = activity.translatedPermission,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (activity.accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
-                if (parsedEvent != null) {
-                    if (parsedEvent.content.isNotBlank()) {
-                        Spacer(Modifier.height(4.dp))
-                        EventSection(
-                            padding = 0.dp,
-                            label = stringResource(R.string.content),
-                            displayValue = parsedEvent.content,
-                            onCopy = { copyToClipboard(clipboard, parsedEvent.content) },
-                        )
-                    }
-                    if (parsedEvent.tags.isNotEmpty()) {
-                        Spacer(Modifier.height(4.dp))
-                        TagsSection(
-                            horizontalPadding = 0,
-                            verticalPadding = 0,
-                            label = stringResource(R.string.tags),
-                            tags = parsedEvent.tags,
-                            onCopy = {
-                                copyToClipboard(
-                                    clipboard,
-                                    parsedEvent.tags.joinToString(separator = ", ") {
-                                        "[${it.joinToString(separator = ", ") { tag -> "\"$tag\"" }}]"
-                                    },
-                                )
-                            },
-                        )
-                    }
-                } else if (activity.content.isNotBlank()) {
-                    Spacer(Modifier.height(4.dp))
+                // Event content preview (if available)
+                if (parsedEvent != null && parsedEvent.content.isNotBlank()) {
                     Text(
-                        modifier = Modifier.padding(top = 2.dp),
-                        text = activity.content,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 3,
+                        text = parsedEvent.content,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        color = if (activity.accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else if (activity.content.isNotBlank() && parsedEvent == null) {
+                    Text(
+                        text = activity.content,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-
-                Text(
-                    modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
-                    text = TimeUtils.formatLongToCustomDateTimeWithSeconds(activity.time * 1000),
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
+
+            // Status icon
             Icon(
                 if (activity.accepted) Icons.Default.Check else Icons.Default.Close,
                 contentDescription = null,
-                tint = if (activity.accepted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(start = 10.dp, top = 4.dp, bottom = 16.dp),
+                tint = if (activity.accepted) AmberColors.success() else AmberColors.error(),
+                modifier = Modifier.size(20.dp),
             )
         }
-        Spacer(Modifier.weight(1f))
-        HorizontalDivider(color = MaterialTheme.colorScheme.primary)
+    }
+}
+
+@Composable
+private fun ApplicationIconWithName(key: String, account: Account) {
+    var name by remember { mutableStateOf("") }
+
+    LaunchedEffect(key) {
+        launch(Dispatchers.IO) {
+            val cacheKey = "${account.npub.toShortenHex()}-$key"
+            val cached = ApplicationNameCache.names[cacheKey]
+            if (cached != null) {
+                name = cached
+            } else {
+                val app = Amber.instance.getDatabase(account.npub).dao().getByKey(key)
+                app?.let {
+                    name = it.application.name
+                    ApplicationNameCache.names[cacheKey] = it.application.name
+                }
+            }
+        }
+    }
+
+    AppIcon(key = key, name = name, size = 36.dp)
+}
+
+@Composable
+private fun ApplicationNameRow(key: String, account: Account, time: Long) {
+    var name by remember { mutableStateOf("") }
+
+    LaunchedEffect(key) {
+        launch(Dispatchers.IO) {
+            val cacheKey = "${account.npub.toShortenHex()}-$key"
+            val cached = ApplicationNameCache.names[cacheKey]
+            if (cached != null) {
+                name = cached
+            } else {
+                val app = Amber.instance.getDatabase(account.npub).dao().getByKey(key)
+                app?.let {
+                    name = it.application.name
+                    ApplicationNameCache.names[cacheKey] = it.application.name
+                }
+            }
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = name.ifBlank { key.toShortenHex() },
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            text = TimeUtils.formatLongToCustomDateTimeWithSeconds(time * 1000),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -280,7 +308,7 @@ fun ApplicationName(
             text = name.ifBlank { key.toShortenHex() },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = if (accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = if (accepted) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold,
         )
     }

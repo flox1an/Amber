@@ -2,22 +2,41 @@ package com.greenart7c3.nostrsigner.ui
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.LocalPreferences
 import com.greenart7c3.nostrsigner.R
-import com.greenart7c3.nostrsigner.ui.components.TitleExplainer
 import java.io.IOException
 import kotlinx.collections.immutable.ImmutableMap
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParser
@@ -29,29 +48,60 @@ fun LanguageScreen(
 ) {
     val context = LocalContext.current
     val languageEntries = remember { context.getLangPreferenceDropdownEntries() }
-    val languageList = remember { languageEntries.keys.map { TitleExplainer(it) }.toImmutableList() }
-    val languageIndex = getLanguageIndex(languageEntries, Amber.instance.settings.language)
+    val languageNames = remember { languageEntries.keys.toList() }
+    val languageTags = remember { languageEntries.values.toList() }
+    var selectedIndex by remember { mutableIntStateOf(getLanguageIndex(languageEntries, Amber.instance.settings.language)) }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize(),
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        Column {
-            Box(
-                Modifier,
+        item {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
-                SettingsRow(
-                    R.string.language,
-                    R.string.language_description,
-                    languageList,
-                    languageIndex,
-                ) {
-                    Amber.instance.applicationIOScope.launch {
-                        Amber.instance.settings.language = languageEntries[languageList[it].title]
-                        LocalPreferences.saveSettingsToEncryptedStorage(Amber.instance.settings)
-                        AppCompatDelegate.setApplicationLocales(
-                            LocaleListCompat.forLanguageTags(Amber.instance.settings.language),
-                        )
+                Column {
+                    languageNames.forEachIndexed { index, name ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedIndex = index
+                                    Amber.instance.applicationIOScope.launch {
+                                        Amber.instance.settings.language = languageTags[index]
+                                        LocalPreferences.saveSettingsToEncryptedStorage(Amber.instance.settings)
+                                        AppCompatDelegate.setApplicationLocales(
+                                            LocaleListCompat.forLanguageTags(languageTags[index]),
+                                        )
+                                    }
+                                }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                text = name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f),
+                            )
+                            if (index == selectedIndex) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                        if (index < languageNames.lastIndex) {
+                            HorizontalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                modifier = Modifier.padding(start = 16.dp),
+                            )
+                        }
                     }
                 }
             }

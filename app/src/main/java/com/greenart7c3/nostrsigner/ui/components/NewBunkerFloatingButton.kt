@@ -26,11 +26,13 @@ fun NewBunkerFloatingButton(
         FloatingActionButton(
             modifier = Modifier
                 .padding(end = 8.dp),
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             elevation = FloatingActionButtonDefaults.elevation(
-                defaultElevation = 0.dp,
-                focusedElevation = 0.dp,
-                hoveredElevation = 0.dp,
-                pressedElevation = 0.dp,
+                defaultElevation = 6.dp,
+                focusedElevation = 6.dp,
+                hoveredElevation = 8.dp,
+                pressedElevation = 12.dp,
             ),
             onClick = onClick,
             shape = RoundedCornerShape(16.dp),

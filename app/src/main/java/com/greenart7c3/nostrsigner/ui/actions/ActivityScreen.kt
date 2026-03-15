@@ -1,6 +1,7 @@
 package com.greenart7c3.nostrsigner.ui.actions
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.Pager
@@ -28,6 +28,7 @@ import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.supportedKindNumbers
 import com.greenart7c3.nostrsigner.ui.ActivityRow
+import com.greenart7c3.nostrsigner.ui.CenterCircularProgressIndicator
 import com.greenart7c3.nostrsigner.ui.components.SimpleSearchBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,16 +41,12 @@ fun ActivityScreen(
     key: String,
 ) {
     val database = Amber.instance.getHistoryDatabase(account.npub)
-
     val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
 
     val pager = remember(searchQuery) {
         Pager(
-            PagingConfig(
-                pageSize = 20,
-                enablePlaceholders = false,
-            ),
+            PagingConfig(pageSize = 20, enablePlaceholders = false),
         ) {
             if (searchQuery.isEmpty()) {
                 database.dao().getAllHistoryPaging(key)
@@ -60,29 +57,22 @@ fun ActivityScreen(
     }
 
     val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
-
     val textFieldState by remember { mutableStateOf(TextFieldState(initialText = searchQuery)) }
 
-    Column(
-        modifier = modifier.padding(top = topPadding),
-    ) {
+    Column(modifier = modifier) {
         SimpleSearchBar(
             modifier = Modifier
-                .padding(start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr), end = paddingValues.calculateRightPadding(LayoutDirection.Ltr))
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             textFieldState = textFieldState,
-            onSearch = {
-                searchQuery = it
-            },
+            onSearch = { searchQuery = it },
             searchResults = supportedKindNumbers.map { it.toLocalizedString(context, true) },
         )
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateRightPadding(LayoutDirection.Ltr),
-                bottom = paddingValues.calculateBottomPadding(),
-            ),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(lazyPagingItems.itemCount) { index ->
                 val activity = lazyPagingItems[index]
@@ -94,14 +84,13 @@ fun ActivityScreen(
             lazyPagingItems.apply {
                 when (loadState.refresh) {
                     is LoadState.Loading -> item {
-                        Log.d("ActivitiesScreen", "Loading...")
-                        Text("Loading...", Modifier.padding(16.dp))
+                        Log.d("ActivityScreen", "Loading...")
+                        CenterCircularProgressIndicator(Modifier.padding(16.dp))
                     }
                     is LoadState.Error -> item {
-                        Log.d("ActivitiesScreen", "Error loading data")
                         Text("Error loading data", Modifier.padding(16.dp))
                     }
-                    is LoadState.NotLoading -> { }
+                    is LoadState.NotLoading -> {}
                 }
             }
         }

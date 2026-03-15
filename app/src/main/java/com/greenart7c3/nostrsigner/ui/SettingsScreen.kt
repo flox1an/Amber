@@ -1,16 +1,22 @@
 package com.greenart7c3.nostrsigner.ui
 
 import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.FilterList
@@ -19,7 +25,10 @@ import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.SaveAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -46,7 +56,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.BuildConfig
@@ -56,7 +65,6 @@ import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.ui.actions.LogoutDialog
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
-import com.greenart7c3.nostrsigner.ui.components.IconRow
 import com.greenart7c3.nostrsigner.ui.components.TextSpinner
 import com.greenart7c3.nostrsigner.ui.components.TitleExplainer
 import com.greenart7c3.nostrsigner.ui.navigation.Route
@@ -112,250 +120,239 @@ fun SettingsScreen(
     if (isLoading) {
         CenterCircularProgressIndicator(modifier, status)
     } else {
-        Column(
-            modifier,
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Box(
-                Modifier
-                    .padding(bottom = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.security),
-                    icon = Icons.Default.Security,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.Security.route)
-                    },
-                )
+            // Account & Security section
+            item {
+                SettingsSectionHeader(stringResource(R.string.security))
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Security,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        title = stringResource(R.string.security),
+                        onClick = { navController.navigate(Route.Security.route) },
+                    )
+                    SettingsGroupDivider()
+                    SettingsItem(
+                        icon = Icons.Default.Key,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        title = stringResource(R.string.backup_keys),
+                        onClick = { navController.navigate(Route.AccountBackup.route) },
+                    )
+                    SettingsGroupDivider()
+                    SettingsItem(
+                        icon = Icons.Default.SaveAlt,
+                        iconTint = MaterialTheme.colorScheme.primary,
+                        title = stringResource(R.string.export_all_accounts_title),
+                        onClick = { navController.navigate(Route.ExportAllAccounts.route) },
+                    )
+                }
             }
 
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.backup_keys),
-                    icon = Icons.Default.Key,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.AccountBackup.route)
-                    },
-                )
+            // General section
+            item {
+                SettingsSectionHeader(stringResource(R.string.language))
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Language,
+                        iconTint = MaterialTheme.colorScheme.tertiary,
+                        title = stringResource(R.string.language),
+                        onClick = { navController.navigate(Route.Language.route) },
+                    )
+                    SettingsGroupDivider()
+                    SettingsItem(
+                        icon = Icons.Default.Draw,
+                        iconTint = MaterialTheme.colorScheme.tertiary,
+                        title = stringResource(R.string.sign_policy),
+                        onClick = { navController.navigate(Route.SignPolicy.route) },
+                    )
+                }
             }
 
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.export_all_accounts_title),
-                    icon = Icons.Default.SaveAlt,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.ExportAllAccounts.route)
-                    },
-                )
-            }
-
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.language),
-                    icon = Icons.Default.Language,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.Language.route)
-                    },
-                )
-            }
-
+            // Network section (only for online flavor)
             if (!BuildFlavorChecker.isOfflineFlavor()) {
-                Box(
-                    Modifier
-                        .padding(vertical = 8.dp),
-                ) {
-                    IconRow(
-                        title = if (checked) {
-                            stringResource(R.string.disconnect_from_your_orbot_setup)
-                        } else {
-                            stringResource(R.string.connect_via_tor_short)
-                        },
-                        icon = R.drawable.ic_tor,
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        onLongClick = {
-                            navController.navigate(Route.TorSettings.route)
-                        },
-                        onClick = {
-                            if (checked) {
-                                disconnectTorDialog = true
+                item {
+                    SettingsSectionHeader(stringResource(R.string.relays))
+                    SettingsGroup {
+                        SettingsItem(
+                            icon = ImageVector.vectorResource(R.drawable.relays),
+                            iconTint = MaterialTheme.colorScheme.secondary,
+                            title = stringResource(R.string.relays),
+                            onClick = { navController.navigate(Route.RelaysScreen.route) },
+                        )
+                        SettingsGroupDivider()
+                        SettingsItem(
+                            icon = ImageVector.vectorResource(R.drawable.ic_tor),
+                            iconTint = MaterialTheme.colorScheme.secondary,
+                            title = if (checked) {
+                                stringResource(R.string.disconnect_from_your_orbot_setup)
                             } else {
-                                navController.navigate(Route.TorSettings.route)
-                            }
-                        },
-                    )
-                }
-
-                Box(
-                    Modifier
-                        .padding(vertical = 8.dp),
-                ) {
-                    IconRow(
-                        title = stringResource(R.string.relays),
-                        icon = ImageVector.vectorResource(R.drawable.relays),
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        onClick = {
-                            navController.navigate(Route.RelaysScreen.route)
-                        },
-                    )
-                }
-            }
-
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.logs),
-                    icon = Icons.Default.FilterList,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.Logs.route)
-                    },
-                )
-            }
-
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.sign_policy),
-                    icon = Icons.Default.Draw,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.SignPolicy.route)
-                    },
-                )
-            }
-
-            Box(
-                Modifier
-                    .padding(vertical = 8.dp),
-            ) {
-                IconRow(
-                    title = stringResource(R.string.give_us_feedback),
-                    icon = Icons.Default.Feedback,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    onClick = {
-                        navController.navigate(Route.Feedback.route)
-                    },
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            val primaryColor = MaterialTheme.colorScheme.primary
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(stringResource(R.string.database_size_mb, sizeInMBFormatted), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                AmberButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.clear_logs_and_activity),
-                    onClick = {
-                        Amber.instance.applicationIOScope.launch {
-                            isLoading = true
-                            LocalPreferences.allSavedAccounts(Amber.instance).forEach {
-                                try {
-                                    status = context.getString(R.string.deleting_old_log_entries_from, it.npub)
-                                    val oneWeek = System.currentTimeMillis() - (ONE_WEEK * 1000L)
-                                    val oneWeekAgo = TimeUtils.oneWeekAgo()
-                                    val historyDatabase = Amber.instance.getHistoryDatabase(it.npub)
-                                    val deletedHistory = historyDatabase.dao().deleteOldHistory(oneWeekAgo)
-                                    if (deletedHistory > 0) {
-                                        Log.d(Amber.TAG, "Deleted $deletedHistory old history entries")
-                                    }
-
-                                    val logDatabase = Amber.instance.getLogDatabase(it.npub)
-                                    val deletedLogs = logDatabase.dao().deleteOldLog(oneWeek)
-                                    if (deletedLogs > 0) {
-                                        Log.d(Amber.TAG, "Deleted $deletedLogs old log entries")
-                                    }
-
-                                    val dbFile = context.getDatabasePath("amber_db_${account.npub}")
-                                    val logFile = context.getDatabasePath("log_db_${account.npub}")
-                                    val historyFile = context.getDatabasePath("history_db_${account.npub}")
-                                    val df = DecimalFormat("#.###")
-                                    sizeInMBFormatted = df.format((dbFile.length() + logFile.length() + historyFile.length()) / (1024.0 * 1024.0))
-
-                                    status = ""
-                                    isLoading = false
-                                } catch (e: Exception) {
-                                    isLoading = false
-                                    if (e is CancellationException) throw e
-                                    Log.e(Amber.TAG, "Error deleting old log entries", e)
-                                    val dbFile = context.getDatabasePath("amber_db_${account.npub}")
-                                    val logFile = context.getDatabasePath("log_db_${account.npub}")
-                                    val historyFile = context.getDatabasePath("history_db_${account.npub}")
-                                    val df = DecimalFormat("#.###")
-                                    sizeInMBFormatted = df.format((dbFile.length() + logFile.length() + historyFile.length()) / (1024.0 * 1024.0))
-                                    status = ""
+                                stringResource(R.string.connect_via_tor_short)
+                            },
+                            onClick = {
+                                if (checked) {
+                                    disconnectTorDialog = true
+                                } else {
+                                    navController.navigate(Route.TorSettings.route)
                                 }
-                            }
-
-                            Amber.instance.checkForNewRelaysAndUpdateAllFilters()
-                        }
-                    },
-                )
+                            },
+                        )
+                    }
+                }
             }
 
-            Text(
-                buildAnnotatedString {
-                    withStyle(
-                        style = ParagraphStyle(
-                            textAlign = TextAlign.Center,
-                        ),
+            // Data section
+            item {
+                SettingsSectionHeader(stringResource(R.string.logs))
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.FilterList,
+                        iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        title = stringResource(R.string.logs),
+                        onClick = { navController.navigate(Route.Logs.route) },
+                    )
+                }
+            }
+
+            // Feedback
+            item {
+                SettingsGroup {
+                    SettingsItem(
+                        icon = Icons.Default.Feedback,
+                        iconTint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        title = stringResource(R.string.give_us_feedback),
+                        onClick = { navController.navigate(Route.Feedback.route) },
+                    )
+                }
+            }
+
+            // Database
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        stringResource(R.string.database_size_mb, sizeInMBFormatted),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    AmberButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.clear_logs_and_activity),
+                        onClick = {
+                            Amber.instance.applicationIOScope.launch {
+                                isLoading = true
+                                LocalPreferences.allSavedAccounts(Amber.instance).forEach {
+                                    try {
+                                        status = context.getString(R.string.deleting_old_log_entries_from, it.npub)
+                                        val oneWeek = System.currentTimeMillis() - (ONE_WEEK * 1000L)
+                                        val oneWeekAgo = TimeUtils.oneWeekAgo()
+                                        val historyDatabase = Amber.instance.getHistoryDatabase(it.npub)
+                                        val deletedHistory = historyDatabase.dao().deleteOldHistory(oneWeekAgo)
+                                        if (deletedHistory > 0) {
+                                            Log.d(Amber.TAG, "Deleted $deletedHistory old history entries")
+                                        }
+
+                                        val logDatabase = Amber.instance.getLogDatabase(it.npub)
+                                        val deletedLogs = logDatabase.dao().deleteOldLog(oneWeek)
+                                        if (deletedLogs > 0) {
+                                            Log.d(Amber.TAG, "Deleted $deletedLogs old log entries")
+                                        }
+
+                                        val dbFile = context.getDatabasePath("amber_db_${account.npub}")
+                                        val logFile = context.getDatabasePath("log_db_${account.npub}")
+                                        val historyFile = context.getDatabasePath("history_db_${account.npub}")
+                                        val df = DecimalFormat("#.###")
+                                        sizeInMBFormatted = df.format((dbFile.length() + logFile.length() + historyFile.length()) / (1024.0 * 1024.0))
+
+                                        status = ""
+                                        isLoading = false
+                                    } catch (e: Exception) {
+                                        isLoading = false
+                                        if (e is CancellationException) throw e
+                                        Log.e(Amber.TAG, "Error deleting old log entries", e)
+                                        val dbFile = context.getDatabasePath("amber_db_${account.npub}")
+                                        val logFile = context.getDatabasePath("log_db_${account.npub}")
+                                        val historyFile = context.getDatabasePath("history_db_${account.npub}")
+                                        val df = DecimalFormat("#.###")
+                                        sizeInMBFormatted = df.format((dbFile.length() + logFile.length() + historyFile.length()) / (1024.0 * 1024.0))
+                                        status = ""
+                                    }
+                                }
+
+                                Amber.instance.checkForNewRelaysAndUpdateAllFilters()
+                            }
+                        },
+                    )
+                }
+            }
+
+            // About section
+            item {
+                val primaryColor = MaterialTheme.colorScheme.primary
+
+                SettingsSectionHeader("About")
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        append("v${BuildConfig.VERSION_NAME}-${BuildConfig.FLAVOR}\n\n")
-                        withLink(
-                            LinkAnnotation.Url(
-                                context.getString(R.string.amber_github_uri),
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        color = primaryColor,
-                                        textDecoration = TextDecoration.Underline,
+                        Text(
+                            "v${BuildConfig.VERSION_NAME}-${BuildConfig.FLAVOR}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            buildAnnotatedString {
+                                withStyle(
+                                    style = ParagraphStyle(
+                                        textAlign = TextAlign.Center,
                                     ),
-                                ),
-                            ),
-                        ) {
-                            append("${context.getString(R.string.source_code)}\n\n")
-                        }
-                        withLink(
-                            LinkAnnotation.Url(
-                                context.getString(R.string.support_development_uri),
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        color = primaryColor,
-                                        textDecoration = TextDecoration.Underline,
-                                    ),
-                                ),
-                            ),
-                        ) {
-                            append(context.getString(R.string.support_development))
-                        }
+                                ) {
+                                    withLink(
+                                        LinkAnnotation.Url(
+                                            context.getString(R.string.amber_github_uri),
+                                            styles = TextLinkStyles(
+                                                style = SpanStyle(
+                                                    color = primaryColor,
+                                                    textDecoration = TextDecoration.Underline,
+                                                ),
+                                            ),
+                                        ),
+                                    ) {
+                                        append("${context.getString(R.string.source_code)}\n\n")
+                                    }
+                                    withLink(
+                                        LinkAnnotation.Url(
+                                            context.getString(R.string.support_development_uri),
+                                            styles = TextLinkStyles(
+                                                style = SpanStyle(
+                                                    color = primaryColor,
+                                                    textDecoration = TextDecoration.Underline,
+                                                ),
+                                            ),
+                                        ),
+                                    ) {
+                                        append(context.getString(R.string.support_development))
+                                    }
+                                }
+                                toAnnotatedString()
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp),
+                        )
                     }
-                    toAnnotatedString()
-                },
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-            )
+                }
+            }
         }
     }
 
@@ -385,6 +382,97 @@ fun SettingsScreen(
                     Text(text = stringResource(R.string.no))
                 }
             },
+        )
+    }
+}
+
+@Composable
+private fun SettingsSectionHeader(title: String) {
+    Text(
+        text = title.uppercase(),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+    )
+}
+
+@Composable
+private fun SettingsGroup(content: @Composable () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Column {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingsGroupDivider() {
+    HorizontalDivider(
+        color = MaterialTheme.colorScheme.outlineVariant,
+        modifier = Modifier.padding(start = 56.dp),
+    )
+}
+
+@Composable
+private fun SettingsItem(
+    icon: ImageVector,
+    iconTint: Color,
+    title: String,
+    subtitle: String? = null,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(
+                    color = iconTint.copy(alpha = 0.12f),
+                    shape = RoundedCornerShape(8.dp),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = iconTint,
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

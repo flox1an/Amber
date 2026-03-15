@@ -1,19 +1,23 @@
 package com.greenart7c3.nostrsigner.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 
@@ -23,34 +27,39 @@ fun AmberWarningCard(
     buttonText: String,
     onClick: () -> Unit,
 ) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .background(
-                color = AmberColors.amberMuted(),
-                shape = RoundedCornerShape(16.dp),
-            ),
-        contentAlignment = Alignment.Center,
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = AmberColors.warningBg(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            Icon(
+                imageVector = Icons.Outlined.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = AmberColors.warning(),
+            )
             Text(
                 text = message,
-                modifier = Modifier.wrapContentSize(),
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
             )
             TextButton(
                 onClick = onClick,
-                content = {
-                    Text(
-                        text = buttonText,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                },
-            )
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = AmberColors.warning(),
+                ),
+            ) {
+                Text(
+                    text = buttonText,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

@@ -36,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -70,10 +72,42 @@ fun AmberTopAppBar(
     intents: List<IntentData>,
     bunkerRequests: List<AmberBunkerRequest>,
     packageName: String?,
+    navController: androidx.navigation.NavHostController? = null,
 ) {
+    val mainTabRoutes = listOf(
+        Route.Applications.route,
+        Route.IncomingRequest.route,
+        Route.Settings.route,
+        Route.Accounts.route,
+    )
+    val isSubScreen = destinationRoute !in mainTabRoutes &&
+        destinationRoute != "login" &&
+        destinationRoute != "create" &&
+        destinationRoute != "loginPage"
     if (intents.isEmpty() || packageName == null || destinationRoute != Route.IncomingRequest.route) {
         if (destinationRoute != "login" && destinationRoute != "create" && destinationRoute != "loginPage") {
             TopAppBar(
+                navigationIcon = {
+                    if (isSubScreen && navController != null) {
+                        IconButton(
+                            onClick = {
+                                if (destinationRoute.startsWith("NewNsecBunkerCreated/")) {
+                                    navController.navigate(Route.Applications.route) {
+                                        popUpTo(0)
+                                    }
+                                } else {
+                                    navController.navigateUp()
+                                }
+                            },
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.back),
+                                contentDescription = context.getString(R.string.go_back),
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                },
                 actions = {
                     if (intents.isEmpty() || packageName == null || destinationRoute != Route.IncomingRequest.route) {
                         val relayStats = Amber.instance.stats.relayStatus.collectAsStateWithLifecycle(Pair(emptySet(), emptySet()))
@@ -181,17 +215,17 @@ fun AmberTopAppBar(
                     }
                 },
                 title = {
-                    var title by remember { mutableStateOf(routes.find { it.route.startsWith(destinationRoute) }?.title ?: "") }
+                    var title by remember { mutableStateOf(routes.find { it.route.startsWith(destinationRoute) }?.let { context.getString(it.titleRes) } ?: "") }
                     LaunchedEffect(destinationRoute) {
                         if (destinationRoute.startsWith("Permission/") || destinationRoute.startsWith("Activity/") || destinationRoute.startsWith("RelayLogScreen/") || destinationRoute.startsWith("qrcode/")) {
                             launch(Dispatchers.IO) {
                                 navBackStackEntry?.arguments?.getString("content")?.let {
-                                    title = Route.QrCode.title
+                                    title = context.getString(Route.QrCode.titleRes)
                                 }
                                 navBackStackEntry?.arguments?.getString("packageName")?.let { packageName ->
                                     val application = Amber.instance.getDatabase(account.npub).dao().getByKey(packageName)?.application
                                     title = if (destinationRoute.startsWith("Activity/")) {
-                                        "${application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName} - ${routes.find { it.route.startsWith(destinationRoute) }?.title}"
+                                        "${application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName} - ${routes.find { it.route.startsWith(destinationRoute) }?.let { context.getString(it.titleRes) }}"
                                     } else {
                                         application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName
                                     }
@@ -199,7 +233,7 @@ fun AmberTopAppBar(
                                 navBackStackEntry?.arguments?.getString("key")?.let { packageName ->
                                     val application = Amber.instance.getDatabase(account.npub).dao().getByKey(packageName)?.application
                                     title = if (destinationRoute.startsWith("Activity/")) {
-                                        "${application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName} - ${routes.find { it.route.startsWith(destinationRoute) }?.title}"
+                                        "${application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName} - ${routes.find { it.route.startsWith(destinationRoute) }?.let { context.getString(it.titleRes) }}"
                                     } else {
                                         application?.name?.ifBlank { application.key.toShortenHex() } ?: packageName
                                     }
@@ -224,10 +258,10 @@ fun AmberTopAppBar(
                                     }
                                     val titleTemp = application?.name?.ifBlank { request.name.ifBlank { application.key.toShortenHex() } } ?: request.name
                                     title = titleTemp.ifBlank {
-                                        routes.find { it.route == destinationRoute }?.title ?: ""
+                                        routes.find { it.route == destinationRoute }?.let { context.getString(it.titleRes) } ?: ""
                                     }
                                 } else {
-                                    title = routes.find { it.route == destinationRoute }?.title ?: ""
+                                    title = routes.find { it.route == destinationRoute }?.let { context.getString(it.titleRes) } ?: ""
                                 }
                             }
                         }

@@ -2,17 +2,22 @@ package com.greenart7c3.nostrsigner.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -142,19 +147,70 @@ fun SecurityScreen(
                         modifier = Modifier.padding(start = 16.dp),
                     )
 
-                    Box(
+                    var showDialog by remember { mutableStateOf(false) }
+
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = { Text(stringResource(R.string.when_to_ask)) },
+                            text = {
+                                Column {
+                                    biometricItems.forEachIndexed { index, item ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    biometricsIndex = index
+                                                    showDialog = false
+                                                }
+                                                .padding(vertical = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            RadioButton(
+                                                selected = biometricsIndex == index,
+                                                onClick = {
+                                                    biometricsIndex = index
+                                                    showDialog = false
+                                                },
+                                            )
+                                            Text(
+                                                text = item.title,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            confirmButton = {},
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .clickable { showDialog = true }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                     ) {
-                        SettingsRow(
-                            R.string.when_to_ask,
-                            R.string.when_to_ask,
-                            biometricItems,
-                            biometricsIndex,
-                        ) {
-                            biometricsIndex = it
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.when_to_ask),
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            Text(
+                                text = biometricItems[biometricsIndex].title,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }

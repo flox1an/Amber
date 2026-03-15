@@ -47,13 +47,15 @@ fun AmberFloatingButton(
                         tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(end = 8.dp),
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 0.dp,
-                    focusedElevation = 0.dp,
-                    hoveredElevation = 0.dp,
-                    pressedElevation = 0.dp,
+                    defaultElevation = 6.dp,
+                    focusedElevation = 6.dp,
+                    hoveredElevation = 8.dp,
+                    pressedElevation = 12.dp,
                 ),
                 onClick = {
                     navController.navigate(Route.DefaultRelays.route)

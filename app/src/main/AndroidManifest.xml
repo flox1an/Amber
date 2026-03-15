@@ -93,6 +93,13 @@
             android:screenOrientation="fullSensor"
             tools:ignore="DiscouragedApi"
             tools:replace="screenOrientation" />
+
+        <activity
+            android:name=".ui.CustomScannerActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            tools:ignore="DiscouragedApi"
+            tools:replace="screenOrientation" />
     </application>
 
 </manifest>
