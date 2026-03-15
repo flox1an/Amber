@@ -54,6 +54,7 @@ import com.greenart7c3.nostrsigner.service.TrustScoreService
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.actions.onAddRelay
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
+import com.greenart7c3.nostrsigner.ui.components.AppIcon
 import com.greenart7c3.nostrsigner.ui.components.TrustScoreBadge
 import com.greenart7c3.nostrsigner.ui.navigation.Route
 import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
@@ -126,6 +127,18 @@ fun EditConfigurationScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                AppIcon(key = key, name = name.text, size = 40.dp)
+                Text(
+                    text = name.text.ifBlank { key },
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                )
+            }
+
             Text(
                 stringResource(R.string.edit_configuration_description),
                 style = MaterialTheme.typography.bodyMedium,

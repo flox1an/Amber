@@ -108,12 +108,17 @@ fun BunkerMultiEventHomeScreen(
     Column(
         modifier,
     ) {
-        Text(
-            stringResource(R.string.is_requiring_some_permissions_please_review_them, appName),
-            Modifier
-                .fillMaxWidth()
-                .padding(bottom = 4.dp),
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(bottom = 4.dp),
+        ) {
+            AppIcon(key = key, name = appName, size = 32.dp)
+            Text(
+                stringResource(R.string.is_requiring_some_permissions_please_review_them, appName),
+                Modifier.fillMaxWidth(),
+            )
+        }
 
         SigningAs(accountParam)
 

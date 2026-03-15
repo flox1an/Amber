@@ -51,6 +51,7 @@ import com.greenart7c3.nostrsigner.models.supportedKindNumbers
 import com.greenart7c3.nostrsigner.service.ApplicationNameCache
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
+import com.greenart7c3.nostrsigner.ui.components.AppIcon
 import com.greenart7c3.nostrsigner.ui.components.EventSection
 import com.greenart7c3.nostrsigner.ui.components.SimpleSearchBar
 import com.greenart7c3.nostrsigner.ui.components.TagsSection
@@ -269,12 +270,18 @@ fun ApplicationName(
         }
     }
 
-    Text(
+    Row(
         modifier = Modifier.padding(top = 16.dp),
-        text = name.ifBlank { key.toShortenHex() },
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        color = if (accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
-        fontWeight = FontWeight.Bold,
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AppIcon(key = key, name = name, size = 32.dp)
+        Text(
+            text = name.ifBlank { key.toShortenHex() },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = if (accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Bold,
+        )
+    }
 }

@@ -106,6 +106,7 @@ fun BunkerSingleEventHomeScreen(
 
             BunkerPingScreen(
                 modifier = modifier,
+                key = key,
                 appName = appName,
                 shouldRunOnAccept = acceptOrReject,
                 onAccept = {
@@ -300,6 +301,7 @@ fun BunkerSingleEventHomeScreen(
         is BunkerRequestGetPublicKey -> {
             BunkerGetPubKeyScreen(
                 modifier = modifier,
+                key = key,
                 applicationName = appName,
                 onAccept = { permissions, signPolicy, closeApplication, rememberType ->
                     val result = account.hexKey
@@ -650,6 +652,7 @@ fun BunkerSingleEventHomeScreen(
 
                 BunkerRelayAuthScreen(
                     modifier = modifier,
+                    key = key,
                     appName = appName,
                     relayUrl = relayUrl,
                     shouldAcceptOrReject = acceptOrReject,

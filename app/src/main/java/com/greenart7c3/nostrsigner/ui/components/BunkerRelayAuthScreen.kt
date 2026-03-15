@@ -1,6 +1,8 @@
 package com.greenart7c3.nostrsigner.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +44,7 @@ enum class RelayAuthScope {
 @Composable
 fun BunkerRelayAuthScreen(
     modifier: Modifier,
+    key: String,
     appName: String,
     relayUrl: String,
     shouldAcceptOrReject: Boolean?,
@@ -70,20 +73,26 @@ fun BunkerRelayAuthScreen(
     ) {
         Spacer(Modifier.size(16.dp))
 
-        Text(
-            buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(appName)
-                }
-                append(" ")
-                append(stringResource(R.string.relay_auth_request, ""))
-            },
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-        )
+        ) {
+            AppIcon(key = key, name = appName, size = 32.dp)
+            Text(
+                buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(appName)
+                    }
+                    append(" ")
+                    append(stringResource(R.string.relay_auth_request, ""))
+                },
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Spacer(Modifier.size(8.dp))
 

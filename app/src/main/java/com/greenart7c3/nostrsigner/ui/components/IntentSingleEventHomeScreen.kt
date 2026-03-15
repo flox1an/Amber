@@ -269,6 +269,7 @@ fun IntentSingleEventHomeScreen(
 
                 BunkerRelayAuthScreen(
                     modifier = modifier,
+                    key = packageName ?: "",
                     appName = appName,
                     relayUrl = relayUrl,
                     shouldAcceptOrReject = acceptOrReject,

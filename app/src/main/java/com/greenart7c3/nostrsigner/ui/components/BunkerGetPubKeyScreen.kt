@@ -1,6 +1,8 @@
 package com.greenart7c3.nostrsigner.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -10,10 +12,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.Permission
 import com.greenart7c3.nostrsigner.ui.RememberType
@@ -21,6 +25,7 @@ import com.greenart7c3.nostrsigner.ui.RememberType
 @Composable
 fun BunkerGetPubKeyScreen(
     modifier: Modifier,
+    key: String,
     applicationName: String,
     onAccept: (List<Permission>?, Int, Boolean?, RememberType) -> Unit,
     onReject: (RememberType) -> Unit,
@@ -30,13 +35,19 @@ fun BunkerGetPubKeyScreen(
     Column(
         modifier,
     ) {
-        Text(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            text = applicationName,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AppIcon(key = key, name = applicationName, size = 40.dp)
+            Text(
+                text = applicationName,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+        }
 
         Text(
             stringResource(R.string.would_like_your_permission_to_read_your_public_key_and_sign_events_on_your_behalf),

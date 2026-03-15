@@ -1,6 +1,8 @@
 package com.greenart7c3.nostrsigner.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -29,6 +32,7 @@ import com.greenart7c3.nostrsigner.ui.RememberType
 @Composable
 fun BunkerPingScreen(
     modifier: Modifier,
+    key: String,
     shouldRunOnAccept: Boolean?,
     appName: String,
     onAccept: (RememberType) -> Unit,
@@ -43,15 +47,21 @@ fun BunkerPingScreen(
     ) {
         val message = stringResource(R.string.ping)
 
-        Text(
-            buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(appName)
-                }
-                append(" ${stringResource(R.string.requests)} $message")
-            },
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            AppIcon(key = key, name = appName, size = 32.dp)
+            Text(
+                buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(appName)
+                    }
+                    append(" ${stringResource(R.string.requests)} $message")
+                },
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
         Spacer(Modifier.size(4.dp))
 
         Card(
