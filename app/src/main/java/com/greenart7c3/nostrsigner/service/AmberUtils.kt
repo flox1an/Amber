@@ -85,9 +85,10 @@ object AmberUtils {
     ) {
         val until = when (rememberType) {
             RememberType.ALWAYS -> Long.MAX_VALUE / 1000
-            RememberType.ONE_MINUTE -> TimeUtils.oneMinuteFromNow()
             RememberType.FIVE_MINUTES -> TimeUtils.now() + TimeUtils.FIVE_MINUTES
-            RememberType.TEN_MINUTES -> TimeUtils.now() + TimeUtils.FIFTEEN_MINUTES
+            RememberType.THIRTY_MINUTES -> TimeUtils.now() + 30 * 60
+            RememberType.ONE_HOUR -> TimeUtils.now() + 3600
+            RememberType.FOUR_HOURS -> TimeUtils.now() + 4 * 3600
             RememberType.NEVER -> 0L
         }
 
@@ -189,9 +190,10 @@ object AmberUtils {
     ) {
         val until = when (rememberType) {
             RememberType.ALWAYS -> Long.MAX_VALUE / 1000
-            RememberType.ONE_MINUTE -> TimeUtils.oneMinuteFromNow()
             RememberType.FIVE_MINUTES -> TimeUtils.now() + TimeUtils.FIVE_MINUTES
-            RememberType.TEN_MINUTES -> TimeUtils.now() + TimeUtils.FIFTEEN_MINUTES
+            RememberType.THIRTY_MINUTES -> TimeUtils.now() + 30 * 60
+            RememberType.ONE_HOUR -> TimeUtils.now() + 3600
+            RememberType.FOUR_HOURS -> TimeUtils.now() + 4 * 3600
             else -> 0L
         }
 

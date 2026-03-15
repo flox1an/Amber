@@ -525,17 +525,19 @@ fun SettingsRow(
 
 enum class RememberType(val screenCode: Int, val resourceId: Int) {
     NEVER(0, R.string.never),
-    ONE_MINUTE(1, R.string.one_minute),
-    FIVE_MINUTES(2, R.string.five_minutes),
-    TEN_MINUTES(3, R.string.ten_minutes),
-    ALWAYS(4, R.string.always),
+    FIVE_MINUTES(1, R.string.five_minutes),
+    THIRTY_MINUTES(2, R.string.thirty_minutes),
+    ONE_HOUR(3, R.string.one_hour),
+    FOUR_HOURS(4, R.string.four_hours),
+    ALWAYS(5, R.string.always),
 }
 
 fun parseRememberType(screenCode: Int): RememberType = when (screenCode) {
     0 -> RememberType.NEVER
-    1 -> RememberType.ONE_MINUTE
-    2 -> RememberType.FIVE_MINUTES
-    3 -> RememberType.TEN_MINUTES
+    1 -> RememberType.FIVE_MINUTES
+    2 -> RememberType.THIRTY_MINUTES
+    3 -> RememberType.ONE_HOUR
+    4 -> RememberType.FOUR_HOURS
     else -> RememberType.ALWAYS
 }
 

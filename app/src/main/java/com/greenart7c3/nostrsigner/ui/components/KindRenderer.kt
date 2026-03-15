@@ -8,6 +8,7 @@ import com.greenart7c3.nostrsigner.models.Account
  */
 fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     0 -> true
+    1 -> true
     else -> false
 }
 
@@ -19,8 +20,10 @@ fun RenderKindContent(
     kind: Int,
     content: String,
     account: Account,
+    tags: Array<Array<String>> = emptyArray(),
 ) {
     when (kind) {
         0 -> Kind0ProfileRenderer(content = content, account = account)
+        1 -> Kind1NoteRenderer(content = content, account = account, tags = tags)
     }
 }

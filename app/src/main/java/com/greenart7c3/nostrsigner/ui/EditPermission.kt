@@ -303,17 +303,19 @@ fun EditPermission(
 
 fun rememberTypeIndexToRememberType(rememberTypeIndex: Int): RememberType = when (rememberTypeIndex) {
     0 -> RememberType.ALWAYS
-    1 -> RememberType.ONE_MINUTE
-    2 -> RememberType.FIVE_MINUTES
-    3 -> RememberType.TEN_MINUTES
+    1 -> RememberType.FIVE_MINUTES
+    2 -> RememberType.THIRTY_MINUTES
+    3 -> RememberType.ONE_HOUR
+    4 -> RememberType.FOUR_HOURS
     else -> RememberType.NEVER
 }
 
 fun rememberTypeToIndex(rememberType: RememberType): Int = when (rememberType) {
     RememberType.ALWAYS -> 0
-    RememberType.ONE_MINUTE -> 1
-    RememberType.FIVE_MINUTES -> 2
-    RememberType.TEN_MINUTES -> 3
+    RememberType.FIVE_MINUTES -> 1
+    RememberType.THIRTY_MINUTES -> 2
+    RememberType.ONE_HOUR -> 3
+    RememberType.FOUR_HOURS -> 4
     else -> 0
 }
 
@@ -321,9 +323,10 @@ fun onSetPermission(optionIndex: Int, rememberTypeIndex: Int, permission: Applic
     val rememberType = rememberTypeIndexToRememberType(rememberTypeIndex)
     val time = when (rememberType) {
         RememberType.ALWAYS -> Long.MAX_VALUE / 1000
-        RememberType.ONE_MINUTE -> TimeUtils.oneMinuteFromNow()
         RememberType.FIVE_MINUTES -> TimeUtils.now() + TimeUtils.FIVE_MINUTES
-        RememberType.TEN_MINUTES -> TimeUtils.now() + TimeUtils.FIFTEEN_MINUTES
+        RememberType.THIRTY_MINUTES -> TimeUtils.now() + 30 * 60
+        RememberType.ONE_HOUR -> TimeUtils.now() + 3600
+        RememberType.FOUR_HOURS -> TimeUtils.now() + 4 * 3600
         RememberType.NEVER -> 0L
     }
     val isAcceptable = optionIndex == 0 || optionIndex == 2
@@ -397,9 +400,10 @@ fun PermissionRow(
     }
 
     val durationLabel = when (rememberTypeIndex) {
-        1 -> "1 min"
-        2 -> "5 min"
-        3 -> "10 min"
+        1 -> "5 min"
+        2 -> "30 min"
+        3 -> "1 hour"
+        4 -> "4 hours"
         else -> ""
     }
 
@@ -501,18 +505,23 @@ fun PermissionRow(
                     showMenu = false
                     onSetPermission(optionIndex, rememberTypeIndex, permission, onToggle)
                 }
-                PermissionMenuItem("1 minute", rememberTypeIndex == 1) {
+                PermissionMenuItem("5 minutes", rememberTypeIndex == 1) {
                     rememberTypeIndex = 1
                     showMenu = false
                     onSetPermission(optionIndex, rememberTypeIndex, permission, onToggle)
                 }
-                PermissionMenuItem("5 minutes", rememberTypeIndex == 2) {
+                PermissionMenuItem("30 minutes", rememberTypeIndex == 2) {
                     rememberTypeIndex = 2
                     showMenu = false
                     onSetPermission(optionIndex, rememberTypeIndex, permission, onToggle)
                 }
-                PermissionMenuItem("10 minutes", rememberTypeIndex == 3) {
+                PermissionMenuItem("1 hour", rememberTypeIndex == 3) {
                     rememberTypeIndex = 3
+                    showMenu = false
+                    onSetPermission(optionIndex, rememberTypeIndex, permission, onToggle)
+                }
+                PermissionMenuItem("4 hours", rememberTypeIndex == 4) {
+                    rememberTypeIndex = 4
                     showMenu = false
                     onSetPermission(optionIndex, rememberTypeIndex, permission, onToggle)
                 }

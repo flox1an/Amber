@@ -102,7 +102,7 @@ fun EventData(
                 Spacer(Modifier.size(8.dp))
 
                 Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                    RenderKindContent(kind = event.kind, content = event.content, account = account)
+                    RenderKindContent(kind = event.kind, content = event.content, account = account, tags = event.tags)
                 }
                 Spacer(Modifier.size(16.dp))
             }
@@ -155,6 +155,7 @@ fun EventData(
             false,
             onAccept,
             onReject,
+            eventKind = event.kind,
         ) {
             rememberType = it
         }
@@ -219,7 +220,7 @@ fun BunkerEventData(
                 SigningAs(account)
                 Spacer(Modifier.size(8.dp))
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    RenderKindContent(kind = event.kind, content = event.content, account = account)
+                    RenderKindContent(kind = event.kind, content = event.content, account = account, tags = event.tags)
                 }
                 Spacer(Modifier.size(16.dp))
             }
@@ -274,6 +275,7 @@ fun BunkerEventData(
             true,
             onAccept,
             onReject,
+            eventKind = event.kind,
         ) {
             rememberType = it
         }
