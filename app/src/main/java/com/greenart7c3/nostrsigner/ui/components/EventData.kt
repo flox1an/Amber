@@ -74,61 +74,81 @@ fun EventData(
 
     Column(
         modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        LocalAppIcon(packageName)
-
-        val permission = Permission("sign_event", event.kind)
-        val kindTranslation = permission.toLocalizedString(context)
-        val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-        Text(
-            text.capitalize(Locale.current),
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        )
-        if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
-            ReportMissingEventKindButton(account, event.kind)
-        }
-        Spacer(Modifier.size(4.dp))
-
-        RawJsonButton(
-            onCLick = {
-                showMore = !showMore
-            },
-            stringResource(R.string.show_details),
-        )
-
-        Spacer(Modifier.size(16.dp))
-
-        SigningAs(account)
-
         if (hasKindRenderer(event.kind)) {
+            // Rich renderer: entire header + content scrolls, buttons stick to bottom
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
                     .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                LocalAppIcon(packageName)
+
+                val permission = Permission("sign_event", event.kind)
+                val kindTranslation = permission.toLocalizedString(context)
+                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
+                Text(
+                    text.capitalize(Locale.current),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                )
+
                 Spacer(Modifier.size(8.dp))
-                RenderKindContent(kind = event.kind, content = event.content, account = account)
+                SigningAs(account)
+                Spacer(Modifier.size(8.dp))
+
+                Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    RenderKindContent(kind = event.kind, content = event.content, account = account)
+                }
                 Spacer(Modifier.size(16.dp))
             }
         } else {
-            if (showMore) {
-                EventDetailModal(
-                    event = event,
-                    onDismiss = {
-                        showMore = false
-                    },
+            // Default: non-scrolling header, modal for details
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                LocalAppIcon(packageName)
+
+                val permission = Permission("sign_event", event.kind)
+                val kindTranslation = permission.toLocalizedString(context)
+                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
+                Text(
+                    text.capitalize(Locale.current),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 )
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
+                if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
+                    ReportMissingEventKindButton(account, event.kind)
+                }
+                Spacer(Modifier.size(4.dp))
+                RawJsonButton(
+                    onCLick = {
+                        showMore = !showMore
+                    },
+                    stringResource(R.string.show_details),
+                )
+                Spacer(Modifier.size(16.dp))
+                SigningAs(account)
+                if (showMore) {
+                    EventDetailModal(
+                        event = event,
+                        onDismiss = {
+                            showMore = false
+                        },
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             }
         }
 
+        // Buttons always fixed at bottom
         RememberMyChoice(
             shouldAcceptOrReject,
             packageName,
@@ -170,62 +190,81 @@ fun BunkerEventData(
 
     Column(
         modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.size(16.dp))
-        val permission = Permission("sign_event", event.kind)
-        val kindTranslation = permission.toLocalizedString(context)
-        val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-        Text(
-            buildAnnotatedString {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(appName)
-                }
-                append(" $text")
-            },
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        )
-        if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
-            ReportMissingEventKindButton(account, event.kind)
-        }
-        Spacer(Modifier.size(4.dp))
-
-        RawJsonButton(
-            onCLick = {
-                showMore = !showMore
-            },
-            stringResource(R.string.show_details),
-        )
-
-        Spacer(Modifier.size(16.dp))
-
-        SigningAs(account)
-
         if (hasKindRenderer(event.kind)) {
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
                     .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Spacer(Modifier.size(16.dp))
+                val permission = Permission("sign_event", event.kind)
+                val kindTranslation = permission.toLocalizedString(context)
+                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(appName)
+                        }
+                        append(" $text")
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                )
                 Spacer(Modifier.size(8.dp))
-                RenderKindContent(kind = event.kind, content = event.content, account = account)
+                SigningAs(account)
+                Spacer(Modifier.size(8.dp))
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    RenderKindContent(kind = event.kind, content = event.content, account = account)
+                }
                 Spacer(Modifier.size(16.dp))
             }
         } else {
-            if (showMore) {
-                EventDetailModal(
-                    event = event,
-                    onDismiss = {
-                        showMore = false
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.size(16.dp))
+                val permission = Permission("sign_event", event.kind)
+                val kindTranslation = permission.toLocalizedString(context)
+                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(appName)
+                        }
+                        append(" $text")
                     },
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 )
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
+                if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
+                    ReportMissingEventKindButton(account, event.kind)
+                }
+                Spacer(Modifier.size(4.dp))
+                RawJsonButton(
+                    onCLick = {
+                        showMore = !showMore
+                    },
+                    stringResource(R.string.show_details),
+                )
+                Spacer(Modifier.size(16.dp))
+                SigningAs(account)
+                if (showMore) {
+                    EventDetailModal(
+                        event = event,
+                        onDismiss = {
+                            showMore = false
+                        },
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             }
         }
 

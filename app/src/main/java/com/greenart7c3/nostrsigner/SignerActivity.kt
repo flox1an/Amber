@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -102,7 +101,7 @@ class SignerActivity : AppCompatActivity() {
                             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
                             containerColor = MaterialTheme.colorScheme.background,
                             scrimColor = Color.Transparent,
-                            dragHandle = { BottomSheetDefaults.DragHandle() },
+                            dragHandle = {},
                             properties = ModalBottomSheetProperties(
                                 shouldDismissOnBackPress = false,
                                 shouldDismissOnClickOutside = false,

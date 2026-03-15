@@ -135,7 +135,7 @@
     <string name="decrypt_data_using_nip_44">Decrypt data using nip 44</string>
     <string name="encrypt_data_using_nip_44">Encrypt data using nip 44</string>
     <string name="decrypt_private_zaps">Decrypt private zaps</string>
-    <string name="event_kind_0">Metadata</string>
+    <string name="event_kind_0">User Profile</string>
     <string name="event_kind_1">Short text note</string>
     <string name="event_kind_3">Follows</string>
     <string name="event_kind_4">Encrypted direct messages</string>

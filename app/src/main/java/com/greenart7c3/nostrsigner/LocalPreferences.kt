@@ -32,6 +32,7 @@ private enum class PrefKeys(val key: String) {
     LAST_METADATA_UPDATE("last_metadata_update"),
     LAST_CHECK("last_check"),
     DID_BACKUP("did_backup"),
+    PROFILE_CONTENT("profile_content"),
 }
 
 private enum class SettingsKeys(val key: String) {
@@ -424,6 +425,20 @@ object LocalPreferences {
     fun getAccountPicture(context: Context, npub: String): String {
         sharedPrefs(context, npub).apply {
             return getString(PrefKeys.PROFILE_URL.key, "") ?: ""
+        }
+    }
+
+    fun getProfileContent(context: Context, npub: String): String {
+        sharedPrefs(context, npub).apply {
+            return getString(PrefKeys.PROFILE_CONTENT.key, "") ?: ""
+        }
+    }
+
+    fun setProfileContent(context: Context, npub: String, content: String) {
+        sharedPrefs(context, npub).edit {
+            apply {
+                putString(PrefKeys.PROFILE_CONTENT.key, content)
+            }
         }
     }
 

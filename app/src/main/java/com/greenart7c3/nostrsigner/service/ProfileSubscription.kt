@@ -98,6 +98,12 @@ class ProfileSubscription(
                             }
                         }
 
+                        // Store full profile content for diff comparison
+                        val content = msg.event.content
+                        if (content.isNotBlank()) {
+                            LocalPreferences.setProfileContent(appContext, npub, content)
+                        }
+
                         if (atLeastOne) {
                             scope.launch {
                                 LocalPreferences.setLastMetadataUpdate(appContext, npub, TimeUtils.now())

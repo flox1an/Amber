@@ -3,6 +3,7 @@ package com.greenart7c3.nostrsigner.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,8 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 
@@ -23,36 +22,36 @@ import androidx.core.graphics.drawable.toBitmap
 fun LocalAppIcon(packageName: String?) {
     packageName?.let {
         val appDisplayInfo = rememberAppDisplayInfo(packageName)
-        Column(
-            modifier = Modifier.padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
             if (appDisplayInfo.icon != null) {
                 Image(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(36.dp)
                         .clip(MaterialTheme.shapes.small),
                     bitmap = appDisplayInfo.icon.toBitmap().asImageBitmap(),
                     contentDescription = appDisplayInfo.name,
                     contentScale = ContentScale.Crop,
                 )
             }
-
-            Text(
-                text = appDisplayInfo.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = packageName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-            )
+            Column(modifier = Modifier.padding(start = 10.dp)) {
+                Text(
+                    text = appDisplayInfo.name,
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                if (packageName != appDisplayInfo.name) {
+                    Text(
+                        text = packageName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

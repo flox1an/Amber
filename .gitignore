@@ -136,3 +136,12 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 quartz/
+
+# Android SDK (when ANDROID_HOME points here)
+build-tools/
+platform-tools/
+platforms/
+licenses/
+
+# Superpowers brainstorm files
+.superpowers/
