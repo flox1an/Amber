@@ -3,22 +3,18 @@ package com.greenart7c3.nostrsigner.ui
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,7 +32,6 @@ import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.FeedbackType
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
-import com.greenart7c3.nostrsigner.ui.theme.light
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.launch
 
@@ -53,125 +47,110 @@ fun FeedbackScreen(
     var body by remember { mutableStateOf(TextFieldValue("")) }
     var feedbackType by remember { mutableStateOf(FeedbackType.BUG_REPORT) }
 
-    BoxWithConstraints(
-        modifier = modifier
-            .fillMaxSize(),
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        val maxHeight = maxHeight
-
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(
-                modifier = Modifier.weight(1f, fill = true),
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(0.dp),
             ) {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    item {
-                        NamedRadio(
-                            isSelected = feedbackType == FeedbackType.BUG_REPORT,
-                            name = stringResource(R.string.bug_report),
-                            onClick = {
-                                feedbackType = FeedbackType.BUG_REPORT
-                            },
-                        )
-                    }
-                    item { Spacer(modifier = Modifier.width(8.dp)) }
-                    item {
-                        NamedRadio(
-                            isSelected = feedbackType == FeedbackType.ENHANCEMENT_REQUEST,
-                            name = stringResource(id = R.string.enhancement_request),
-                            onClick = {
-                                feedbackType = FeedbackType.ENHANCEMENT_REQUEST
-                            },
-                        )
-                    }
+                item {
+                    NamedRadio(
+                        isSelected = feedbackType == FeedbackType.BUG_REPORT,
+                        name = stringResource(R.string.bug_report),
+                        onClick = {
+                            feedbackType = FeedbackType.BUG_REPORT
+                        },
+                    )
                 }
-
-                TextField(
-                    header,
-                    onValueChange = { header = it },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    maxLines = 3,
-                    placeholder = {
-                        Text(
-                            stringResource(id = R.string.subject),
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground.light(),
-                        )
-                    },
-                    textStyle = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                    ),
-                )
-
-                val scrollState = rememberScrollState()
-                TextField(
-                    value = body,
-                    onValueChange = { body = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(maxHeight * 0.4f)
-                        .verticalScroll(scrollState),
-                    placeholder = {
-                        Text(
-                            stringResource(id = R.string.body_text_optional),
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground.light(),
-                        )
-                    },
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                    ),
-                )
+                item {
+                    NamedRadio(
+                        isSelected = feedbackType == FeedbackType.ENHANCEMENT_REQUEST,
+                        name = stringResource(id = R.string.enhancement_request),
+                        onClick = {
+                            feedbackType = FeedbackType.ENHANCEMENT_REQUEST
+                        },
+                    )
+                }
             }
 
-            AmberButton(
-                enabled = header.text.isNotBlank(),
-                text = stringResource(R.string.send),
-                onClick = {
-                    Amber.instance.applicationIOScope.launch {
-                        try {
-                            onLoading(true)
-                            val result = Amber.instance.sendFeedBack(
-                                header.text,
-                                body.text,
-                                feedbackType,
-                                account,
-                            )
-                            if (result) {
-                                ToastManager.toast(
-                                    Amber.instance.getString(R.string.warning),
-                                    Amber.instance.getString(R.string.feedback_sent),
-                                )
-                                onLoading(false)
-                                onDismiss()
-                            } else {
-                                ToastManager.toast(
-                                    Amber.instance.getString(R.string.warning),
-                                    Amber.instance.getString(R.string.failed_to_send_event),
-                                )
-                                onLoading(false)
-                            }
-                        } catch (e: Exception) {
-                            onLoading(false)
-                            if (e is CancellationException) throw e
-                        }
-                    }
+            OutlinedTextField(
+                value = header,
+                onValueChange = { header = it },
+                modifier = Modifier.fillMaxWidth(),
+                maxLines = 3,
+                label = {
+                    Text(
+                        stringResource(id = R.string.subject),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 },
+                textStyle = MaterialTheme.typography.titleMedium,
+                shape = RoundedCornerShape(12.dp),
+            )
+
+            OutlinedTextField(
+                value = body,
+                onValueChange = { body = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                label = {
+                    Text(
+                        stringResource(id = R.string.body_text_optional),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
             )
         }
+
+        AmberButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 12.dp),
+            enabled = header.text.isNotBlank(),
+            text = stringResource(R.string.send),
+            onClick = {
+                Amber.instance.applicationIOScope.launch {
+                    try {
+                        onLoading(true)
+                        val result = Amber.instance.sendFeedBack(
+                            header.text,
+                            body.text,
+                            feedbackType,
+                            account,
+                        )
+                        if (result) {
+                            ToastManager.toast(
+                                Amber.instance.getString(R.string.warning),
+                                Amber.instance.getString(R.string.feedback_sent),
+                            )
+                            onLoading(false)
+                            onDismiss()
+                        } else {
+                            ToastManager.toast(
+                                Amber.instance.getString(R.string.warning),
+                                Amber.instance.getString(R.string.failed_to_send_event),
+                            )
+                            onLoading(false)
+                        }
+                    } catch (e: Exception) {
+                        onLoading(false)
+                        if (e is CancellationException) throw e
+                    }
+                }
+            },
+        )
     }
 }
 

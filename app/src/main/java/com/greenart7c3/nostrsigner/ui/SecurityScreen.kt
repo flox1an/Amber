@@ -4,9 +4,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -51,93 +56,113 @@ fun SecurityScreen(
         mutableIntStateOf(Amber.instance.settings.biometricsTimeType.screenCode)
     }
     val scope = rememberCoroutineScope()
-    Surface(
-        modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background,
+
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            Column(
-                Modifier.weight(1f),
+        item {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .clickable {
-                            enableBiometrics = !enableBiometrics
-                        },
-                ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.enable_biometrics),
-                    )
-                    Switch(
-                        checked = enableBiometrics,
-                        onCheckedChange = {
-                            enableBiometrics = !enableBiometrics
-                        },
-                    )
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .clickable {
-                            if (setupPin) {
-                                scope.launch(Dispatchers.IO) {
-                                    val pin = LocalPreferences.loadPinFromEncryptedStorage()
-                                    scope.launch(Dispatchers.Main) {
-                                        navController.navigate("${Route.ConfirmPin.route.split("/")[0]}/$pin")
-                                    }
-                                }
-                            } else {
-                                navController.navigate(Route.SetupPin.route)
+                Column {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                enableBiometrics = !enableBiometrics
                             }
-                        },
-                ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.setup_pin),
-                    )
-                    Switch(
-                        checked = setupPin,
-                        onCheckedChange = {
-                            if (setupPin) {
-                                scope.launch(Dispatchers.IO) {
-                                    val pin = LocalPreferences.loadPinFromEncryptedStorage()
-                                    scope.launch(Dispatchers.Main) {
-                                        navController.navigate("${Route.ConfirmPin.route.split("/")[0]}/$pin")
-                                    }
-                                }
-                            } else {
-                                navController.navigate(Route.SetupPin.route)
-                            }
-                        },
-                    )
-                }
-
-                Box(
-                    Modifier
-                        .padding(8.dp),
-                ) {
-                    SettingsRow(
-                        R.string.when_to_ask,
-                        R.string.when_to_ask,
-                        biometricItems,
-                        biometricsIndex,
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                     ) {
-                        biometricsIndex = it
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.enable_biometrics),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Switch(
+                            checked = enableBiometrics,
+                            onCheckedChange = {
+                                enableBiometrics = !enableBiometrics
+                            },
+                        )
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
+
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                if (setupPin) {
+                                    scope.launch(Dispatchers.IO) {
+                                        val pin = LocalPreferences.loadPinFromEncryptedStorage()
+                                        scope.launch(Dispatchers.Main) {
+                                            navController.navigate("${Route.ConfirmPin.route.split("/")[0]}/$pin")
+                                        }
+                                    }
+                                } else {
+                                    navController.navigate(Route.SetupPin.route)
+                                }
+                            }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                    ) {
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = stringResource(R.string.setup_pin),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Switch(
+                            checked = setupPin,
+                            onCheckedChange = {
+                                if (setupPin) {
+                                    scope.launch(Dispatchers.IO) {
+                                        val pin = LocalPreferences.loadPinFromEncryptedStorage()
+                                        scope.launch(Dispatchers.Main) {
+                                            navController.navigate("${Route.ConfirmPin.route.split("/")[0]}/$pin")
+                                        }
+                                    }
+                                } else {
+                                    navController.navigate(Route.SetupPin.route)
+                                }
+                            },
+                        )
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.padding(start = 16.dp),
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        SettingsRow(
+                            R.string.when_to_ask,
+                            R.string.when_to_ask,
+                            biometricItems,
+                            biometricsIndex,
+                        ) {
+                            biometricsIndex = it
+                        }
                     }
                 }
             }
+        }
 
+        item {
             AmberButton(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         Amber.instance.settings = Amber.instance.settings.copy(

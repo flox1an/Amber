@@ -127,7 +127,9 @@ fun AccountBackupScreen(
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (isLoading) {
                 CenterCircularProgressIndicator(Modifier, text = stringResource(R.string.do_not_leave_the_app_until_the_key_is_generated))
@@ -135,8 +137,6 @@ fun AccountBackupScreen(
                 // Collapsible tips section
                 var tipsExpanded by remember { mutableStateOf(false) }
                 TipsCard(expanded = tipsExpanded, onToggle = { tipsExpanded = !tipsExpanded })
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Password section
                 val password = remember { mutableStateOf(TextFieldValue("")) }
@@ -161,8 +161,6 @@ fun AccountBackupScreen(
                     },
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
                 LocalPreferences.allSavedAccounts(Amber.instance).forEach { accountInfo ->
                     var localAccount by remember { mutableStateOf<Account?>(null) }
                     var seedWords by remember { mutableStateOf("") }
@@ -183,7 +181,6 @@ fun AccountBackupScreen(
                             onLoading = { isLoading = it },
                             onShowQrCode = onShowQrCode,
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
             }

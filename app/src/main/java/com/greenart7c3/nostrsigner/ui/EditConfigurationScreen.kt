@@ -5,11 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -123,11 +122,14 @@ fun EditConfigurationScreen(
     } else {
         Column(
             modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.edit_configuration_description))
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.edit_configuration_description),
+                style = MaterialTheme.typography.bodyMedium,
+            )
 
             OutlinedTextField(
                 value = name,
@@ -141,6 +143,7 @@ fun EditConfigurationScreen(
                 },
                 label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
             )
 
             Row(
@@ -164,7 +167,6 @@ fun EditConfigurationScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
             if (application?.application?.shouldShowRelays() == true) {
                 OutlinedTextField(
                     modifier = Modifier
@@ -223,8 +225,6 @@ fun EditConfigurationScreen(
                         )
                     },
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 relays.forEachIndexed { index, relay ->
                     Card(
@@ -303,7 +303,8 @@ fun EditConfigurationScreen(
 
             AmberButton(
                 modifier = Modifier
-                    .padding(vertical = 20.dp),
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         application?.let {
@@ -335,7 +336,8 @@ fun EditConfigurationScreen(
 
             AmberButton(
                 modifier = Modifier
-                    .padding(top = 60.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 colors = ButtonDefaults.buttonColors().copy(
                     containerColor = primaryVariant,
                 ),

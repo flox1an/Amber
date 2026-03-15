@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -174,7 +174,8 @@ fun ExportAllAccountsScreen(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (isLoading) {
                 CenterCircularProgressIndicator(Modifier)
@@ -194,7 +195,6 @@ fun ExportAllAccountsScreen(
 
                 RichText(
                     style = RichTextStyle().resolveDefaults(),
-                    modifier = Modifier.padding(bottom = 16.dp),
                 ) {
                     BasicMarkdown(astNode)
                 }
@@ -202,7 +202,6 @@ fun ExportAllAccountsScreen(
                 Text(
                     text = stringResource(R.string.accounts_to_export, accountCount),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp),
                 )
 
                 // Password input
@@ -243,9 +242,8 @@ fun ExportAllAccountsScreen(
                         }
                     },
                     visualTransformation = if (showCharsPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp),
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 // Password confirmation
                 OutlinedTextField(
@@ -287,6 +285,7 @@ fun ExportAllAccountsScreen(
                         }
                     },
                     visualTransformation = if (showCharsPasswordConfirm) VisualTransformation.None else PasswordVisualTransformation(),
+                    shape = RoundedCornerShape(12.dp),
                 )
 
                 if (errorMessage.isNotBlank()) {
@@ -294,7 +293,6 @@ fun ExportAllAccountsScreen(
                         text = errorMessage,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
 

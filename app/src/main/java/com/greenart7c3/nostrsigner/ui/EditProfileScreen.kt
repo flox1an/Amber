@@ -1,8 +1,11 @@
 package com.greenart7c3.nostrsigner.ui
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,26 +37,34 @@ fun EditProfileScreen(
         mutableStateOf(TextFieldValue(name))
     }
 
-    Column(
-        modifier,
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = textFieldvalue.text,
-            onValueChange = {
-                textFieldvalue = TextFieldValue(it)
-            },
-            label = {
-                Text(stringResource(R.string.nickname))
-            },
-        )
-        AmberButton(
-            modifier = Modifier.padding(vertical = 40.dp),
-            onClick = {
-                LocalPreferences.setAccountName(context, npub, textFieldvalue.text)
-                accountStateViewModel.switchUser(account.npub, Route.Settings.route)
-            },
-            text = stringResource(R.string.save),
-        )
+        item {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = textFieldvalue.text,
+                onValueChange = {
+                    textFieldvalue = TextFieldValue(it)
+                },
+                label = {
+                    Text(stringResource(R.string.nickname))
+                },
+                shape = RoundedCornerShape(12.dp),
+            )
+        }
+
+        item {
+            AmberButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    LocalPreferences.setAccountName(context, npub, textFieldvalue.text)
+                    accountStateViewModel.switchUser(account.npub, Route.Settings.route)
+                },
+                text = stringResource(R.string.save),
+            )
+        }
     }
 }

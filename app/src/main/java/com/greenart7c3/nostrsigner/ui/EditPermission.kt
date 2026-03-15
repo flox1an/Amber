@@ -17,6 +17,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -168,7 +169,7 @@ fun EditPermission(
         }
 
         AmberButton(
-            modifier = Modifier.padding(top = 20.dp),
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 navController.navigate("Activity/${applicationData.key}")
             },
@@ -176,7 +177,7 @@ fun EditPermission(
         )
 
         AmberButton(
-            modifier = Modifier.padding(bottom = 20.dp),
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
                 navController.navigate("EditConfiguration/${applicationData.key}")
             },
@@ -184,9 +185,7 @@ fun EditPermission(
         )
 
         Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
+            modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.edit_permissions_description),
         )
 
@@ -221,7 +220,9 @@ fun EditPermission(
 
         if (permissions.isNotEmpty()) {
             AmberDangerButton(
-                modifier = Modifier.padding(top = 60.dp, bottom = 60.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 16.dp),
                 onClick = {
                     wantsToRemovePermissions = true
                 },
@@ -317,157 +318,160 @@ fun PermissionRow(
         mutableIntStateOf(rememberTypeToIndex(parseRememberType(permission.rememberType)))
     }
 
-    Column(
+    Surface(
         modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .border(
-                BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                RoundedCornerShape(6.dp),
-            )
-            .padding(4.dp),
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
-        Text(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        if (permission.kind == 22242 && permission.relay.isNotEmpty()) {
+                .padding(4.dp),
+        ) {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                text = if (permission.relay == "*") {
-                    context.getString(R.string.for_all_relays)
-                } else {
-                    permission.relay
-                },
-                style = MaterialTheme.typography.bodySmall,
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-        }
 
-        AmberToggles(
-            count = 3,
-            selectedIndex = optionIndex,
-        ) {
-            ToggleOption(
-                text = "Allow",
-                isSelected = optionIndex == 0,
-                modifier = Modifier.width(fixedSegmentWidth),
-                onClick = {
-                    optionIndex = 0
+            if (permission.kind == 22242 && permission.relay.isNotEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    text = if (permission.relay == "*") {
+                        context.getString(R.string.for_all_relays)
+                    } else {
+                        permission.relay
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 
-                    onSetPermission(
-                        optionIndex,
-                        rememberTypeIndex,
-                        permission,
-                        onToggle,
-                    )
-                },
-            )
-            ToggleOption(
-                text = "Deny",
-                isSelected = optionIndex == 1,
-                modifier = Modifier.width(fixedSegmentWidth),
-                onClick = {
-                    optionIndex = 1
-
-                    onSetPermission(
-                        optionIndex,
-                        rememberTypeIndex,
-                        permission,
-                        onToggle,
-                    )
-                },
-            )
-            ToggleOption(
-                text = "Ask",
-                isSelected = optionIndex == 2,
-                modifier = Modifier.width(fixedSegmentWidth),
-                onClick = {
-                    optionIndex = 2
-
-                    onSetPermission(
-                        optionIndex,
-                        rememberTypeIndex,
-                        permission,
-                        onToggle,
-                    )
-                },
-            )
-        }
-
-        if (optionIndex != 2) {
             AmberToggles(
-                selectedIndex = rememberTypeIndex,
-                count = 4,
-                content = {
-                    ToggleOption(
-                        text = "Always",
-                        isSelected = rememberTypeIndex == 0,
-                        modifier = Modifier.width(fixedSegmentWidth),
-                        onClick = {
-                            rememberTypeIndex = 0
+                count = 3,
+                selectedIndex = optionIndex,
+            ) {
+                ToggleOption(
+                    text = "Allow",
+                    isSelected = optionIndex == 0,
+                    modifier = Modifier.width(fixedSegmentWidth),
+                    onClick = {
+                        optionIndex = 0
 
-                            onSetPermission(
-                                optionIndex,
-                                rememberTypeIndex,
-                                permission,
-                                onToggle,
-                            )
-                        },
-                    )
-                    ToggleOption(
-                        text = "1m",
-                        isSelected = rememberTypeIndex == 1,
-                        modifier = Modifier.width(fixedSegmentWidth),
-                        onClick = {
-                            rememberTypeIndex = 1
-                            onSetPermission(
-                                optionIndex,
-                                rememberTypeIndex,
-                                permission,
-                                onToggle,
-                            )
-                        },
-                    )
-                    ToggleOption(
-                        text = "5m",
-                        isSelected = rememberTypeIndex == 2,
-                        modifier = Modifier.width(fixedSegmentWidth),
-                        onClick = {
-                            rememberTypeIndex = 2
-                            onSetPermission(
-                                optionIndex,
-                                rememberTypeIndex,
-                                permission,
-                                onToggle,
-                            )
-                        },
-                    )
-                    ToggleOption(
-                        text = "10m",
-                        isSelected = rememberTypeIndex == 3,
-                        modifier = Modifier.width(fixedSegmentWidth),
-                        onClick = {
-                            rememberTypeIndex = 3
-                            onSetPermission(
-                                optionIndex,
-                                rememberTypeIndex,
-                                permission,
-                                onToggle,
-                            )
-                        },
-                    )
-                },
-            )
+                        onSetPermission(
+                            optionIndex,
+                            rememberTypeIndex,
+                            permission,
+                            onToggle,
+                        )
+                    },
+                )
+                ToggleOption(
+                    text = "Deny",
+                    isSelected = optionIndex == 1,
+                    modifier = Modifier.width(fixedSegmentWidth),
+                    onClick = {
+                        optionIndex = 1
+
+                        onSetPermission(
+                            optionIndex,
+                            rememberTypeIndex,
+                            permission,
+                            onToggle,
+                        )
+                    },
+                )
+                ToggleOption(
+                    text = "Ask",
+                    isSelected = optionIndex == 2,
+                    modifier = Modifier.width(fixedSegmentWidth),
+                    onClick = {
+                        optionIndex = 2
+
+                        onSetPermission(
+                            optionIndex,
+                            rememberTypeIndex,
+                            permission,
+                            onToggle,
+                        )
+                    },
+                )
+            }
+
+            if (optionIndex != 2) {
+                AmberToggles(
+                    selectedIndex = rememberTypeIndex,
+                    count = 4,
+                    content = {
+                        ToggleOption(
+                            text = "Always",
+                            isSelected = rememberTypeIndex == 0,
+                            modifier = Modifier.width(fixedSegmentWidth),
+                            onClick = {
+                                rememberTypeIndex = 0
+
+                                onSetPermission(
+                                    optionIndex,
+                                    rememberTypeIndex,
+                                    permission,
+                                    onToggle,
+                                )
+                            },
+                        )
+                        ToggleOption(
+                            text = "1m",
+                            isSelected = rememberTypeIndex == 1,
+                            modifier = Modifier.width(fixedSegmentWidth),
+                            onClick = {
+                                rememberTypeIndex = 1
+                                onSetPermission(
+                                    optionIndex,
+                                    rememberTypeIndex,
+                                    permission,
+                                    onToggle,
+                                )
+                            },
+                        )
+                        ToggleOption(
+                            text = "5m",
+                            isSelected = rememberTypeIndex == 2,
+                            modifier = Modifier.width(fixedSegmentWidth),
+                            onClick = {
+                                rememberTypeIndex = 2
+                                onSetPermission(
+                                    optionIndex,
+                                    rememberTypeIndex,
+                                    permission,
+                                    onToggle,
+                                )
+                            },
+                        )
+                        ToggleOption(
+                            text = "10m",
+                            isSelected = rememberTypeIndex == 3,
+                            modifier = Modifier.width(fixedSegmentWidth),
+                            onClick = {
+                                rememberTypeIndex = 3
+                                onSetPermission(
+                                    optionIndex,
+                                    rememberTypeIndex,
+                                    permission,
+                                    onToggle,
+                                )
+                            },
+                        )
+                    },
+                )
+            }
         }
     }
 }

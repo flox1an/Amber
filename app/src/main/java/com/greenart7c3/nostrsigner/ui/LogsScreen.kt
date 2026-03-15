@@ -3,19 +3,18 @@ package com.greenart7c3.nostrsigner.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,13 +51,18 @@ fun LogsScreen(
 
     LazyColumn(
         state = state,
-        modifier = Modifier
-            .fillMaxSize(),
-        contentPadding = paddingValues,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = paddingValues.calculateTopPadding() + 12.dp,
+            bottom = paddingValues.calculateBottomPadding() + 12.dp,
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
             AmberButton(
-                modifier = Modifier.padding(bottom = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         Amber.instance.getLogDatabase(account.npub).dao().clearLogs()
@@ -70,43 +74,40 @@ fun LogsScreen(
         items(lazyPagingItems.itemCount) { index ->
             val log = lazyPagingItems[index]
             log?.let {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            modifier = Modifier.padding(top = 16.dp),
                             text = TimeUtils.formatLongToCustomDateTimeWithSeconds(log.time),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(vertical = 4.dp),
+                        )
+                        Text(
+                            text = log.url,
                             style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            modifier = Modifier.padding(top = 4.dp),
-                            text = log.url,
-                            style = MaterialTheme.typography.titleLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            modifier = Modifier.padding(top = 4.dp),
                             text = log.type,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
                             text = log.message,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-
-                        Spacer(Modifier.weight(1f))
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
