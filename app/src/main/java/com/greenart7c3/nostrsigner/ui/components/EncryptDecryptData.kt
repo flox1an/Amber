@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.Account
@@ -91,7 +90,7 @@ fun EncryptDecryptData(
 
         Text(
             text.trim().capitalize(Locale.current),
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.titleMedium,
         )
 
         Card(
@@ -254,7 +253,7 @@ fun BunkerEncryptDecryptData(
                     }
                 }
             },
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.titleMedium,
         )
 
         Card(

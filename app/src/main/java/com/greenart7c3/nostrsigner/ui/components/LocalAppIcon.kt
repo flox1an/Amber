@@ -17,7 +17,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 
 @Composable
@@ -42,10 +41,7 @@ fun LocalAppIcon(packageName: String?) {
 
             Text(
                 text = appDisplayInfo.name,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp,
-                ),
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
 
@@ -53,8 +49,8 @@ fun LocalAppIcon(packageName: String?) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 text = packageName,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
                 textAlign = TextAlign.Center,
             )
         }

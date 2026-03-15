@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.models.EventEncryptedDataKind
 import com.greenart7c3.nostrsigner.models.IntentData
@@ -152,7 +151,7 @@ fun PermissionCard(
                         stringResource(R.string.of_events, selected, total),
                         modifier = Modifier.padding(start = 48.dp, bottom = 4.dp),
                         color = Color.Gray,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
 
                     Text(
@@ -175,7 +174,7 @@ fun PermissionCard(
                         },
                         modifier = Modifier.padding(start = 46.dp, bottom = 8.dp),
                         color = Color.Gray,
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }

@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -119,9 +118,9 @@ fun ActivitiesScreen(
                         Modifier
                             .fillMaxWidth()
                             .padding(8.dp),
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -218,9 +217,9 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
                     Text(
                         modifier = Modifier.padding(top = 2.dp),
                         text = activity.content,
+                        style = MaterialTheme.typography.bodyMedium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
-                        fontSize = 14.sp,
                         color = if (activity.accepted) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -228,7 +227,7 @@ fun ActivityRow(activity: HistoryEntity, account: Account) {
                 Text(
                     modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
                     text = TimeUtils.formatLongToCustomDateTimeWithSeconds(activity.time * 1000),
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

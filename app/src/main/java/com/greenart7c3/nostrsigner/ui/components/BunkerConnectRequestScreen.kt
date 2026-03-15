@@ -214,8 +214,8 @@ fun BunkerConnectRequestScreen(
                         val name by acc.name.collectAsStateWithLifecycle()
                         Text(
                             name.ifBlank { acc.npub.toShortenHex() },
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
                             textAlign = TextAlign.Center,
                         )
                     },
@@ -248,9 +248,9 @@ fun BunkerConnectRequestScreen(
                         Text(
                             text = relay.url,
                             modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            fontSize = 14.sp,
                         )
                         TrustScoreBadge(
                             score = trustScores[relay.url],

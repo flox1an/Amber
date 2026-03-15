@@ -52,7 +52,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.collections.immutable.ImmutableList
 
@@ -148,7 +147,7 @@ fun SpinnerSelectionDialog(
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(text = it, color = Color.Gray, fontSize = 14.sp)
+                Text(text = it, color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

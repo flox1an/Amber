@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.R
@@ -317,8 +316,8 @@ fun NewNsecBunkerCreatedScreen(
             ) {
                 Text(
                     text = stringResource(R.string.your_nsec_bunker_has_been_created),
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
                 )
             }
 
@@ -330,7 +329,7 @@ fun NewNsecBunkerCreatedScreen(
 
             Text(
                 bunkerUri,
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleMedium,
             )
 
             Spacer(modifier = Modifier.height(8.dp))

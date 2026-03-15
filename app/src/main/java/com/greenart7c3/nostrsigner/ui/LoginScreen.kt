@@ -91,12 +91,10 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.toLowerCase
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -255,8 +253,7 @@ fun MainPage(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .padding(horizontal = verticalPadding)
-                .padding(top = verticalPadding * 1.5f),
+                .padding(horizontal = 16.dp),
         ) {
             if (isLoading) {
                 CenterCircularProgressIndicator(
@@ -269,55 +266,86 @@ fun MainPage(
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = stringResource(R.string.app_name_release).toUpperCase(Locale.current),
-                        fontSize = 36.sp,
-                    )
-                    Text(
-                        text = stringResource(R.string.a_nostr_secure_signer),
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    Spacer(Modifier.weight(0.15f))
 
                     Image(
-                        modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+                        modifier = Modifier.size(80.dp),
                         imageVector = ImageVector.vectorResource(R.drawable.frame),
                         contentDescription = "Logo",
                     )
 
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    Text(
+                        text = stringResource(R.string.app_name_release),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.a_nostr_secure_signer),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+
+                    Spacer(Modifier.weight(0.2f))
+
+                    // Primary action — most common for new users
+                    AmberButton(
+                        onClick = {
+                            scope.launch {
+                                navController.navigate("create")
+                            }
+                        },
+                        text = stringResource(R.string.generate_a_new_key),
+                    )
+
+                    // Divider
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AmberElevatedButton(
-                            contentColor = MaterialTheme.colorScheme.surfaceContainer,
-                            textColor = MaterialTheme.colorScheme.primary,
-                            onClick = {
-                                scope.launch {
-                                    navController.navigate("loginPage")
-                                }
-                            },
-                            text = stringResource(R.string.add_a_key),
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.outlineVariant),
                         )
-
-                        AmberButton(
-                            onClick = {
-                                scope.launch {
-                                    navController.navigate("create")
-                                }
-                            },
-                            text = stringResource(R.string.generate_a_new_key),
+                        Text(
+                            text = stringResource(R.string.or),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp),
                         )
-
-                        AmberButton(
-                            onClick = {
-                                shouldShowBottomSheet.value = true
-                            },
-                            text = stringResource(R.string.recover_from_backup),
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.outlineVariant),
                         )
                     }
 
-                    Spacer(Modifier.weight(1f))
+                    // Secondary actions — for existing users
+                    AmberElevatedButton(
+                        onClick = {
+                            scope.launch {
+                                navController.navigate("loginPage")
+                            }
+                        },
+                        text = stringResource(R.string.add_a_key),
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    AmberElevatedButton(
+                        onClick = {
+                            shouldShowBottomSheet.value = true
+                        },
+                        text = stringResource(R.string.recover_from_backup),
+                    )
+
+                    Spacer(Modifier.weight(0.3f))
 
                     val message = stringResource(R.string.amber_is_a_free_and_open_source_project)
                     val githubUri = stringResource(R.string.amber_github_uri)
@@ -326,6 +354,7 @@ fun MainPage(
                     Text(
                         modifier = Modifier.padding(bottom = 20.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall,
                         text = buildAnnotatedString {
                             withStyle(
                                 style = ParagraphStyle(

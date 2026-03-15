@@ -40,7 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.R
@@ -146,8 +145,8 @@ fun EditPermission(
                 bunkerUri,
                 Modifier
                     .padding(bottom = 8.dp),
+                style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Start,
-                fontSize = 18.sp,
             )
 
             AmberButton(

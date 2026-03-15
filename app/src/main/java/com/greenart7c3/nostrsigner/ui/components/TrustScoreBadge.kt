@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greenart7c3.nostrsigner.R
 
 enum class TrustLevel(val color: Color) {
@@ -82,7 +81,7 @@ fun TrustScoreBadge(
             Text(
                 text = score?.toString() ?: "?",
                 color = Color.White,
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
             )
         }
@@ -91,7 +90,7 @@ fun TrustScoreBadge(
             Text(
                 text = getTrustLevelLabel(trustLevel),
                 modifier = Modifier.padding(start = 4.dp),
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = trustLevel.color,
             )
         }

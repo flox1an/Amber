@@ -41,7 +41,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.paging.Pager
@@ -526,19 +525,19 @@ fun RelayLogScreen(
                         Text(
                             modifier = Modifier.padding(top = 16.dp),
                             text = formatLongToCustomDateTimeWithSeconds(log.time),
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.bodyMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             modifier = Modifier.padding(top = 4.dp),
                             text = log.type,
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleLarge,
                         )
                         Text(
                             modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
                             text = log.message,
-                            fontSize = 20.sp,
+                            style = MaterialTheme.typography.titleLarge,
                         )
 
                         Spacer(Modifier.weight(1f))
@@ -627,7 +626,7 @@ fun ActiveRelaysScreen(
                         Text(
                             modifier = Modifier.weight(1f),
                             text = relay.url,
-                            fontSize = 24.sp,
+                            style = MaterialTheme.typography.headlineSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = if (isConnected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -644,7 +643,7 @@ fun ActiveRelaysScreen(
                         Text(
                             modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
                             text = if (isConnected) "${Amber.instance.relayStats.get(relay).pingInMs}ms ping" else "Unavailable",
-                            fontSize = 16.sp,
+                            style = MaterialTheme.typography.bodyLarge,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             color = if (isConnected) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,

@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.ui.RememberType
 
@@ -51,7 +50,7 @@ fun BunkerPingScreen(
                 }
                 append(" ${stringResource(R.string.requests)} $message")
             },
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.size(4.dp))
 

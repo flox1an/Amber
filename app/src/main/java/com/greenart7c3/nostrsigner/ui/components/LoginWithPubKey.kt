@@ -51,7 +51,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -148,10 +147,7 @@ fun LoginWithPubKey(
 
                 Text(
                     text = appDisplayInfo.name,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 18.sp,
-                        lineHeight = 24.sp,
-                    ),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
 
@@ -159,8 +155,8 @@ fun LoginWithPubKey(
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = packageName,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -240,8 +236,8 @@ fun LoginWithPubKey(
                         val name by acc.name.collectAsStateWithLifecycle()
                         Text(
                             name.ifBlank { acc.npub.toShortenHex() },
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
                             textAlign = TextAlign.Center,
                         )
                     },

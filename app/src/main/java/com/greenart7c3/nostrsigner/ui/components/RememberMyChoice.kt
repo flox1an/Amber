@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greenart7c3.nostrsigner.R
 import com.greenart7c3.nostrsigner.ui.RememberType
 
@@ -51,7 +50,7 @@ fun LabeledBorderBox(
                 .padding(start = 16.dp)
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 8.dp),
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Light,
         )
     }
