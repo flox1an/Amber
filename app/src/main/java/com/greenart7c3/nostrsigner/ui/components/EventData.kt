@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -101,15 +103,30 @@ fun EventData(
 
         SigningAs(account)
 
-        if (showMore) {
-            EventDetailModal(
-                event = event,
-                onDismiss = {
-                    showMore = false
-                },
-            )
+        if (hasKindRenderer(event.kind)) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(scrollState),
+            ) {
+                Spacer(Modifier.size(8.dp))
+                RenderKindContent(kind = event.kind, content = event.content, account = account)
+                Spacer(Modifier.size(16.dp))
+            }
         } else {
-            Spacer(modifier = Modifier.weight(1f))
+            if (showMore) {
+                EventDetailModal(
+                    event = event,
+                    onDismiss = {
+                        showMore = false
+                    },
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
 
         RememberMyChoice(
@@ -186,15 +203,30 @@ fun BunkerEventData(
 
         SigningAs(account)
 
-        if (showMore) {
-            EventDetailModal(
-                event = event,
-                onDismiss = {
-                    showMore = false
-                },
-            )
+        if (hasKindRenderer(event.kind)) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(scrollState),
+            ) {
+                Spacer(Modifier.size(8.dp))
+                RenderKindContent(kind = event.kind, content = event.content, account = account)
+                Spacer(Modifier.size(16.dp))
+            }
         } else {
-            Spacer(modifier = Modifier.weight(1f))
+            if (showMore) {
+                EventDetailModal(
+                    event = event,
+                    onDismiss = {
+                        showMore = false
+                    },
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
 
         RememberMyChoice(
