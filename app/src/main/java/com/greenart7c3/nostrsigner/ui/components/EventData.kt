@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,13 +23,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.greenart7c3.nostrsigner.Amber
@@ -53,7 +45,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventData(
     modifier: Modifier,
@@ -85,21 +76,11 @@ fun EventData(
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                LocalAppIcon(packageName)
-
-                val permission = Permission("sign_event", event.kind)
-                val kindTranslation = permission.toLocalizedString(context)
-                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-                Text(
-                    text.capitalize(Locale.current),
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                ApprovalHeader(
+                    eventKind = event.kind,
+                    account = account,
+                    packageName = packageName,
                 )
-
-                Spacer(Modifier.size(8.dp))
-                SigningAs(account)
-                Spacer(Modifier.size(8.dp))
 
                 Column(modifier = Modifier.padding(horizontal = 8.dp)) {
                     RenderKindContent(kind = event.kind, content = event.content, account = account, tags = event.tags)
@@ -112,17 +93,14 @@ fun EventData(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                LocalAppIcon(packageName)
+                ApprovalHeader(
+                    eventKind = event.kind,
+                    account = account,
+                    packageName = packageName,
+                )
 
                 val permission = Permission("sign_event", event.kind)
                 val kindTranslation = permission.toLocalizedString(context)
-                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-                Text(
-                    text.capitalize(Locale.current),
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                )
                 if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
                     ReportMissingEventKindButton(account, event.kind)
                 }
@@ -133,8 +111,6 @@ fun EventData(
                     },
                     stringResource(R.string.show_details),
                 )
-                Spacer(Modifier.size(16.dp))
-                SigningAs(account)
                 if (showMore) {
                     EventDetailModal(
                         event = event,
@@ -201,24 +177,12 @@ fun BunkerEventData(
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.size(16.dp))
-                val permission = Permission("sign_event", event.kind)
-                val kindTranslation = permission.toLocalizedString(context)
-                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-                Text(
-                    buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(appName)
-                        }
-                        append(" $text")
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                ApprovalHeader(
+                    eventKind = event.kind,
+                    account = account,
+                    appName = appName,
                 )
-                Spacer(Modifier.size(8.dp))
-                SigningAs(account)
-                Spacer(Modifier.size(8.dp))
+
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     RenderKindContent(kind = event.kind, content = event.content, account = account, tags = event.tags)
                 }
@@ -229,21 +193,14 @@ fun BunkerEventData(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(Modifier.size(16.dp))
+                ApprovalHeader(
+                    eventKind = event.kind,
+                    account = account,
+                    appName = appName,
+                )
+
                 val permission = Permission("sign_event", event.kind)
                 val kindTranslation = permission.toLocalizedString(context)
-                val text = stringResource(R.string.wants_you_to_sign_a, kindTranslation)
-                Text(
-                    buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(appName)
-                        }
-                        append(" $text")
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                )
                 if (kindTranslation == stringResource(R.string.event_kind, event.kind.toString())) {
                     ReportMissingEventKindButton(account, event.kind)
                 }
@@ -254,8 +211,6 @@ fun BunkerEventData(
                     },
                     stringResource(R.string.show_details),
                 )
-                Spacer(Modifier.size(16.dp))
-                SigningAs(account)
                 if (showMore) {
                     EventDetailModal(
                         event = event,

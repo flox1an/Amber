@@ -1,8 +1,6 @@
 package com.greenart7c3.nostrsigner.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -12,13 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Reply
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,13 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Account
-import com.vitorpamplona.quartz.nip19Bech32.toNpub
 
 private val IMAGE_URL_REGEX =
     Regex("""https?://\S+\.(jpg|jpeg|png|gif|webp)(\?\S*)?""", RegexOption.IGNORE_CASE)
@@ -56,18 +48,23 @@ fun Kind1NoteRenderer(
     tags: Array<Array<String>>,
 ) {
     val parentEventId = tags.firstOrNull { it.size >= 2 && it[0] == "e" }?.get(1)
+    val parentAuthorPubkey = tags.firstOrNull { it.size >= 2 && it[0] == "p" }?.get(1)
     val hashtags = tags.filter { it.size >= 2 && it[0] == "t" }.map { it[1] }
     val isReply = parentEventId != null
 
     var parentEvent by remember { mutableStateOf<FetchedEvent?>(null) }
+    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
     var parentFetchFailed by remember { mutableStateOf(false) }
     var isLoadingParent by remember { mutableStateOf(false) }
 
     if (isReply && parentEventId != null) {
+        // Fetch parent event
         LaunchedEffect(parentEventId) {
             isLoadingParent = true
             try {
-                val fetched = fetchEvent(parentEventId)
+                val fetched = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fetchEvent(parentEventId)
+                }
                 if (fetched != null) {
                     parentEvent = fetched
                 } else {
@@ -78,11 +75,35 @@ fun Kind1NoteRenderer(
             }
             isLoadingParent = false
         }
+
+        // Fetch author profile separately (using p tag or event author)
+        val authorToFetch = parentAuthorPubkey ?: parentEvent?.authorPubkey
+
+        LaunchedEffect(authorToFetch) {
+            if (authorToFetch == null) return@LaunchedEffect
+            try {
+                val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fetchAuthorProfile(authorToFetch)
+                }
+                if (profile != null) {
+                    authorProfile = profile
+                }
+            } catch (_: Exception) {
+            }
+        }
+
+        // Apply profile to event when both are available
+        if (authorProfile != null && parentEvent != null && parentEvent?.authorPictureUrl == null) {
+            parentEvent = parentEvent!!.copy(
+                authorDisplayName = authorProfile!!.first,
+                authorPictureUrl = authorProfile!!.second,
+            )
+        }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "SHORT TEXT NOTE",
+            text = if (isReply) "REPLY" else "NOTE",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp),
@@ -93,37 +114,24 @@ fun Kind1NoteRenderer(
             if (isLoadingParent) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 2.dp,
-                        )
-                        Text(
-                            text = "Loading parent note...",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Row(modifier = Modifier.padding(12.dp)) {
+                        LoadingRow(text = "Loading original note...")
                     }
                 }
             } else if (parentEvent != null) {
                 val pe = parentEvent!!
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Icon(
                                 Icons.Default.Reply,
@@ -131,18 +139,19 @@ fun Kind1NoteRenderer(
                                 modifier = Modifier.size(14.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                            Text(
-                                text = "Replying to ${shortenNpub(pe.authorNpub)}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            AuthorIdentityRow(
+                                displayName = pe.authorDisplayName,
+                                npub = pe.authorNpub,
+                                pictureUrl = pe.authorPictureUrl,
+                                avatarSize = 24,
                             )
                         }
-                        Spacer(modifier = Modifier.size(4.dp))
+                        Spacer(modifier = Modifier.size(6.dp))
                         Text(
-                            text = pe.content.take(100) + if (pe.content.length > 100) "..." else "",
+                            text = pe.content.take(200) + if (pe.content.length > 200) "..." else "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 3,
+                            maxLines = 4,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
@@ -150,7 +159,7 @@ fun Kind1NoteRenderer(
             } else if (parentFetchFailed) {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 ) {
                     Row(
@@ -208,45 +217,8 @@ fun Kind1NoteRenderer(
         }
 
         // Collapsible raw JSON
-        Spacer(modifier = Modifier.size(12.dp))
-        var showRaw by remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showRaw = !showRaw }
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = if (showRaw) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(
-                text = if (showRaw) "Hide raw event" else "Show raw event",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        AnimatedVisibility(visible = showRaw) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                val scrollState = rememberScrollState()
-                Text(
-                    text = content,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontFamily = FontFamily.Monospace,
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .horizontalScroll(scrollState),
-                )
-            }
-        }
+        val rawJson = remember(content, tags) { buildRawEventJson(1, content, tags) }
+        CollapsibleRawJson(rawJson = rawJson)
     }
 }
 
@@ -309,65 +281,5 @@ private fun NoteContent(content: String) {
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { expanded = !expanded },
         )
-    }
-}
-
-private fun shortenNpub(npub: String): String {
-    if (npub.length < 16) return npub
-    return "${npub.take(8)}:${npub.takeLast(4)}"
-}
-
-data class FetchedEvent(
-    val authorNpub: String,
-    val content: String,
-)
-
-private suspend fun fetchEvent(eventId: String): FetchedEvent? {
-    return kotlinx.coroutines.withTimeoutOrNull(5000L) {
-        val relays = com.greenart7c3.nostrsigner.LocalPreferences
-            .loadSettingsFromEncryptedStorage().defaultProfileRelays
-        if (relays.isEmpty()) return@withTimeoutOrNull null
-
-        val result = kotlinx.coroutines.CompletableDeferred<FetchedEvent?>()
-        val client = com.greenart7c3.nostrsigner.Amber.instance.client
-        val subId = java.util.UUID.randomUUID().toString()
-
-        val listener = object : com.vitorpamplona.quartz.nip01Core.relay.client.listeners.IRelayClientListener {
-            override fun onIncomingMessage(
-                relay: com.vitorpamplona.quartz.nip01Core.relay.client.single.IRelayClient,
-                msgStr: String,
-                msg: com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.Message,
-            ) {
-                if (msg is com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.EventMessage && msg.subId == subId) {
-                    val authorHex = msg.event.pubKey
-                    val authorNpub = try {
-                        com.vitorpamplona.quartz.utils.Hex
-                            .decode(authorHex).toNpub()
-                    } catch (_: Exception) {
-                        authorHex.take(8) + "..." + authorHex.takeLast(8)
-                    }
-                    result.complete(FetchedEvent(authorNpub = authorNpub, content = msg.event.content))
-                    client.close(subId)
-                    client.unsubscribe(this)
-                }
-                if (msg is com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.EoseMessage && msg.subId == subId) {
-                    if (!result.isCompleted) {
-                        result.complete(null)
-                        client.close(subId)
-                        client.unsubscribe(this)
-                    }
-                }
-            }
-        }
-
-        client.subscribe(listener)
-        val filter = com.vitorpamplona.quartz.nip01Core.relay.filters.Filter(
-            ids = listOf(eventId),
-            limit = 1,
-        )
-        val filterMap = relays.associateWith { listOf(filter) }
-        client.openReqSubscription(subId, filterMap)
-
-        result.await()
     }
 }

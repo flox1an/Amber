@@ -34,5 +34,23 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "app_kind_1h",
     )
 
+    // Kind 3: Follow list — medium risk, replaces entire contact list
+    3 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 6: Repost — low risk, often done in bursts
+    6 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     else -> null
 }

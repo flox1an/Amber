@@ -2,6 +2,7 @@ package com.greenart7c3.nostrsigner.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -120,7 +123,20 @@ fun RememberMyChoice(
                 }
             }
         } else {
-            // Multiple scope options — radio-style selector
+            // Multiple scope options — selectable radio-style
+            var selectedScopeId by remember { mutableStateOf(approvalConfig.defaultScopeId) }
+
+            // Map scope selection to RememberType
+            LaunchedEffect(selectedScopeId) {
+                val rememberType = when (selectedScopeId) {
+                    "once" -> RememberType.NEVER
+                    "app_kind_1h" -> RememberType.ONE_HOUR
+                    "app_kind_always" -> RememberType.ALWAYS
+                    else -> RememberType.NEVER
+                }
+                onChanged(rememberType)
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -128,25 +144,34 @@ fun RememberMyChoice(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 approvalConfig.scopes.forEach { scope ->
+                    val isSelected = selectedScopeId == scope.id
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (scope.recommended) {
+                        color = if (isSelected) {
                             MaterialTheme.colorScheme.primaryContainer
                         } else {
                             MaterialTheme.colorScheme.surfaceContainer
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedScopeId = scope.id },
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = { selectedScopeId = scope.id },
+                                modifier = Modifier.size(20.dp),
+                            )
                             Text(
                                 text = scope.label,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f),
                             )
-                            if (scope.recommended) {
+                            if (scope.recommended && !isSelected) {
                                 Text(
                                     text = "Recommended",
                                     style = MaterialTheme.typography.labelSmall,
