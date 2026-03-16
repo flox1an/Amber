@@ -107,7 +107,7 @@ fun NewNsecBunkerScreen(
             item {
                 Text(
                     stringResource(R.string.create_nsecbunker_description),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -403,7 +403,7 @@ fun NewNsecBunkerCreatedScreen(
             item {
                 Text(
                     stringResource(R.string.use_this_url_in_your_app),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

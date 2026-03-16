@@ -503,7 +503,7 @@ fun SignUpPage(
                 )
                 Text(
                     text = stringResource(R.string.please_add_a_nickname_later_you_will_able_to_personalise_your_full_profile_bio_pic_etc_using_your_preferred_nostr_client),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
                     textAlign = TextAlign.Center,

@@ -59,7 +59,7 @@ fun ActivityScreen(
     val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
     val textFieldState by remember { mutableStateOf(TextFieldState(initialText = searchQuery)) }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(top = topPadding)) {
         SimpleSearchBar(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

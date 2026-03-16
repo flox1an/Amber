@@ -414,7 +414,7 @@ private fun ActiveRelayRow(
 }
 
 @Composable
-private fun EditableRelayRow(
+internal fun EditableRelayRow(
     relayUrl: String,
     trustScore: Int?,
     isLoadingScore: Boolean,
@@ -452,7 +452,7 @@ private fun EditableRelayRow(
 }
 
 @Composable
-private fun AddRelayField(
+internal fun AddRelayField(
     textFieldValue: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
     onAdd: () -> Unit,

@@ -97,7 +97,7 @@ fun NewApplicationScreen(
     ) {
         Text(
             text = stringResource(R.string.new_app_description),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp),
         )

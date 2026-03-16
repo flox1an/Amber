@@ -1,6 +1,5 @@
 package com.greenart7c3.nostrsigner.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,18 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,15 +25,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.greenart7c3.nostrsigner.Amber
@@ -54,10 +42,9 @@ import com.greenart7c3.nostrsigner.service.TrustScoreService
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.actions.onAddRelay
 import com.greenart7c3.nostrsigner.ui.components.AmberButton
+import com.greenart7c3.nostrsigner.ui.components.AmberDangerButton
 import com.greenart7c3.nostrsigner.ui.components.AppIcon
-import com.greenart7c3.nostrsigner.ui.components.TrustScoreBadge
 import com.greenart7c3.nostrsigner.ui.navigation.Route
-import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.nip01Core.relay.normalizer.NormalizedRelayUrl
 import kotlin.collections.set
 import kotlinx.coroutines.Dispatchers
@@ -127,6 +114,7 @@ fun EditConfigurationScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // App header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -141,9 +129,11 @@ fun EditConfigurationScreen(
 
             Text(
                 stringResource(R.string.edit_configuration_description),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
+            // Name field
             OutlinedTextField(
                 value = name,
                 keyboardOptions = KeyboardOptions(
@@ -159,165 +149,88 @@ fun EditConfigurationScreen(
                 shape = RoundedCornerShape(12.dp),
             )
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .clickable {
-                        closeApp = !closeApp
-                    },
+            // Close application toggle
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(R.string.close_application),
-                )
-                Switch(
-                    checked = closeApp,
-                    onCheckedChange = {
-                        closeApp = it
-                    },
-                )
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { closeApp = !closeApp }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.close_application),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Switch(
+                        checked = closeApp,
+                        onCheckedChange = {
+                            closeApp = it
+                        },
+                    )
+                }
             }
 
-            if (application?.application?.shouldShowRelays() == true) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    value = textFieldRelay.value.text,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.None,
-                        autoCorrectEnabled = false,
-                        imeAction = ImeAction.Done,
-                    ),
-                    onValueChange = {
-                        textFieldRelay.value = TextFieldValue(it)
-                    },
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            scope.launch(Dispatchers.IO) {
-                                onAddRelay(
-                                    textFieldRelay,
-                                    isLoading,
-                                    relays,
-                                    scope,
-                                    account,
-                                    context,
-                                    onDone = {},
-                                )
-                            }
-                        },
-                    ),
-                    label = {
-                        Text(stringResource(R.string.wss))
-                    },
-                    trailingIcon = {
-                        IconButton(
-                            colors = IconButtonDefaults.iconButtonColors().copy(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            onClick = {
-                                scope.launch(Dispatchers.IO) {
-                                    onAddRelay(
-                                        textFieldRelay,
-                                        isLoading,
-                                        relays,
-                                        scope,
-                                        account,
-                                        context,
-                                        onDone = {},
-                                    )
-                                }
-                            },
-                            content = {
-                                Icon(
-                                    Icons.Default.Add,
-                                    contentDescription = stringResource(R.string.add),
-                                )
-                            },
-                        )
-                    },
-                )
+            // Relay section
+            Text(
+                text = stringResource(R.string.relays),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(top = 4.dp),
+            )
 
-                relays.forEachIndexed { index, relay ->
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        colors = CardDefaults.cardColors().copy(
-                            containerColor = MaterialTheme.colorScheme.background,
-                        ),
-                    ) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                        ) {
-                            Text(
-                                relay.url,
-                                Modifier
-                                    .weight(0.9f)
-                                    .padding(8.dp)
-                                    .padding(start = 8.dp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                            TrustScoreBadge(
-                                score = trustScores[relay.url],
-                                isLoading = loadingScores[relay.url] == true,
-                                modifier = Modifier.padding(horizontal = 8.dp),
-                            )
-                            IconButton(
-                                onClick = {
+            if (relays.isNotEmpty()) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Column {
+                        relays.forEachIndexed { index, relay ->
+                            EditableRelayRow(
+                                relayUrl = relay.url,
+                                trustScore = trustScores[relay.url],
+                                isLoadingScore = loadingScores[relay.url] == true,
+                                onRemove = {
                                     relays.removeAt(index)
                                 },
-                            ) {
-                                Icon(
-                                    ImageVector.vectorResource(R.drawable.delete),
-                                    stringResource(R.string.delete),
+                            )
+                            if (index < relays.lastIndex) {
+                                androidx.compose.material3.HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant,
+                                    modifier = Modifier.padding(start = 16.dp),
                                 )
                             }
                         }
                     }
                 }
-            } else {
-                relays.forEachIndexed { _, relay ->
-                    Card(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        colors = CardDefaults.cardColors().copy(
-                            containerColor = MaterialTheme.colorScheme.background,
-                        ),
-                    ) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                        ) {
-                            Text(
-                                relay.url,
-                                Modifier
-                                    .weight(0.9f)
-                                    .padding(8.dp)
-                                    .padding(start = 8.dp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
             }
 
+            AddRelayField(
+                textFieldValue = textFieldRelay.value,
+                onValueChange = { textFieldRelay.value = it },
+                onAdd = {
+                    scope.launch(Dispatchers.IO) {
+                        onAddRelay(
+                            textFieldRelay,
+                            isLoading,
+                            relays,
+                            scope,
+                            account,
+                            context,
+                            onDone = {},
+                        )
+                    }
+                },
+            )
+
+            // Action buttons
             AmberButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(top = 8.dp),
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         application?.let {
@@ -347,13 +260,8 @@ fun EditConfigurationScreen(
                 text = stringResource(R.string.update),
             )
 
-            AmberButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = primaryVariant,
-                ),
+            AmberDangerButton(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     application?.let {
                         scope.launch(Dispatchers.IO) {
@@ -371,7 +279,6 @@ fun EditConfigurationScreen(
                     }
                 },
                 text = stringResource(R.string.delete_application),
-                textColor = MaterialTheme.colorScheme.onPrimary,
             )
         }
     }

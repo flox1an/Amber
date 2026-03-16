@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -59,8 +58,8 @@ import com.greenart7c3.nostrsigner.service.ApplicationNameCache
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.RememberType
+import com.greenart7c3.nostrsigner.ui.components.AmberDangerButton
 import com.greenart7c3.nostrsigner.ui.theme.AmberColors
-import com.greenart7c3.nostrsigner.ui.theme.primaryVariant
 import com.vitorpamplona.quartz.nip57Zaps.LnZapRequestEvent
 import com.vitorpamplona.quartz.utils.TimeUtils
 import kotlin.collections.forEach
@@ -207,11 +206,8 @@ fun IntentMultiEventHomeScreen(
                 .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            AmberButton(
+            AmberDangerButton(
                 Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors().copy(
-                    containerColor = primaryVariant,
-                ),
                 onClick = {
                     Amber.instance.applicationIOScope.launch {
                         var closeApp = true

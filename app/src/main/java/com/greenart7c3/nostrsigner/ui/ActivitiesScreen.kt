@@ -81,7 +81,7 @@ fun ActivitiesScreen(
     val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
     val textFieldState by remember { mutableStateOf(TextFieldState(initialText = searchQuery)) }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.padding(top = topPadding)) {
         SimpleSearchBar(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -103,7 +103,7 @@ fun ActivitiesScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 32.dp),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

@@ -113,6 +113,7 @@ fun AmberTopAppBar(
                         val relayStats = Amber.instance.stats.relayStatus.collectAsStateWithLifecycle(Pair(emptySet(), emptySet()))
                         if (relayStats.value.first.isNotEmpty() || relayStats.value.second.isNotEmpty()) {
                             Row(
+                                modifier = Modifier.padding(end = 8.dp),
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 TooltipBox(

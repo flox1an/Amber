@@ -173,7 +173,6 @@ fun ApplicationsScreen(
         } else {
             item {
                 AmberButton(
-                    modifier = Modifier.padding(top = 20.dp),
                     onClick = {
                         navController.navigate(Route.Activities.route)
                     },
@@ -187,7 +186,6 @@ fun ApplicationsScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp)
                             .clickable {
                                 navController.navigate("Permission/${applicationWithHistory.key}")
                             },

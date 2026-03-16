@@ -2,6 +2,7 @@ package com.greenart7c3.nostrsigner.ui.actions
 
 import android.content.ClipData
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -49,7 +49,6 @@ import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.AccountStateViewModel
 import com.greenart7c3.nostrsigner.ui.CenterCircularProgressIndicator
-import com.greenart7c3.nostrsigner.ui.components.ActiveMarker
 import com.greenart7c3.nostrsigner.ui.navigation.Route
 import com.greenart7c3.nostrsigner.ui.verticalScrollbar
 import kotlinx.coroutines.launch
@@ -105,6 +104,8 @@ fun AccountsBottomSheet(
                     val pictureUrl = LocalPreferences.getAccountPicture(context, acc.npub)
                     val isActive = acc.npub == account.npub
 
+                    val activeBorderColor = MaterialTheme.colorScheme.primary
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -122,23 +123,32 @@ fun AccountsBottomSheet(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        // Avatar
+                        // Avatar with yellow border for active account
+                        val avatarModifier = Modifier
+                            .size(44.dp)
+                            .then(
+                                if (isActive) {
+                                    Modifier.border(1.5.dp, activeBorderColor, CircleShape)
+                                } else {
+                                    Modifier
+                                },
+                            )
+                            .clip(CircleShape)
+
                         if (pictureUrl.isNotBlank() && !BuildFlavorChecker.isOfflineFlavor()) {
                             SubcomposeAsyncImage(
                                 pictureUrl,
                                 contentDescription = name,
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clip(CircleShape),
+                                modifier = avatarModifier,
                                 loading = {
                                     CenterCircularProgressIndicator(Modifier.size(44.dp))
                                 },
                                 error = {
-                                    AccountInitialAvatar(name, acc.npub)
+                                    AccountInitialAvatar(name, acc.npub, isActive)
                                 },
                             )
                         } else {
-                            AccountInitialAvatar(name, acc.npub)
+                            AccountInitialAvatar(name, acc.npub, isActive)
                         }
 
                         // Name + npub
@@ -161,11 +171,6 @@ fun AccountsBottomSheet(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
-                        }
-
-                        // Active marker
-                        Column(modifier = Modifier.width(24.dp)) {
-                            ActiveMarker(acc, account)
                         }
 
                         // Copy
@@ -229,13 +234,21 @@ fun AccountsBottomSheet(
 }
 
 @Composable
-private fun AccountInitialAvatar(name: String, npub: String) {
+private fun AccountInitialAvatar(name: String, npub: String, isActive: Boolean = false) {
     val displayName = name.ifBlank { npub }
     val firstLetter = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "?"
+    val activeBorderColor = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier
             .size(44.dp)
+            .then(
+                if (isActive) {
+                    Modifier.border(1.5.dp, activeBorderColor, CircleShape)
+                } else {
+                    Modifier
+                },
+            )
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
                 shape = CircleShape,
