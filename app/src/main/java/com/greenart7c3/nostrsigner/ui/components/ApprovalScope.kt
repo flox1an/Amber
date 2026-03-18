@@ -320,5 +320,47 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "app_kind_1h",
     )
 
+    // Kind 8: Badge Award — medium risk, one-off action
+    8 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 30008: Profile Badges — medium risk, replaces displayed badge list
+    30008 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 30009: Badge Definition — medium risk, publishing a badge
+    30009 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 34550: Community Definition — medium risk, creating/updating a community
+    34550 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 4550: Community Approved Post — medium risk, moderator approval action, 1-hour default
+    4550 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     else -> null
 }

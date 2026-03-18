@@ -14,6 +14,7 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     5 -> true
     6 -> true
     7 -> true
+    8 -> true
     9 -> true
     13 -> true
     14 -> true
@@ -26,13 +27,17 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     1068 -> true
     1111 -> true
     1311 -> true
+    4550 -> true
     9802 -> true
     1984 -> true
     1985 -> true
     10000, 10002, 30000, 30003 -> true
+    30008 -> true
+    30009 -> true
     30023 -> true
     30315 -> true
     31234 -> true
+    34550 -> true
     7375 -> true
     9041 -> true
     9734 -> true
@@ -61,6 +66,7 @@ fun RenderKindContent(
         5 -> Kind5DeletionRenderer(content = content, tags = tags)
         6 -> Kind6RepostRenderer(content = content, account = account, tags = tags)
         7 -> Kind7ReactionRenderer(content = content, account = account, tags = tags)
+        8 -> Kind8BadgeAwardRenderer(content = content, tags = tags)
         9 -> Kind9ChatRenderer(content = content, account = account, tags = tags)
         13 -> Kind13SealRenderer(content = content, account = account, tags = tags)
         14 -> Kind14DmRenderer(content = content, account = account, tags = tags)
@@ -73,11 +79,15 @@ fun RenderKindContent(
         1068 -> Kind1068PollRenderer(content = content, tags = tags)
         1111 -> Kind1111CommentRenderer(content = content, account = account, tags = tags)
         1311 -> Kind1311LiveChatRenderer(content = content, tags = tags)
+        4550 -> Kind4550CommunityApprovedRenderer(content = content, tags = tags)
         9802 -> Kind9802HighlightRenderer(content = content, account = account, tags = tags)
         1984 -> Kind1984ReportRenderer(content = content, account = account, tags = tags)
         1985 -> Kind1985LabelRenderer(content = content, account = account, tags = tags)
         10000, 10002, 30000, 30003 -> ListOverwriteRenderer(kind = kind, content = content, tags = tags)
+        30008 -> Kind30008ProfileBadgesRenderer(content = content, tags = tags)
+        30009 -> Kind30009BadgeDefRenderer(content = content, tags = tags)
         30023 -> Kind30023ArticleRenderer(content = content, tags = tags)
+        34550 -> Kind34550CommunityRenderer(content = content, tags = tags)
         30315 -> Kind30315StatusRenderer(content = content, tags = tags)
         31234 -> Kind31234DraftRenderer(content = content, tags = tags)
         7375 -> Kind7375CashuRenderer(content = content, tags = tags)
