@@ -300,5 +300,25 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "once",
     )
 
+    // Kind 24242: Blossom Auth — medium risk, 1-hour default
+    24242 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 27235: HTTP Auth — medium risk, 1-hour default
+    27235 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     else -> null
 }
