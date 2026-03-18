@@ -37,9 +37,15 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     30078 -> true
     30008 -> true
     30009 -> true
+    30018 -> true
+    30020 -> true
     30023 -> true
+    30311 -> true
     30315 -> true
+    30382 -> true
     31234 -> true
+    31923 -> true
+    31990 -> true
     34550 -> true
     7375 -> true
     9041 -> true
@@ -92,10 +98,16 @@ fun RenderKindContent(
         30078 -> Kind30078AppDataRenderer(content = content, tags = tags)
         30008 -> Kind30008ProfileBadgesRenderer(content = content, tags = tags)
         30009 -> Kind30009BadgeDefRenderer(content = content, tags = tags)
+        30018 -> Kind30018ProductRenderer(content = content, tags = tags)
+        30020 -> Kind30020ProductSoldRenderer(content = content, tags = tags)
         30023 -> Kind30023ArticleRenderer(content = content, tags = tags)
         34550 -> Kind34550CommunityRenderer(content = content, tags = tags)
+        30311 -> Kind30311LiveEventRenderer(content = content, tags = tags)
         30315 -> Kind30315StatusRenderer(content = content, tags = tags)
+        30382 -> Kind30382HandlerRenderer(content = content, tags = tags)
         31234 -> Kind31234DraftRenderer(content = content, tags = tags)
+        31923 -> Kind31923CalendarRenderer(content = content, tags = tags)
+        31990 -> Kind31990HandlerRecRenderer(content = content, tags = tags)
         7375 -> Kind7375CashuRenderer(content = content, tags = tags)
         9041 -> Kind9041ZapGoalRenderer(content = content, tags = tags)
         9734 -> Kind9734ZapRequestRenderer(content = content, account = account, tags = tags)

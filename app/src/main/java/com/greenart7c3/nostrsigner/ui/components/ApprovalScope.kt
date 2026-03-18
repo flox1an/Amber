@@ -96,6 +96,22 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "once",
     )
 
+    // Kind 30018: Product Listing — financial risk, once default
+    30018 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 30020: Product Sold / Auction — financial risk, permanent transaction record
+    30020 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
     // Kind 30023: Long-form article — medium risk
     30023 -> KindApprovalConfig(
         scopes = listOf(
@@ -390,6 +406,42 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
             ApprovalScopeOption("app_kind_always", "Always for this app"),
         ),
         defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 30311: Live Event — low risk, 1-hour default
+    30311 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 31923: Calendar Event — low risk, 1-hour default
+    31923 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 30382: Handler Declaration — high risk, once only
+    30382 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 31990: Handler Recommendation — high risk, once only
+    31990 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
     )
 
     else -> null
