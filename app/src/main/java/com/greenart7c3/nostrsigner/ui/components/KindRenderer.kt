@@ -32,6 +32,9 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     1984 -> true
     1985 -> true
     10000, 10002, 30000, 30003 -> true
+    10003 -> true
+    10013 -> true
+    30078 -> true
     30008 -> true
     30009 -> true
     30023 -> true
@@ -84,6 +87,9 @@ fun RenderKindContent(
         1984 -> Kind1984ReportRenderer(content = content, account = account, tags = tags)
         1985 -> Kind1985LabelRenderer(content = content, account = account, tags = tags)
         10000, 10002, 30000, 30003 -> ListOverwriteRenderer(kind = kind, content = content, tags = tags)
+        10003 -> Kind10003BookmarkRenderer(content = content, tags = tags)
+        10013 -> Kind10013EmojiRenderer(content = content, tags = tags)
+        30078 -> Kind30078AppDataRenderer(content = content, tags = tags)
         30008 -> Kind30008ProfileBadgesRenderer(content = content, tags = tags)
         30009 -> Kind30009BadgeDefRenderer(content = content, tags = tags)
         30023 -> Kind30023ArticleRenderer(content = content, tags = tags)

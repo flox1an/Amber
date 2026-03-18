@@ -250,6 +250,36 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "app_kind_1h",
     )
 
+    // Kind 10003: Bookmark List — low risk, 1-hour default
+    10003 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 10013: Custom Emoji List — low risk, 1-hour default
+    10013 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 30078: App-Specific Data — low risk, 1-hour default
+    30078 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     // List kinds — medium/high risk, replaceable events
     10000, 10002, 30000, 30003 -> KindApprovalConfig(
         scopes = listOf(
