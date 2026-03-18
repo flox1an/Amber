@@ -202,6 +202,15 @@ internal fun hexToNpub(hex: String): String = try {
     hex.take(8) + "..." + hex.takeLast(8)
 }
 
+internal fun formatSats(millisats: Long): String {
+    val sats = millisats / 1000
+    return when {
+        sats >= 1_000_000 -> String.format("%.2fM sats", sats / 1_000_000.0)
+        sats >= 1_000 -> String.format("%.1fk sats", sats / 1_000.0)
+        else -> "$sats sats"
+    }
+}
+
 internal fun buildRawEventJson(kind: Int, content: String, tags: Array<Array<String>>): String = try {
     val json = JSONObject()
     json.put("kind", kind)

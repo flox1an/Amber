@@ -33,6 +33,11 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     30023 -> true
     30315 -> true
     31234 -> true
+    7375 -> true
+    9041 -> true
+    9734 -> true
+    9735 -> true
+    23194 -> true
     else -> false
 }
 
@@ -73,5 +78,10 @@ fun RenderKindContent(
         30023 -> Kind30023ArticleRenderer(content = content, tags = tags)
         30315 -> Kind30315StatusRenderer(content = content, tags = tags)
         31234 -> Kind31234DraftRenderer(content = content, tags = tags)
+        7375 -> Kind7375CashuRenderer(content = content, tags = tags)
+        9041 -> Kind9041ZapGoalRenderer(content = content, tags = tags)
+        9734 -> Kind9734ZapRequestRenderer(content = content, account = account, tags = tags)
+        9735 -> Kind9735ZapReceiptRenderer(content = content, account = account, tags = tags)
+        23194 -> Kind23194NwcRenderer(content = content, tags = tags)
     }
 }

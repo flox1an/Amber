@@ -258,5 +258,47 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "once",
     )
 
+    // Kind 9735: Zap Receipt — low risk, confirming received payment
+    9735 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 9041: Zap Goal — low risk, publishing a fundraising goal
+    9041 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 9734: Zap Request — financial risk, initiates Lightning payment
+    9734 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 23194: NWC Wallet Request — financial risk, wallet operation
+    23194 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 7375: Cashu Wallet Tokens — financial risk, updates wallet state
+    7375 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
     else -> null
 }
