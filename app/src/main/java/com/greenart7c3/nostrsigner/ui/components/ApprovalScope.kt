@@ -50,8 +50,54 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "once",
     )
 
+    // Kind 20: Picture post — low risk, high frequency
+    20 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 21: Video post — low risk, high frequency
+    21 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     // Kind 6: Repost — low risk, often done in bursts
     6 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 1063: File metadata — medium risk
+    1063 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 30023: Long-form article — medium risk
+    30023 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 31234: Draft — low risk, frequent saves
+    31234 -> KindApprovalConfig(
         scopes = listOf(
             ApprovalScopeOption("once", "This once"),
             ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),

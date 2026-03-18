@@ -14,14 +14,19 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     6 -> true
     7 -> true
     9 -> true
+    20 -> true
+    21 -> true
     62 -> true
     1018 -> true
+    1063 -> true
     1068 -> true
     1111 -> true
     1311 -> true
     9802 -> true
     10000, 10002, 30000, 30003 -> true
+    30023 -> true
     30315 -> true
+    31234 -> true
     else -> false
 }
 
@@ -43,13 +48,18 @@ fun RenderKindContent(
         6 -> Kind6RepostRenderer(content = content, account = account, tags = tags)
         7 -> Kind7ReactionRenderer(content = content, account = account, tags = tags)
         9 -> Kind9ChatRenderer(content = content, account = account, tags = tags)
+        20 -> Kind20PictureRenderer(content = content, tags = tags)
+        21 -> Kind21VideoRenderer(content = content, tags = tags)
         62 -> Kind62VanishRenderer(content = content, tags = tags)
         1018 -> Kind1018PollResponseRenderer(content = content, tags = tags)
+        1063 -> Kind1063FileRenderer(content = content, tags = tags)
         1068 -> Kind1068PollRenderer(content = content, tags = tags)
         1111 -> Kind1111CommentRenderer(content = content, account = account, tags = tags)
         1311 -> Kind1311LiveChatRenderer(content = content, tags = tags)
         9802 -> Kind9802HighlightRenderer(content = content, account = account, tags = tags)
         10000, 10002, 30000, 30003 -> ListOverwriteRenderer(kind = kind, content = content, tags = tags)
+        30023 -> Kind30023ArticleRenderer(content = content, tags = tags)
         30315 -> Kind30315StatusRenderer(content = content, tags = tags)
+        31234 -> Kind31234DraftRenderer(content = content, tags = tags)
     }
 }
