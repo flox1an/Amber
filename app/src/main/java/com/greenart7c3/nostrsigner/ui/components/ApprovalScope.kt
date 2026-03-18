@@ -232,6 +232,24 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "app_kind_1h",
     )
 
+    // Kind 1984: Report — medium risk, one-off moderation action
+    1984 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
+    // Kind 1985: Label — medium risk, labeling content or users
+    1985 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
     // List kinds — medium/high risk, replaceable events
     10000, 10002, 30000, 30003 -> KindApprovalConfig(
         scopes = listOf(
