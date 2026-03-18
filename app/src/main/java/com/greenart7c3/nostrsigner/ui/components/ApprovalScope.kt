@@ -34,6 +34,14 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "app_kind_1h",
     )
 
+    // Kind 4: Legacy encrypted DM — high risk, NIP-04 deprecated, metadata visible to relays
+    4 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once", recommended = true),
+        ),
+        defaultScopeId = "once",
+    )
+
     // Kind 3: Follow list — medium risk, replaces entire contact list
     3 -> KindApprovalConfig(
         scopes = listOf(
@@ -192,6 +200,36 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
             ApprovalScopeOption("app_kind_always", "Always for this app"),
         ),
         defaultScopeId = "app_kind_4h",
+    )
+
+    // Kind 13: Seal — medium risk, binds real identity to message
+    13 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 14: Direct message (NIP-17) — medium risk, private messaging
+    14 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
+    )
+
+    // Kind 1059: Gift wrap — medium risk, metadata protection via throwaway key
+    1059 -> KindApprovalConfig(
+        scopes = listOf(
+            ApprovalScopeOption("once", "This once"),
+            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
+            ApprovalScopeOption("app_kind_always", "Always for this app"),
+        ),
+        defaultScopeId = "app_kind_1h",
     )
 
     // List kinds — medium/high risk, replaceable events

@@ -10,14 +10,18 @@ fun hasKindRenderer(kind: Int): Boolean = when (kind) {
     0 -> true
     1 -> true
     3 -> true
+    4 -> true
     5 -> true
     6 -> true
     7 -> true
     9 -> true
+    13 -> true
+    14 -> true
     20 -> true
     21 -> true
     62 -> true
     1018 -> true
+    1059 -> true
     1063 -> true
     1068 -> true
     1111 -> true
@@ -44,14 +48,18 @@ fun RenderKindContent(
         0 -> Kind0ProfileRenderer(content = content, account = account)
         1 -> Kind1NoteRenderer(content = content, account = account, tags = tags)
         3 -> Kind3FollowListRenderer(content = content, account = account, tags = tags)
+        4 -> Kind4LegacyDmRenderer(content = content, account = account, tags = tags)
         5 -> Kind5DeletionRenderer(content = content, tags = tags)
         6 -> Kind6RepostRenderer(content = content, account = account, tags = tags)
         7 -> Kind7ReactionRenderer(content = content, account = account, tags = tags)
         9 -> Kind9ChatRenderer(content = content, account = account, tags = tags)
+        13 -> Kind13SealRenderer(content = content, account = account, tags = tags)
+        14 -> Kind14DmRenderer(content = content, account = account, tags = tags)
         20 -> Kind20PictureRenderer(content = content, tags = tags)
         21 -> Kind21VideoRenderer(content = content, tags = tags)
         62 -> Kind62VanishRenderer(content = content, tags = tags)
         1018 -> Kind1018PollResponseRenderer(content = content, tags = tags)
+        1059 -> Kind1059GiftWrapRenderer(content = content, account = account, tags = tags)
         1063 -> Kind1063FileRenderer(content = content, tags = tags)
         1068 -> Kind1068PollRenderer(content = content, tags = tags)
         1111 -> Kind1111CommentRenderer(content = content, account = account, tags = tags)
