@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.greenart7c3.nostrsigner.Amber
 import com.greenart7c3.nostrsigner.LocalPreferences
 import com.greenart7c3.nostrsigner.models.Account
+import com.greenart7c3.nostrsigner.models.TorMode
+import com.greenart7c3.nostrsigner.service.TorManager
 import com.vitorpamplona.quartz.nip01Core.core.toHexKey
 import com.vitorpamplona.quartz.nip01Core.crypto.KeyPair
 import com.vitorpamplona.quartz.nip01Core.signers.NostrSignerInternal
@@ -95,7 +97,7 @@ class AccountStateViewModel(npub: String?) : ViewModel() {
     suspend fun startUI(
         keyPair: KeyPair,
         route: String?,
-        useProxy: Boolean,
+        torMode: TorMode,
         proxyPort: Int,
         signPolicy: Int,
     ) {
@@ -111,19 +113,22 @@ class AccountStateViewModel(npub: String?) : ViewModel() {
 
         if (LocalPreferences.allSavedAccounts(Amber.instance).isEmpty()) {
             Amber.instance.settings = Amber.instance.settings.copy(
-                useProxy = useProxy,
+                torMode = torMode,
                 proxyPort = proxyPort,
             )
             LocalPreferences.saveSettingsToEncryptedStorage(
                 Amber.instance.settings,
             )
+            if (torMode == TorMode.BUILTIN) {
+                TorManager.start(Amber.instance, Amber.instance.applicationIOScope)
+            }
         }
         LocalPreferences.updatePrefsForLogin(Amber.instance, account, keyPair.pubKey.toHexKey(), keyPair.privKey!!.toHexKey(), null)
         startUI(account, route)
     }
 
     suspend fun newKey(
-        useProxy: Boolean,
+        torMode: TorMode,
         proxyPort: Int,
         signPolicy: Int,
         seedWords: Set<String>,
@@ -145,12 +150,15 @@ class AccountStateViewModel(npub: String?) : ViewModel() {
         )
         if (LocalPreferences.allSavedAccounts(Amber.instance).isEmpty()) {
             Amber.instance.settings = Amber.instance.settings.copy(
-                useProxy = useProxy,
+                torMode = torMode,
                 proxyPort = proxyPort,
             )
             LocalPreferences.saveSettingsToEncryptedStorage(
                 Amber.instance.settings,
             )
+            if (torMode == TorMode.BUILTIN) {
+                TorManager.start(Amber.instance, Amber.instance.applicationIOScope)
+            }
             Amber.instance.applicationIOScope.launch {
                 Amber.instance.reconnect()
             }

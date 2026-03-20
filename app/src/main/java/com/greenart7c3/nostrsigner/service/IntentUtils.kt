@@ -736,6 +736,7 @@ object IntentUtils {
                     rememberType = rememberType,
                     relay = relay,
                     scopedTypeSuffix = scopedTypeSuffix,
+                    encryptedData = intentData.encryptedData,
                 )
             }
 

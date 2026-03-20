@@ -84,6 +84,24 @@ data class Permission(
         "decrypt_zap_event" -> {
             context.getString(R.string.decrypt_private_zaps)
         }
+        "encrypt_clear_text" -> {
+            context.getString(R.string.encrypt_clear_text)
+        }
+        "decrypt_clear_text" -> {
+            context.getString(R.string.decrypt_clear_text)
+        }
+        "encrypt_event" -> {
+            context.getString(R.string.encrypt_event)
+        }
+        "decrypt_event" -> {
+            context.getString(R.string.decrypt_event)
+        }
+        "encrypt_tag_array" -> {
+            context.getString(R.string.encrypt_tag_array)
+        }
+        "decrypt_tag_array" -> {
+            context.getString(R.string.decrypt_tag_array)
+        }
         "sign_event" -> {
             when (kind) {
                 0 -> context.getString(R.string.event_kind_0)
@@ -134,6 +152,7 @@ data class Permission(
                 2003 -> context.getString(R.string.event_kind_2003)
                 2004 -> context.getString(R.string.event_kind_2004)
                 2022 -> context.getString(R.string.event_kind_2022)
+                3063 -> context.getString(R.string.event_kind_3063)
                 4550 -> context.getString(R.string.event_kind_4550)
                 in 5000..5999 -> context.getString(R.string.event_kind_5000_5999)
                 in 6000..6999 -> context.getString(R.string.event_kind_6000_6999)
@@ -167,6 +186,7 @@ data class Permission(
                 10006 -> context.getString(R.string.event_kind_10006)
                 10007 -> context.getString(R.string.event_kind_10007)
                 10009 -> context.getString(R.string.event_kind_10009)
+                10012 -> context.getString(R.string.event_kind_10012)
                 10013 -> context.getString(R.string.event_kind_10013)
                 10015 -> context.getString(R.string.event_kind_10015)
                 10020 -> context.getString(R.string.event_kind_10020)
@@ -174,6 +194,10 @@ data class Permission(
                 10050 -> context.getString(R.string.event_kind_10050)
                 10051 -> context.getString(R.string.event_kind_10051)
                 10063 -> context.getString(R.string.event_kind_10063)
+                10086 -> context.getString(R.string.event_kind_10086)
+                10087 -> context.getString(R.string.event_kind_10087)
+                10088 -> context.getString(R.string.event_kind_10088)
+                10089 -> context.getString(R.string.event_kind_10089)
                 10096 -> context.getString(R.string.event_kind_10096)
                 10101 -> context.getString(R.string.event_kind_10101)
                 10102 -> context.getString(R.string.event_kind_10102)
@@ -206,6 +230,7 @@ data class Permission(
                 30041 -> context.getString(R.string.event_kind_30041)
                 30063 -> context.getString(R.string.event_kind_30063)
                 30078 -> context.getString(R.string.event_kind_30078)
+                30267 -> context.getString(R.string.event_kind_30267)
                 30311 -> context.getString(R.string.event_kind_30311)
                 30315 -> context.getString(R.string.event_kind_30315)
                 30402 -> context.getString(R.string.event_kind_30402)
@@ -217,6 +242,7 @@ data class Permission(
                 31925 -> context.getString(R.string.event_kind_31925)
                 31989 -> context.getString(R.string.event_kind_31989)
                 31990 -> context.getString(R.string.event_kind_31990)
+                32267 -> context.getString(R.string.event_kind_32267)
                 34235 -> context.getString(R.string.event_kind_34235)
                 34236 -> context.getString(R.string.event_kind_34236)
                 34550 -> context.getString(R.string.event_kind_34550)
@@ -578,5 +604,11 @@ val supportedKindNumbers = listOf(
     Permission("nip44_decrypt", null),
     Permission("nip44_encrypt", null),
     Permission("decrypt_zap_event", null),
+    Permission("encrypt_clear_text", null),
+    Permission("decrypt_clear_text", null),
+    Permission("encrypt_event", null),
+    Permission("decrypt_event", null),
+    Permission("encrypt_tag_array", null),
+    Permission("decrypt_tag_array", null),
     Permission("get_public_key", null),
 )

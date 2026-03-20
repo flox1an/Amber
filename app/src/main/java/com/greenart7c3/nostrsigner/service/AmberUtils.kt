@@ -8,9 +8,12 @@ import com.greenart7c3.nostrsigner.database.ApplicationPermissionsEntity
 import com.greenart7c3.nostrsigner.database.ApplicationWithPermissions
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.AmberBunkerRequest
+import com.greenart7c3.nostrsigner.models.EncryptedDataKind
 import com.greenart7c3.nostrsigner.models.Permission
 import com.greenart7c3.nostrsigner.models.SignerType
 import com.greenart7c3.nostrsigner.models.basicPermissions
+import com.greenart7c3.nostrsigner.models.encryptDecryptSignerTypes
+import com.greenart7c3.nostrsigner.models.toPermissionTypeString
 import com.greenart7c3.nostrsigner.ui.RememberType
 import com.vitorpamplona.quartz.nip01Core.core.HexKey
 import com.vitorpamplona.quartz.nip01Core.relay.normalizer.NormalizedRelayUrl
@@ -188,8 +191,10 @@ object AmberUtils {
         rememberType: RememberType,
         relay: String = "",
         scopedTypeSuffix: String = "",
+        encryptedData: EncryptedDataKind? = null,
     ) {
-        val effectiveType = type.toString() + scopedTypeSuffix
+        val permissionTypeStr = type.toPermissionTypeString(encryptedData)
+        val effectiveType = permissionTypeStr + scopedTypeSuffix
         android.util.Log.d("AmberScope", "acceptPermission: effectiveType=$effectiveType kind=$kind rememberType=$rememberType relay=$relay suffix=$scopedTypeSuffix")
         val until = when (rememberType) {
             RememberType.ALWAYS -> Long.MAX_VALUE / 1000
@@ -212,6 +217,10 @@ object AmberUtils {
             }
         } else {
             application.permissions.removeIf { it.type == effectiveType && it.type != "SIGN_EVENT" }
+            // Also remove any old NIP-based permission entries for this operation type
+            if (type in encryptDecryptSignerTypes) {
+                application.permissions.removeIf { it.type == type.toString() }
+            }
         }
 
         application.permissions.add(

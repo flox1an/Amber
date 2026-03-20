@@ -33,6 +33,7 @@ import com.greenart7c3.nostrsigner.database.LogDatabase
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.AmberSettings
 import com.greenart7c3.nostrsigner.models.FeedbackType
+import com.greenart7c3.nostrsigner.models.TorMode
 import com.greenart7c3.nostrsigner.okhttp.HttpClientManager
 import com.greenart7c3.nostrsigner.okhttp.OkHttpWebSocket
 import com.greenart7c3.nostrsigner.relays.AmberRelayStats
@@ -41,6 +42,7 @@ import com.greenart7c3.nostrsigner.service.ClearLogsWorker
 import com.greenart7c3.nostrsigner.service.ConnectivityService
 import com.greenart7c3.nostrsigner.service.NotificationSubscription
 import com.greenart7c3.nostrsigner.service.ProfileSubscription
+import com.greenart7c3.nostrsigner.service.TorManager
 import com.greenart7c3.nostrsigner.service.crashreports.CrashReportCache
 import com.greenart7c3.nostrsigner.service.crashreports.UnexpectedCrashSaver
 import com.greenart7c3.nostrsigner.ui.ToastManager
@@ -68,7 +70,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import okio.Path.Companion.toOkioPath
 
 class Amber :
@@ -77,6 +81,7 @@ class Amber :
     SingletonImageLoader.Factory {
     private var mainActivityRef: WeakReference<AppCompatActivity?>? = null
     val crashReportCache: CrashReportCache by lazy { CrashReportCache(this.applicationContext) }
+    var pendingCrashReport: String? = null
 
     fun setMainActivity(activity: AppCompatActivity?) {
         Log.d(TAG, "Setting main activity ref to $activity")
@@ -97,7 +102,7 @@ class Amber :
     var settings: AmberSettings = AmberSettings()
 
     val factory = OkHttpWebSocket.Builder { url ->
-        val useProxy = if (isPrivateIp(url.url)) false else settings.useProxy
+        val useProxy = if (isPrivateIp(url.url)) false else settings.torMode != TorMode.DISABLED
         HttpClientManager.getHttpClient(useProxy)
     }
 
@@ -138,6 +143,18 @@ class Amber :
     val notificationCache = LruCache<String, Long>(10)
 
     fun isSocksProxyAlive(proxyHost: String, proxyPort: Int): Boolean {
+        if (settings.torMode == TorMode.BUILTIN) {
+            val port = TorManager.socksPort.value
+            if (port == 0) return false
+            return try {
+                val socket = Socket()
+                socket.connect(InetSocketAddress(proxyHost, port), 5000)
+                socket.close()
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
         try {
             val socket = Socket()
             socket.connect(InetSocketAddress(proxyHost, proxyPort), 5000) // 3-second timeout
@@ -210,7 +227,10 @@ class Amber :
 
         instance = this
 
-        stats.createNotificationChannel()
+        if (!BuildFlavorChecker.isOfflineFlavor()) {
+            stats.createNotificationChannel()
+            TorManager.init(this)
+        }
 
         isStartingAppState.value = true
         isStartingApp.value = true
@@ -245,9 +265,10 @@ class Amber :
                     LocalPreferences.switchToAccount(this@Amber, LocalPreferences.allSavedAccounts(this@Amber).first().npub)
                 }
                 LocalPreferences.reloadApp()
-                checkForNewRelaysAndUpdateAllFilters(true)
-                if (settings.killSwitch.value) {
-                    disconnectIntentionally()
+
+                // Start Tor immediately in the background without blocking app startup
+                if (settings.torMode == TorMode.BUILTIN && !BuildFlavorChecker.isOfflineFlavor()) {
+                    TorManager.start(this@Amber, applicationIOScope)
                 }
 
                 launch(Dispatchers.Main) {
@@ -275,7 +296,31 @@ class Amber :
                         }
                     })
                 }
+
+                // Signal app startup complete so UI shows immediately
                 isStartingApp.value = false
+
+                // Wait for Tor to be ready before establishing relay connections
+                if (settings.torMode == TorMode.BUILTIN && !BuildFlavorChecker.isOfflineFlavor()) {
+                    var attempt = 0
+                    while (!TorManager.isRunning.value) {
+                        if (attempt > 0) {
+                            TorManager.showRetrying()
+                            TorManager.stop()
+                            delay(3000)
+                            TorManager.start(this@Amber, applicationIOScope)
+                        }
+                        attempt++
+                        withTimeoutOrNull(120_000L) {
+                            TorManager.isRunning.first { it }
+                        }
+                    }
+                }
+
+                checkForNewRelaysAndUpdateAllFilters(true)
+                if (settings.killSwitch.value) {
+                    disconnectIntentionally()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to run migrations", e)
                 isStartingApp.value = false
@@ -285,11 +330,18 @@ class Amber :
         }
     }
 
+    suspend fun waitForTorIfNeeded() {
+        if (settings.torMode == TorMode.BUILTIN && !BuildFlavorChecker.isOfflineFlavor()) {
+            TorManager.isRunning.first { it }
+        }
+    }
+
     fun startServiceFromUi() {
         startService()
     }
 
     fun startService() {
+        if (BuildFlavorChecker.isOfflineFlavor()) return
         try {
             Log.d(TAG, "Starting ConnectivityService")
             val operation = PendingIntent.getForegroundService(
@@ -321,7 +373,9 @@ class Amber :
             client.connect()
         }
         client.reconnect(wasActive)
-        stats.updateNotification()
+        if (!BuildFlavorChecker.isOfflineFlavor()) {
+            stats.updateNotification()
+        }
     }
 
     fun getDatabase(npub: String): AppDatabase {
@@ -414,7 +468,7 @@ class Amber :
             .build()
         val coilCallFactory = okhttp3.Call.Factory { request ->
             val url = request.url.toString()
-            val useProxy = if (isPrivateIp(url)) false else settings.useProxy
+            val useProxy = if (isPrivateIp(url)) false else settings.torMode != TorMode.DISABLED
             HttpClientManager.getHttpClient(useProxy).newCall(request)
         }
         return ImageLoader.Builder(context)

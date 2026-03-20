@@ -62,7 +62,11 @@ import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.models.AmberBunkerRequest
 import com.greenart7c3.nostrsigner.models.IntentData
 import com.greenart7c3.nostrsigner.models.IntentResultType
+import com.greenart7c3.nostrsigner.models.TorMode
+import com.greenart7c3.nostrsigner.okhttp.HttpClientManager
+import com.greenart7c3.nostrsigner.service.TorManager
 import com.greenart7c3.nostrsigner.service.crashreports.DisplayCrashMessages
+import com.greenart7c3.nostrsigner.ui.CrashReportScreen
 import com.greenart7c3.nostrsigner.ui.actions.AccountBackupScreen
 import com.greenart7c3.nostrsigner.ui.actions.AccountsBottomSheet
 import com.greenart7c3.nostrsigner.ui.actions.ActiveRelaysScreen
@@ -783,7 +787,25 @@ fun MainScreen(
                                 .verticalScroll(scrollState),
                             onPost = {
                                 scope.launch(Dispatchers.IO) {
+                                    if (Amber.instance.settings.torMode == TorMode.BUILTIN) {
+                                        TorManager.stop()
+                                    }
                                     LocalPreferences.updateProxy(context, true, it)
+                                    Amber.instance.checkForNewRelaysAndUpdateAllFilters()
+                                    scope.launch {
+                                        navController.navigate(Route.Settings.route) {
+                                            popUpTo(0)
+                                        }
+                                    }
+                                }
+                            },
+                            onBuiltinTor = {
+                                scope.launch(Dispatchers.IO) {
+                                    if (Amber.instance.settings.torMode == TorMode.ORBOT) {
+                                        HttpClientManager.clearProxy()
+                                    }
+                                    LocalPreferences.updateTorMode(context, TorMode.BUILTIN)
+                                    TorManager.start(context, Amber.instance.applicationIOScope)
                                     Amber.instance.checkForNewRelaysAndUpdateAllFilters()
                                     scope.launch {
                                         navController.navigate(Route.Settings.route) {
@@ -843,9 +865,29 @@ fun MainScreen(
                         )
                     },
                 )
+
+                composable(
+                    Route.CrashReport.route,
+                    content = {
+                        CrashReportScreen(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(padding)
+                                .consumeWindowInsets(padding)
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 24.dp),
+                            account = account,
+                            onDismiss = {
+                                Amber.instance.applicationIOScope.launch(Dispatchers.Main) {
+                                    navController.navigateUp()
+                                }
+                            },
+                        )
+                    },
+                )
             }
         }
 
-        DisplayCrashMessages(account)
+        DisplayCrashMessages(account, navController)
     }
 }

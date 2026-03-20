@@ -243,6 +243,7 @@ object BunkerRequestUtils {
         relay: String = "",
         scopedTypeSuffix: String = "",
         closeActivity: Boolean = true,
+        encryptedData: com.greenart7c3.nostrsigner.models.EncryptedDataKind? = null,
     ) {
         onLoading(true)
         Amber.instance.applicationIOScope.launch {
@@ -327,6 +328,7 @@ object BunkerRequestUtils {
                     rememberType = rememberType,
                     relay = relay,
                     scopedTypeSuffix = scopedTypeSuffix,
+                    encryptedData = encryptedData ?: bunkerRequest.encryptedData,
                 )
             }
 

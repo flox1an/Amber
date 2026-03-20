@@ -73,6 +73,7 @@ fun NewNsecBunkerScreen(
     val secret = remember { mutableStateOf(UUID.randomUUID().toString()) }
     var name by remember { mutableStateOf(TextFieldValue(AnnotatedString(""))) }
     val context = LocalContext.current
+    val clipboardManager = LocalClipboard.current
     val relays = remember { mutableStateListOf(*Amber.instance.settings.defaultRelays.toTypedArray()) }
     val textFieldRelay = remember { mutableStateOf(TextFieldValue("")) }
     val scope = rememberCoroutineScope()
