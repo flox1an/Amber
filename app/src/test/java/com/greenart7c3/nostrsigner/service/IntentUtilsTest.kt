@@ -1,6 +1,7 @@
 package com.greenart7c3.nostrsigner.service
 
 import com.greenart7c3.nostrsigner.database.ApplicationPermissionsEntity
+import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.vitorpamplona.quartz.utils.TimeUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -192,6 +193,50 @@ class IntentUtilsTest {
         assertNull(IntentUtils.isRemembered(signPolicy = 1, permission = null))
     }
 
+    // --- isRemembered with force-prompt (Danger Zone) ---
+
+    @Test
+    fun `isRemembered returns null for kind 5 even with auto-approve permission`() {
+        val permission = permissionWith(acceptable = true, acceptUntil = TimeUtils.now() + 3600)
+        val event = testEvent(kind = 5, content = "delete", tags = arrayOf(arrayOf("e", "abc")))
+        assertNull(IntentUtils.isRemembered(signPolicy = null, permission = permission, event = event))
+    }
+
+    @Test
+    fun `isRemembered returns null for kind 62 even with signPolicy 2`() {
+        val event = testEvent(kind = 62, tags = arrayOf(arrayOf("relay", "ALL_RELAYS")))
+        // signPolicy 2 normally auto-approves everything, but force-prompt overrides it
+        assertNull(IntentUtils.isRemembered(signPolicy = 2, permission = null, event = event))
+    }
+
+    @Test
+    fun `isRemembered returns null for kind 0 with lud16 even with auto-approve`() {
+        val permission = permissionWith(acceptable = true, acceptUntil = TimeUtils.now() + 3600)
+        val event = testEvent(kind = 0, content = """{"name":"Alice","lud16":"attacker@evil.com"}""")
+        assertNull(IntentUtils.isRemembered(signPolicy = null, permission = permission, event = event))
+    }
+
+    @Test
+    fun `isRemembered returns true for kind 0 without sensitive fields with auto-approve`() {
+        val permission = permissionWith(acceptable = true, acceptUntil = TimeUtils.now() + 3600)
+        val event = testEvent(kind = 0, content = """{"name":"Alice","about":"hi"}""")
+        assertEquals(true, IntentUtils.isRemembered(signPolicy = null, permission = permission, event = event))
+    }
+
+    @Test
+    fun `isRemembered returns null for kind 3 with empty tags even with auto-approve`() {
+        val permission = permissionWith(acceptable = true, acceptUntil = TimeUtils.now() + 3600)
+        val event = testEvent(kind = 3, tags = emptyArray())
+        assertNull(IntentUtils.isRemembered(signPolicy = null, permission = permission, event = event))
+    }
+
+    @Test
+    fun `isRemembered returns true for kind 1 with auto-approve`() {
+        val permission = permissionWith(acceptable = true, acceptUntil = TimeUtils.now() + 3600)
+        val event = testEvent(kind = 1, content = "hello")
+        assertEquals(true, IntentUtils.isRemembered(signPolicy = null, permission = permission, event = event))
+    }
+
     // Helper to build a minimal ApplicationPermissionsEntity for isRemembered tests
     private fun permissionWith(
         acceptable: Boolean = true,
@@ -206,5 +251,19 @@ class IntentUtilsTest {
         rememberType = 1,
         acceptUntil = acceptUntil,
         rejectUntil = rejectUntil,
+    )
+
+    private fun testEvent(
+        kind: Int,
+        content: String = "",
+        tags: Array<Array<String>> = emptyArray(),
+    ) = AmberEvent(
+        id = "test",
+        pubKey = "testpub",
+        createdAt = 0L,
+        kind = kind,
+        tags = tags,
+        content = content,
+        sig = "",
     )
 }

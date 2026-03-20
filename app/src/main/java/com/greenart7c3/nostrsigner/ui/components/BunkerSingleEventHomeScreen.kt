@@ -34,6 +34,7 @@ import com.greenart7c3.nostrsigner.models.Permission
 import com.greenart7c3.nostrsigner.models.SignerType
 import com.greenart7c3.nostrsigner.models.kindToNip
 import com.greenart7c3.nostrsigner.service.BunkerRequestUtils
+import com.greenart7c3.nostrsigner.service.ScopedType
 import com.greenart7c3.nostrsigner.service.isPrivateEvent
 import com.greenart7c3.nostrsigner.service.model.AmberEvent
 import com.greenart7c3.nostrsigner.service.toShortenHex
@@ -61,6 +62,8 @@ fun BunkerSingleEventHomeScreen(
     bunkerRequest: AmberBunkerRequest,
     account: Account,
     onLoading: (Boolean) -> Unit,
+    closeActivity: Boolean = true,
+    onDone: (() -> Unit)? = null,
 ) {
     var applicationEntity by remember {
         mutableStateOf<ApplicationWithPermissions?>(null)
@@ -113,6 +116,7 @@ fun BunkerSingleEventHomeScreen(
                     val result = "pong"
 
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -129,6 +133,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -169,6 +174,7 @@ fun BunkerSingleEventHomeScreen(
                                     val result = bunkerRequest.nostrConnectSecret.ifBlank { "ack" }
 
                                     BunkerRequestUtils.sendResult(
+                                        closeActivity = closeActivity,
                                         oldKey = existingAppKey,
                                         context = context,
                                         account = selectedAccount,
@@ -193,6 +199,7 @@ fun BunkerSingleEventHomeScreen(
                                     val result = bunkerRequest.nostrConnectSecret.ifBlank { "ack" }
 
                                     BunkerRequestUtils.sendResult(
+                                        closeActivity = closeActivity,
                                         context = context,
                                         account = selectedAccount,
                                         key = key,
@@ -247,6 +254,7 @@ fun BunkerSingleEventHomeScreen(
                             val existingApp = Amber.instance.getDatabase(acc.npub).dao().getByName(bunkerRequest.name)
                             if (existingApp == null) {
                                 BunkerRequestUtils.sendResult(
+                                    closeActivity = closeActivity,
                                     context = context,
                                     account = acc,
                                     key = key,
@@ -268,6 +276,7 @@ fun BunkerSingleEventHomeScreen(
                         }
                     } else {
                         BunkerRequestUtils.sendResult(
+                            closeActivity = closeActivity,
                             context = context,
                             account = account,
                             key = key,
@@ -286,6 +295,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -307,6 +317,7 @@ fun BunkerSingleEventHomeScreen(
                     val result = account.hexKey
 
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -323,6 +334,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -371,6 +383,7 @@ fun BunkerSingleEventHomeScreen(
                 account = account,
                 onAccept = {
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -387,6 +400,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -437,6 +451,7 @@ fun BunkerSingleEventHomeScreen(
                     val result = bunkerRequest.encryptedData?.result ?: ""
 
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -453,6 +468,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -503,6 +519,7 @@ fun BunkerSingleEventHomeScreen(
                     val result = bunkerRequest.encryptedData?.result ?: ""
 
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -519,6 +536,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -569,6 +587,7 @@ fun BunkerSingleEventHomeScreen(
                     val result = bunkerRequest.encryptedData?.result ?: ""
 
                     BunkerRequestUtils.sendResult(
+                        closeActivity = closeActivity,
                         context = context,
                         account = account,
                         key = key,
@@ -585,6 +604,7 @@ fun BunkerSingleEventHomeScreen(
                 },
                 onReject = {
                     BunkerRequestUtils.sendRejection(
+                        closeActivity = closeActivity,
                         key = key,
                         account = account,
                         bunkerRequest = bunkerRequest,
@@ -672,6 +692,7 @@ fun BunkerSingleEventHomeScreen(
 
                         val relayPermission = if (scope == RelayAuthScope.ALL) "*" else relayUrl
                         BunkerRequestUtils.sendResult(
+                            closeActivity = closeActivity,
                             context = context,
                             account = account,
                             key = key,
@@ -690,6 +711,7 @@ fun BunkerSingleEventHomeScreen(
                     onReject = { rememberType, scope ->
                         val relayPermission = if (scope == RelayAuthScope.ALL) "*" else relayUrl
                         BunkerRequestUtils.sendRejection(
+                            closeActivity = closeActivity,
                             key = key,
                             account = account,
                             bunkerRequest = bunkerRequest,
@@ -703,10 +725,27 @@ fun BunkerSingleEventHomeScreen(
                     },
                 )
             } else {
+                // For Blossom (24242), extract server domain for relay matching
+                val requestRelay = if (event.kind == 24242) {
+                    event.tags.firstOrNull { it.size >= 2 && it[0] == "server" }?.get(1)?.let { url ->
+                        try {
+                            java.net.URI(url).host?.removePrefix("www.") ?: url
+                        } catch (_: Exception) {
+                            url
+                        }
+                    } ?: ""
+                } else {
+                    ""
+                }
+
                 val permission =
                     applicationEntity?.permissions?.firstOrNull {
                         val nip = event.kind.kindToNip()?.toIntOrNull()
-                        it.pkKey == key && ((it.type == type.toString() && it.kind == event.kind) || (nip != null && it.type == "NIP" && it.kind == nip))
+                        val typeMatch = ScopedType.permissionTypeMatches(it.type, type.toString(), event.kind, event.tags) && it.kind == event.kind
+                        val nipMatch = nip != null && it.type == "NIP" && it.kind == nip
+                        // For relay-scoped permissions, verify relay matches (empty relay = any server)
+                        val relayMatch = it.relay.isEmpty() || it.relay == "*" || it.relay == requestRelay
+                        it.pkKey == key && (typeMatch || nipMatch) && relayMatch
                     }
 
                 val acceptUntil = permission?.acceptUntil ?: 0
@@ -726,9 +765,10 @@ fun BunkerSingleEventHomeScreen(
                     modifier = modifier,
                     shouldAcceptOrReject = acceptOrReject,
                     appName = appName,
+                    appUrl = applicationEntity?.application?.url,
                     event = event,
                     account = account,
-                    onAccept = {
+                    onAccept = { rt, suffix ->
                         if (event.pubKey != account.hexKey && !isPrivateEvent(event.kind, event.tags)) {
                             coroutineScope.launch {
                                 Toast.makeText(
@@ -740,7 +780,21 @@ fun BunkerSingleEventHomeScreen(
                             return@BunkerEventData
                         }
 
+                        // Extract server domain for Blossom auth (24242)
+                        val blossomRelay = if (event.kind == 24242) {
+                            event.tags.firstOrNull { it.size >= 2 && it[0] == "server" }?.get(1)?.let { url ->
+                                try {
+                                    java.net.URI(url).host?.removePrefix("www.") ?: url
+                                } catch (_: Exception) {
+                                    url
+                                }
+                            } ?: ""
+                        } else {
+                            ""
+                        }
+
                         BunkerRequestUtils.sendResult(
+                            closeActivity = closeActivity,
                             context = context,
                             account = account,
                             key = key,
@@ -752,19 +806,23 @@ fun BunkerSingleEventHomeScreen(
                             appName = appName,
                             signPolicy = null,
                             shouldCloseApplication = bunkerRequest.closeApplication,
-                            rememberType = it,
+                            rememberType = rt,
+                            scopedTypeSuffix = suffix,
+                            relay = blossomRelay,
                         )
                     },
-                    onReject = {
+                    onReject = { rt, suffix ->
                         BunkerRequestUtils.sendRejection(
+                            closeActivity = closeActivity,
                             key = key,
                             account = account,
                             bunkerRequest = bunkerRequest,
                             appName = appName,
-                            rememberType = it,
+                            rememberType = rt,
                             signerType = type,
                             kind = event.kind,
                             onLoading = onLoading,
+                            scopedTypeSuffix = suffix,
                         )
                     },
                 )
@@ -807,6 +865,7 @@ fun BunkerSingleEventHomeScreen(
                             }
 
                         BunkerRequestUtils.sendResult(
+                            closeActivity = closeActivity,
                             context = context,
                             account = account,
                             key = key,
@@ -823,6 +882,7 @@ fun BunkerSingleEventHomeScreen(
                     },
                     onReject = {
                         BunkerRequestUtils.sendRejection(
+                            closeActivity = closeActivity,
                             key = key,
                             account = account,
                             bunkerRequest = bunkerRequest,
@@ -863,6 +923,7 @@ fun BunkerSingleEventHomeScreen(
                             val result = account.signString(bunkerRequest.request.params.first())
 
                             BunkerRequestUtils.sendResult(
+                                closeActivity = closeActivity,
                                 context = context,
                                 account = account,
                                 key = key,
@@ -880,6 +941,7 @@ fun BunkerSingleEventHomeScreen(
                     },
                     onReject = {
                         BunkerRequestUtils.sendRejection(
+                            closeActivity = closeActivity,
                             key = key,
                             account = account,
                             bunkerRequest = bunkerRequest,

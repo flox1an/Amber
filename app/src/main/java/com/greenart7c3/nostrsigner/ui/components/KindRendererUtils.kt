@@ -22,10 +22,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -295,6 +298,8 @@ internal fun AuthorIdentityRow(
     npub: String,
     pictureUrl: String?,
     avatarSize: Int = 24,
+    followSet: Set<String>? = null,
+    pubkeyHex: String? = null,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -312,5 +317,144 @@ internal fun AuthorIdentityRow(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        if (followSet != null && pubkeyHex != null && pubkeyHex in followSet) {
+            FollowBadge()
+        }
     }
+}
+
+@Composable
+internal fun FollowBadge() {
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = com.greenart7c3.nostrsigner.ui.theme.AmberColors.success().copy(alpha = 0.15f),
+    ) {
+        Text(
+            text = "Following",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Medium,
+            color = com.greenart7c3.nostrsigner.ui.theme.AmberColors.success(),
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+        )
+    }
+}
+
+/**
+ * Fetches and remembers the current user's follow list (set of hex pubkeys).
+ * Returns null while loading or if the fetch fails.
+ */
+@Composable
+internal fun rememberFollowSet(accountHexKey: String): Set<String>? {
+    var followSet by remember { mutableStateOf<Set<String>?>(null) }
+    LaunchedEffect(accountHexKey) {
+        try {
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                fetchFollowSet(accountHexKey)
+            }
+            followSet = result
+        } catch (_: Exception) {
+        }
+    }
+    return followSet
+}
+
+private suspend fun fetchFollowSet(accountHexKey: String): Set<String>? {
+    return kotlinx.coroutines.withTimeoutOrNull(5000L) {
+        val settings = com.greenart7c3.nostrsigner.LocalPreferences.loadSettingsFromEncryptedStorage()
+        val relays = (settings.defaultRelays + settings.defaultProfileRelays).distinct()
+        if (relays.isEmpty()) return@withTimeoutOrNull null
+
+        val result = kotlinx.coroutines.CompletableDeferred<Set<String>?>()
+        val client = com.greenart7c3.nostrsigner.Amber.instance.client
+        val subId = java.util.UUID.randomUUID().toString()
+        val totalRelays = relays.size
+        val eoseCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+        val listener = object : com.vitorpamplona.quartz.nip01Core.relay.client.listeners.IRelayClientListener {
+            override fun onIncomingMessage(
+                relay: com.vitorpamplona.quartz.nip01Core.relay.client.single.IRelayClient,
+                msgStr: String,
+                msg: com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.Message,
+            ) {
+                if (msg is com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.EventMessage && msg.subId == subId) {
+                    if (msg.event.kind == 3) {
+                        val follows = msg.event.tags
+                            .filter { it.size >= 2 && it[0] == "p" }
+                            .map { it[1] }
+                            .toSet()
+                        if (!result.isCompleted) {
+                            result.complete(follows)
+                        }
+                        client.close(subId)
+                        client.unsubscribe(this)
+                    }
+                }
+                if (msg is com.vitorpamplona.quartz.nip01Core.relay.commands.toClient.EoseMessage && msg.subId == subId) {
+                    if (eoseCount.incrementAndGet() >= totalRelays && !result.isCompleted) {
+                        result.complete(null)
+                        client.close(subId)
+                        client.unsubscribe(this)
+                    }
+                }
+            }
+        }
+
+        client.subscribe(listener)
+        val filter = com.vitorpamplona.quartz.nip01Core.relay.filters.Filter(
+            kinds = listOf(3),
+            authors = listOf(accountHexKey),
+            limit = 1,
+        )
+        val filterMap = relays.associateWith { listOf(filter) }
+        client.openReqSubscription(subId, filterMap)
+
+        result.await()
+    }
+}
+
+/**
+ * Fetches and remembers a single author profile (displayName, pictureUrl) for the given hex pubkey.
+ * Returns null while loading or if the fetch fails.
+ */
+@Composable
+internal fun rememberProfile(pubkeyHex: String?): Pair<String?, String?>? {
+    var profile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
+    LaunchedEffect(pubkeyHex) {
+        if (pubkeyHex == null) return@LaunchedEffect
+        try {
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                fetchAuthorProfile(pubkeyHex)
+            }
+            if (result != null) {
+                profile = result
+            }
+        } catch (_: Exception) {
+        }
+    }
+    return profile
+}
+
+/**
+ * Fetches and remembers profiles for a list of hex pubkeys.
+ * Returns a [SnapshotStateMap] that populates as profiles arrive from relays.
+ */
+@Composable
+internal fun rememberProfiles(hexKeys: List<String>): SnapshotStateMap<String, Pair<String?, String?>> {
+    val profiles = remember { mutableStateMapOf<String, Pair<String?, String?>>() }
+    LaunchedEffect(hexKeys) {
+        hexKeys.forEach { hex ->
+            if (hex !in profiles) {
+                try {
+                    val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        fetchAuthorProfile(hex)
+                    }
+                    if (result != null) {
+                        profiles[hex] = result
+                    }
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+    return profiles
 }

@@ -361,12 +361,7 @@ fun PermissionRow(
 ) {
     val context = LocalContext.current
     val message = remember(permission.type, permission.kind, permission.acceptable, permission.relay) {
-        val localPermission = Permission(permission.type.toLowerCase(Locale.current), permission.kind)
-        if (permission.type == "SIGN_EVENT" || permission.type == "NIP") {
-            context.getString(R.string.sign, localPermission.toLocalizedString(context))
-        } else {
-            localPermission.toLocalizedString(context)
-        }
+        formatPermissionLabel(context, permission)
     }
 
     var optionIndex by remember {
@@ -419,23 +414,39 @@ fun PermissionRow(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (permission.kind == 22242 && permission.relay.isNotEmpty()) {
+            // Server/relay subtitle
+            if (permission.kind == 22242 || permission.kind == 24242) {
+                val serverText = when {
+                    permission.relay == "*" -> context.getString(R.string.for_all_relays)
+                    permission.relay.isNotEmpty() -> permission.relay
+                    else -> "Any server"
+                }
                 Text(
-                    text = if (permission.relay == "*") {
-                        context.getString(R.string.for_all_relays)
-                    } else {
-                        permission.relay
-                    },
+                    text = serverText,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (optionIndex != 2 && durationLabel.isNotEmpty()) {
+            // Time remaining or duration
+            val timeRemaining = formatTimeRemaining(permission)
+            if (timeRemaining != null) {
+                Text(
+                    text = timeRemaining,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (timeRemaining == "Expired") AmberColors.error() else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else if (optionIndex == 0 && rememberTypeIndex == 0) {
+                Text(
+                    text = "Always",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else if (optionIndex != 2 && durationLabel.isNotEmpty()) {
                 Text(
                     text = durationLabel,
                     style = MaterialTheme.typography.bodySmall,
@@ -548,6 +559,63 @@ private fun PermissionMenuItem(text: String, selected: Boolean, onClick: () -> U
         },
         onClick = onClick,
     )
+}
+
+/** Formats a scoped permission type into a human-readable label. */
+private fun formatPermissionLabel(context: android.content.Context, permission: ApplicationPermissionsEntity): String {
+    val rawType = permission.type
+    val kind = permission.kind
+
+    // Parse scoped type suffix
+    val baseType = rawType.substringBefore(':')
+    val suffix = if (':' in rawType) rawType.substringAfter(':') else null
+
+    // Build the base label
+    val baseLabel = if (baseType.equals("SIGN_EVENT", ignoreCase = true) || baseType.equals("NIP", ignoreCase = true)) {
+        val localPermission = Permission(baseType.toLowerCase(Locale.current), kind)
+        context.getString(R.string.sign, localPermission.toLocalizedString(context))
+    } else {
+        val localPermission = Permission(baseType.toLowerCase(Locale.current), kind)
+        localPermission.toLocalizedString(context)
+    }
+
+    // Append scoped suffix as a readable label
+    if (suffix != null) {
+        val scopeLabel = when {
+            suffix.startsWith("t=") -> {
+                val method = suffix.removePrefix("t=").replaceFirstChar { it.uppercase() }
+                val kindLabel = if (kind == 24242) "Blossom" else "Kind $kind"
+                "$kindLabel \u2014 $method"
+            }
+            suffix.startsWith("d=") -> {
+                val dTag = suffix.removePrefix("d=")
+                "$baseLabel (d: $dTag)"
+            }
+            else -> "$baseLabel ($suffix)"
+        }
+        // For blossom method scopes, return the nicer label directly
+        if (suffix.startsWith("t=")) return scopeLabel
+        return scopeLabel
+    }
+
+    return baseLabel
+}
+
+/** Formats the remaining time for a permission, or null if always/expired/ask. */
+private fun formatTimeRemaining(permission: ApplicationPermissionsEntity): String? {
+    val until = if (permission.acceptable) permission.acceptUntil else permission.rejectUntil
+    if (until <= 0L || until >= Long.MAX_VALUE / 2000) return null // "always" or "ask"
+
+    val now = TimeUtils.now()
+    val remaining = until - now
+    if (remaining <= 0) return "Expired"
+
+    return when {
+        remaining < 60 -> "Expires in ${remaining}s"
+        remaining < 3600 -> "Expires in ${remaining / 60}min"
+        remaining < 86400 -> "Expires in ${remaining / 3600}h ${(remaining % 3600) / 60}min"
+        else -> "Expires in ${remaining / 86400}d"
+    }
 }
 
 @Composable

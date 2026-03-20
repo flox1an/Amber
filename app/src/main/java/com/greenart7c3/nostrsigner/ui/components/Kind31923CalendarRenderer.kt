@@ -57,6 +57,12 @@ fun Kind31923CalendarRenderer(
     val participantTags = remember(tags) {
         tags.filter { it.isNotEmpty() && it[0] == "p" }
     }
+    val displayedParticipantHexKeys = remember(participantTags) {
+        participantTags.take(5).mapNotNull { it.getOrNull(1) }
+    }
+
+    // Fetch profiles for participants
+    val participantProfiles = rememberProfiles(displayedParticipantHexKeys)
 
     val startFormatted = remember(startRaw) { startRaw?.let { formatEventDate(it) } }
     val endFormatted = remember(endRaw) { endRaw?.let { formatEventDate(it) } }
@@ -187,16 +193,30 @@ fun Kind31923CalendarRenderer(
                     }
                 }
 
-                // Participant count
-                if (participantTags.isNotEmpty()) {
+                // Participants
+                if (displayedParticipantHexKeys.isNotEmpty()) {
                     Spacer(modifier = Modifier.size(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text(text = "\uD83D\uDC65", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = "PARTICIPANTS (${participantTags.size})",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    displayedParticipantHexKeys.forEach { hex ->
+                        val profile = participantProfiles[hex]
+                        val npub = remember(hex) { hexToNpub(hex) }
+                        AuthorIdentityRow(
+                            displayName = profile?.first,
+                            npub = npub,
+                            pictureUrl = profile?.second,
+                            avatarSize = 20,
+                        )
+                        Spacer(modifier = Modifier.size(4.dp))
+                    }
+                    val remaining = participantTags.size - displayedParticipantHexKeys.size
+                    if (remaining > 0) {
                         Text(
-                            text = "${participantTags.size} participant${if (participantTags.size != 1) "s" else ""}",
+                            text = "... and $remaining more",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

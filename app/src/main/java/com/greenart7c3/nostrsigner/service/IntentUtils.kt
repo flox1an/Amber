@@ -682,6 +682,7 @@ object IntentUtils {
         rememberType: RememberType,
         deleteAfter: Long = 0L,
         relay: String = "",
+        scopedTypeSuffix: String = "",
     ) {
         onLoading(true)
         Amber.instance.applicationIOScope.launch {
@@ -734,6 +735,7 @@ object IntentUtils {
                     kind = kind,
                     rememberType = rememberType,
                     relay = relay,
+                    scopedTypeSuffix = scopedTypeSuffix,
                 )
             }
 
@@ -867,6 +869,7 @@ object IntentUtils {
         onLoading: (Boolean) -> Unit,
         onRemoveIntentData: (List<IntentData>, IntentResultType) -> Unit,
         relay: String = "",
+        scopedTypeSuffix: String = "",
     ) {
         Amber.instance.applicationIOScope.launch(Dispatchers.IO) {
             if (key == "null") {
@@ -905,6 +908,7 @@ object IntentUtils {
                     rememberType,
                     account,
                     relay,
+                    scopedTypeSuffix = scopedTypeSuffix,
                 )
             }
 
@@ -933,7 +937,26 @@ object IntentUtils {
         }
     }
 
-    fun isRemembered(signPolicy: Int?, permission: ApplicationPermissionsEntity?): Boolean? {
+    fun isRemembered(signPolicy: Int?, permission: ApplicationPermissionsEntity?, event: AmberEvent? = null): Boolean? {
+        val forceResult = if (event != null) ForcePromptChecker.shouldForcePrompt(event) else null
+        return isRememberedInternal(signPolicy, permission, forceResult)
+    }
+
+    fun isRemembered(signPolicy: Int?, permission: ApplicationPermissionsEntity?, event: Event?): Boolean? {
+        val forceResult = if (event != null) ForcePromptChecker.shouldForcePrompt(event) else null
+        return isRememberedInternal(signPolicy, permission, forceResult)
+    }
+
+    private fun isRememberedInternal(
+        signPolicy: Int?,
+        permission: ApplicationPermissionsEntity?,
+        forceResult: ForcePromptChecker.ForcePromptResult?,
+    ): Boolean? {
+        // Danger Zone: force-prompt overrides auto-approve for dangerous events
+        if (forceResult != null && forceResult.force) {
+            return null // Always show UI
+        }
+
         val rejectUntil = permission?.rejectUntil ?: 0
         val acceptUntil = permission?.acceptUntil ?: 0
         if (signPolicy == 2) {

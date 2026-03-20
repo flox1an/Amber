@@ -82,7 +82,9 @@ object AmberUtils {
         rememberType: RememberType,
         account: Account,
         relay: String = "",
+        scopedTypeSuffix: String = "",
     ) {
+        val effectiveType = signerType.toString() + scopedTypeSuffix
         val until = when (rememberType) {
             RememberType.ALWAYS -> Long.MAX_VALUE / 1000
             RememberType.FIVE_MINUTES -> TimeUtils.now() + TimeUtils.FIVE_MINUTES
@@ -94,25 +96,23 @@ object AmberUtils {
 
         if (kind != null) {
             if (relay.isNotEmpty()) {
-                // For relay-specific permissions: wildcard "*" removes all relay entries for this kind,
-                // specific relay removes only its own entry
                 if (relay == "*") {
-                    application.permissions.removeIf { it.kind == kind && it.type == signerType.toString() }
+                    application.permissions.removeIf { it.kind == kind && it.type == effectiveType }
                 } else {
-                    application.permissions.removeIf { it.kind == kind && it.type == signerType.toString() && it.relay == relay }
+                    application.permissions.removeIf { it.kind == kind && it.type == effectiveType && it.relay == relay }
                 }
             } else {
-                application.permissions.removeIf { it.kind == kind && it.type == signerType.toString() && it.relay.isEmpty() }
+                application.permissions.removeIf { it.kind == kind && it.type == effectiveType && it.relay.isEmpty() }
             }
         } else {
-            application.permissions.removeIf { it.type == signerType.toString() && it.type != "SIGN_EVENT" }
+            application.permissions.removeIf { it.type == effectiveType && it.type != "SIGN_EVENT" }
         }
 
         application.permissions.add(
             ApplicationPermissionsEntity(
                 null,
                 key,
-                signerType.toString(),
+                effectiveType,
                 kind,
                 value,
                 rememberType.screenCode,
@@ -187,7 +187,10 @@ object AmberUtils {
         kind: Int?,
         rememberType: RememberType,
         relay: String = "",
+        scopedTypeSuffix: String = "",
     ) {
+        val effectiveType = type.toString() + scopedTypeSuffix
+        android.util.Log.d("AmberScope", "acceptPermission: effectiveType=$effectiveType kind=$kind rememberType=$rememberType relay=$relay suffix=$scopedTypeSuffix")
         val until = when (rememberType) {
             RememberType.ALWAYS -> Long.MAX_VALUE / 1000
             RememberType.FIVE_MINUTES -> TimeUtils.now() + TimeUtils.FIVE_MINUTES
@@ -200,22 +203,22 @@ object AmberUtils {
         if (kind != null) {
             if (relay.isNotEmpty()) {
                 if (relay == "*") {
-                    application.permissions.removeIf { it.kind == kind && it.type == type.toString() }
+                    application.permissions.removeIf { it.kind == kind && it.type == effectiveType }
                 } else {
-                    application.permissions.removeIf { it.kind == kind && it.type == type.toString() && it.relay == relay }
+                    application.permissions.removeIf { it.kind == kind && it.type == effectiveType && it.relay == relay }
                 }
             } else {
-                application.permissions.removeIf { it.kind == kind && it.type == type.toString() && it.relay.isEmpty() }
+                application.permissions.removeIf { it.kind == kind && it.type == effectiveType && it.relay.isEmpty() }
             }
         } else {
-            application.permissions.removeIf { it.type == type.toString() && it.type != "SIGN_EVENT" }
+            application.permissions.removeIf { it.type == effectiveType && it.type != "SIGN_EVENT" }
         }
 
         application.permissions.add(
             ApplicationPermissionsEntity(
                 null,
                 key,
-                type.toString(),
+                effectiveType,
                 kind,
                 true,
                 rememberType.screenCode,

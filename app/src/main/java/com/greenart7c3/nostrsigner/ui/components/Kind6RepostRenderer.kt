@@ -83,21 +83,8 @@ fun Kind6RepostRenderer(
     val displayEvent = embeddedEvent ?: fetchedEvent
 
     // Fetch author profile for display event
-    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
     val authorToFetch = displayEvent?.authorPubkey ?: repostedAuthorPubkey
-
-    LaunchedEffect(authorToFetch) {
-        if (authorToFetch == null) return@LaunchedEffect
-        try {
-            val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fetchAuthorProfile(authorToFetch)
-            }
-            if (profile != null) {
-                authorProfile = profile
-            }
-        } catch (_: Exception) {
-        }
-    }
+    val authorProfile = rememberProfile(authorToFetch)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

@@ -76,10 +76,12 @@ fun RememberMyChoice(
     onAccept: (RememberType) -> Unit,
     onReject: (RememberType) -> Unit,
     eventKind: Int? = null,
+    eventTags: Array<Array<String>>? = null,
+    onScopedSuffixChanged: (String) -> Unit = {},
     onChanged: (RememberType) -> Unit,
 ) {
     // Check for kind-specific approval config
-    val approvalConfig = eventKind?.let { getApprovalConfig(it) }
+    val approvalConfig = eventKind?.let { getApprovalConfig(it, eventTags) }
 
     if (approvalConfig != null) {
         // Kind-specific scope selector
@@ -103,22 +105,32 @@ fun RememberMyChoice(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
-                Row(
+                Column(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Icon(
-                        Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                        Text(
+                            text = approvalConfig.scopes.first().label,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 6.dp),
+                        )
+                    }
                     Text(
-                        text = approvalConfig.scopes.first().label,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 6.dp),
+                        text = "Requires approval each time",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(top = 2.dp),
                     )
                 }
             }
@@ -126,15 +138,21 @@ fun RememberMyChoice(
             // Multiple scope options — selectable radio-style
             var selectedScopeId by remember { mutableStateOf(approvalConfig.defaultScopeId) }
 
-            // Map scope selection to RememberType
+            // Map scope selection to RememberType + scoped suffix
             LaunchedEffect(selectedScopeId) {
                 val rememberType = when (selectedScopeId) {
                     "once" -> RememberType.NEVER
+                    "app_method_1h" -> RememberType.ONE_HOUR
                     "app_kind_1h" -> RememberType.ONE_HOUR
+                    "app_kind_4h" -> RememberType.FOUR_HOURS
                     "app_kind_always" -> RememberType.ALWAYS
                     else -> RememberType.NEVER
                 }
                 onChanged(rememberType)
+                val suffix = approvalConfig.scopes
+                    .firstOrNull { it.id == selectedScopeId }
+                    ?.scopedTypeSuffix ?: ""
+                onScopedSuffixChanged(suffix)
             }
 
             Column(
@@ -180,6 +198,17 @@ fun RememberMyChoice(
                             }
                         }
                     }
+                }
+
+                // Scope summary
+                val summaryText = scopeSummaryText(selectedScopeId, approvalConfig)
+                if (summaryText.isNotBlank()) {
+                    Text(
+                        text = summaryText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                    )
                 }
             }
         }
@@ -261,5 +290,18 @@ fun RememberMyChoice(
                 )
             }
         }
+    }
+}
+
+/** Returns a human-readable summary of what the selected scope means. */
+private fun scopeSummaryText(scopeId: String, config: KindApprovalConfig): String {
+    val scope = config.scopes.find { it.id == scopeId } ?: return ""
+    return when (scopeId) {
+        "once" -> "Requires approval each time"
+        "app_method_1h" -> "Auto-approve this method on this server for 1 hour"
+        "app_kind_1h" -> "Auto-approve this kind from this app for 1 hour"
+        "app_kind_4h" -> "Auto-approve this kind from this app for 4 hours"
+        "app_kind_always" -> "Always auto-approve this kind from this app"
+        else -> ""
     }
 }

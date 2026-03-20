@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -30,7 +29,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Account
 import com.greenart7c3.nostrsigner.ui.theme.AmberColors
-import kotlinx.coroutines.async
 
 private const val MAX_PROFILE_FETCHES = 50
 
@@ -72,25 +70,10 @@ fun Kind3FollowListRenderer(
     val hasDiff = currentFollows != null && (added.isNotEmpty() || removed.isNotEmpty())
 
     // Fetch profiles for added/removed pubkeys (cap at MAX_PROFILE_FETCHES)
-    val profiles = remember { mutableStateMapOf<String, Pair<String?, String?>>() }
     val pubkeysToFetch = remember(added, removed) {
         (added + removed).take(MAX_PROFILE_FETCHES)
     }
-
-    LaunchedEffect(pubkeysToFetch) {
-        if (pubkeysToFetch.isEmpty()) return@LaunchedEffect
-        pubkeysToFetch.map { pubkey ->
-            async(kotlinx.coroutines.Dispatchers.IO) {
-                try {
-                    val profile = fetchAuthorProfile(pubkey)
-                    if (profile != null) {
-                        profiles[pubkey] = profile
-                    }
-                } catch (_: Exception) {
-                }
-            }
-        }.forEach { it.await() }
-    }
+    val profiles = rememberProfiles(pubkeysToFetch)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

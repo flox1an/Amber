@@ -65,6 +65,7 @@ import com.greenart7c3.nostrsigner.ui.RememberType
 import com.greenart7c3.nostrsigner.ui.SettingsRow
 import com.greenart7c3.nostrsigner.ui.deleteAfterToSeconds
 import com.greenart7c3.nostrsigner.ui.parseDeleteAfterType
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import kotlin.collections.forEach
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
@@ -373,8 +374,10 @@ fun BunkerConnectRequestScreen(
                     onReject(RememberType.NEVER)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
+                    containerColor = AmberColors.errorBg(),
+                    contentColor = AmberColors.error(),
                 ),
+                textColor = AmberColors.error(),
                 text = stringResource(R.string.cancel),
             )
 
@@ -386,6 +389,10 @@ fun BunkerConnectRequestScreen(
                     val deleteAfter = deleteAfterToSeconds(parseDeleteAfterType(deleteAfterIndex))
                     onAccept(localPermissions, selectedOption, closeApp, RememberType.ALWAYS, deleteAfter, accounts[selectedAccountIndex])
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AmberColors.success(),
+                ),
+                textColor = androidx.compose.ui.graphics.Color.White,
                 text = stringResource(R.string.connect),
             )
         }

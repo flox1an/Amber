@@ -262,9 +262,9 @@ fun IntentSingleEventHomeScreen(
                 }
 
                 val acceptOrReject = if (permission == null) {
-                    IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, null)
+                    IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, null, event)
                 } else {
-                    IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, permission)
+                    IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, permission, event)
                 }
 
                 BunkerRelayAuthScreen(
@@ -326,7 +326,7 @@ fun IntentSingleEventHomeScreen(
                         it.pkKey == key && ((it.type == intentData.type.toString() && it.kind == event.kind) || (nip != null && it.type == "NIP" && it.kind == nip))
                     }
 
-                val acceptOrReject = IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, permission)
+                val acceptOrReject = IntentUtils.isRemembered(applicationEntity?.application?.signPolicy, permission, event)
 
                 EventData(
                     modifier = modifier,
@@ -334,13 +334,26 @@ fun IntentSingleEventHomeScreen(
                     packageName = packageName,
                     event = event,
                     account = account,
-                    onAccept = {
+                    onAccept = { rt, suffix ->
                         if (intentData.unsignedEventKey.isNotBlank() && intentData.unsignedEventKey != account.hexKey && !isPrivateEvent(event.kind, event.tags)) {
                             ToastManager.toast(
                                 title = context.getString(R.string.warning),
                                 message = context.getString(R.string.event_pubkey_is_not_equal_to_current_logged_in_user),
                             )
                             return@EventData
+                        }
+
+                        // Extract server domain for Blossom auth (24242) to store in relay field
+                        val blossomRelay = if (event.kind == 24242) {
+                            event.tags.firstOrNull { it.size >= 2 && it[0] == "server" }?.get(1)?.let { url ->
+                                try {
+                                    java.net.URI(url).host?.removePrefix("www.") ?: url
+                                } catch (_: Exception) {
+                                    url
+                                }
+                            } ?: ""
+                        } else {
+                            ""
                         }
 
                         IntentUtils.sendResult(
@@ -366,19 +379,22 @@ fun IntentSingleEventHomeScreen(
                             signPolicy = null,
                             appName = applicationName ?: appName,
                             permissions = null,
-                            rememberType = it,
+                            rememberType = rt,
+                            scopedTypeSuffix = suffix,
+                            relay = blossomRelay,
                         )
                     },
-                    onReject = {
+                    onReject = { rt, suffix ->
                         IntentUtils.sendRejection(
                             key = key,
                             account = account,
                             intentData = intentData,
                             appName = appName,
-                            rememberType = it,
+                            rememberType = rt,
                             onLoading = onLoading,
                             onRemoveIntentData = onRemoveIntentData,
                             kind = event.kind,
+                            scopedTypeSuffix = suffix,
                         )
                     },
                 )

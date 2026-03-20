@@ -53,7 +53,6 @@ fun Kind1NoteRenderer(
     val isReply = parentEventId != null
 
     var parentEvent by remember { mutableStateOf<FetchedEvent?>(null) }
-    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
     var parentFetchFailed by remember { mutableStateOf(false) }
     var isLoadingParent by remember { mutableStateOf(false) }
 
@@ -78,25 +77,13 @@ fun Kind1NoteRenderer(
 
         // Fetch author profile separately (using p tag or event author)
         val authorToFetch = parentAuthorPubkey ?: parentEvent?.authorPubkey
-
-        LaunchedEffect(authorToFetch) {
-            if (authorToFetch == null) return@LaunchedEffect
-            try {
-                val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    fetchAuthorProfile(authorToFetch)
-                }
-                if (profile != null) {
-                    authorProfile = profile
-                }
-            } catch (_: Exception) {
-            }
-        }
+        val authorProfile = rememberProfile(authorToFetch)
 
         // Apply profile to event when both are available
         if (authorProfile != null && parentEvent != null && parentEvent?.authorPictureUrl == null) {
             parentEvent = parentEvent!!.copy(
-                authorDisplayName = authorProfile!!.first,
-                authorPictureUrl = authorProfile!!.second,
+                authorDisplayName = authorProfile.first,
+                authorPictureUrl = authorProfile.second,
             )
         }
     }
@@ -190,7 +177,7 @@ fun Kind1NoteRenderer(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                NoteContent(content = content)
+                NoteContent(content = content, tags = tags)
 
                 if (hashtags.isNotEmpty()) {
                     Spacer(modifier = Modifier.size(8.dp))
@@ -223,10 +210,29 @@ fun Kind1NoteRenderer(
 }
 
 @Composable
-private fun NoteContent(content: String) {
+private fun NoteContent(content: String, tags: Array<Array<String>> = emptyArray()) {
     var expanded by remember { mutableStateOf(false) }
     val isLong = content.length > CONTENT_TRUNCATE_LENGTH
     val displayText = if (isLong && !expanded) content.take(CONTENT_TRUNCATE_LENGTH) + "..." else content
+
+    // Resolve mention names from p-tags via relay fetch
+    val pTagHexKeys = tags.filter { it.size >= 2 && it[0] == "p" }.map { it[1] }
+    val profiles = rememberProfiles(pTagHexKeys)
+
+    // Build a lookup: npub -> display name
+    val npubToName = remember(profiles.size) {
+        val map = mutableMapOf<String, String>()
+        pTagHexKeys.forEach { hex ->
+            val npub = hexToNpub(hex)
+            val profile = profiles[hex]
+            val name = profile?.first?.ifBlank { null } ?: shortenNpub(npub)
+            map[npub] = name
+        }
+        map
+    }
+
+    val chipBg = MaterialTheme.colorScheme.primaryContainer
+    val chipText = MaterialTheme.colorScheme.primary
 
     val annotated = buildAnnotatedString {
         var lastIndex = 0
@@ -240,13 +246,15 @@ private fun NoteContent(content: String) {
             when {
                 match.value.startsWith("nostr:npub") -> {
                     val npub = match.value.removePrefix("nostr:")
+                    val name = npubToName[npub] ?: shortenNpub(npub)
                     withStyle(
                         SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium,
+                            color = chipText,
+                            fontWeight = FontWeight.SemiBold,
+                            background = chipBg,
                         ),
                     ) {
-                        append("@${shortenNpub(npub)}")
+                        append(" @$name ")
                     }
                 }
                 else -> {

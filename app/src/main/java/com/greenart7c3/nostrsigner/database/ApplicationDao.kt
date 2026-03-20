@@ -42,7 +42,13 @@ interface ApplicationDao {
     @Transaction
     suspend fun getBySecret(secret: String): ApplicationWithPermissions?
 
-    @Query("UPDATE applicationPermission set acceptUntil = 0, rejectUntil = 0, rememberType = 0 where (acceptUntil < :time OR rejectUntil < :time) AND rememberType <> 4")
+    @Query(
+        "UPDATE applicationPermission SET acceptUntil = 0, rejectUntil = 0, rememberType = 0 " +
+            "WHERE rememberType <> 4 AND (" +
+            "(acceptable = 1 AND acceptUntil > 0 AND acceptUntil < :time) OR " +
+            "(acceptable = 0 AND rejectUntil > 0 AND rejectUntil < :time)" +
+            ")",
+    )
     fun updateExpiredPermissions(time: Long)
 
     @Query("SELECT * FROM applicationPermission WHERE pkKey = :key")
@@ -71,6 +77,22 @@ interface ApplicationDao {
         key: String,
         type: String,
     ): ApplicationPermissionsEntity?
+
+    /**
+     * Scoped permission lookup: tries each type string in order (most specific first).
+     * Returns the first matching permission, or null.
+     */
+    fun getPermissionScoped(
+        key: String,
+        types: List<String>,
+        kind: Int?,
+    ): ApplicationPermissionsEntity? {
+        for (type in types) {
+            val result = getPermission(key, type, kind)
+            if (result != null) return result
+        }
+        return null
+    }
 
     @Query("SELECT * FROM applicationPermission WHERE pkKey = :key AND type = :type AND kind = :kind AND relay = :relay LIMIT 1")
     fun getPermissionForRelay(

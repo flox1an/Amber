@@ -4,6 +4,8 @@ data class ApprovalScopeOption(
     val id: String,
     val label: String,
     val recommended: Boolean = false,
+    /** Optional scoped type suffix. When set, the permission is saved with this type instead of the base type. */
+    val scopedTypeSuffix: String? = null,
 )
 
 data class KindApprovalConfig(
@@ -14,8 +16,11 @@ data class KindApprovalConfig(
 /**
  * Returns kind-specific approval scope configuration.
  * Null means fall back to the existing RememberMyChoice behavior.
+ *
+ * @param tags Optional event tags used to derive scope labels for
+ *             addressable events (d-tag) and Blossom auth (t-tag).
  */
-fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
+fun getApprovalConfig(kind: Int, tags: Array<Array<String>>? = null): KindApprovalConfig? = when (kind) {
     // Kind 0: Profile updates — high risk, always require explicit approval
     0 -> KindApprovalConfig(
         scopes = listOf(
@@ -346,15 +351,67 @@ fun getApprovalConfig(kind: Int): KindApprovalConfig? = when (kind) {
         defaultScopeId = "once",
     )
 
-    // Kind 24242: Blossom Auth — medium risk, 1-hour default
-    24242 -> KindApprovalConfig(
-        scopes = listOf(
-            ApprovalScopeOption("once", "This once"),
-            ApprovalScopeOption("app_kind_1h", "This app, 1 hour", recommended = true),
-            ApprovalScopeOption("app_kind_always", "Always for this app"),
-        ),
-        defaultScopeId = "app_kind_1h",
-    )
+    // Kind 24242: Blossom Auth — medium risk, server + method scoped
+    24242 -> {
+        val method = tags?.firstOrNull { it.size >= 2 && it[0] == "t" }?.get(1)?.lowercase()
+        val methodLabel = method?.replaceFirstChar { it.uppercase() } ?: "this method"
+        val serverUrl = tags?.firstOrNull { it.size >= 2 && it[0] == "server" }?.get(1)
+        val serverDomain = serverUrl?.let { url ->
+            try {
+                java.net.URI(url).host?.removePrefix("www.") ?: url
+            } catch (_: Exception) {
+                url
+            }
+        }
+        val hasServer = serverDomain != null
+        KindApprovalConfig(
+            scopes = listOfNotNull(
+                ApprovalScopeOption("once", "This once"),
+                // Server-scoped options only when a server is specified
+                if (hasServer && method != null) {
+                    ApprovalScopeOption(
+                        "app_method_1h",
+                        "$serverDomain \u2014 $methodLabel only, 1 hour",
+                        recommended = true,
+                        scopedTypeSuffix = ":t=$method",
+                    )
+                } else {
+                    null
+                },
+                if (hasServer) {
+                    ApprovalScopeOption(
+                        "app_kind_1h",
+                        "$serverDomain \u2014 any method, 1 hour",
+                        recommended = !hasServer || method == null,
+                    )
+                } else {
+                    null
+                },
+                // No-server fallback: method-scoped but any server
+                if (!hasServer && method != null) {
+                    ApprovalScopeOption(
+                        "app_method_1h",
+                        "Any server \u2014 $methodLabel only, 1 hour",
+                        recommended = true,
+                        scopedTypeSuffix = ":t=$method",
+                    )
+                } else {
+                    null
+                },
+                ApprovalScopeOption(
+                    "app_kind_always",
+                    "Any server, any method, always",
+                    recommended = !hasServer && method == null,
+                ),
+            ),
+            defaultScopeId = when {
+                hasServer && method != null -> "app_method_1h"
+                hasServer -> "app_kind_1h"
+                method != null -> "app_method_1h"
+                else -> "once"
+            },
+        )
+    }
 
     // Kind 27235: HTTP Auth — medium risk, 1-hour default
     27235 -> KindApprovalConfig(

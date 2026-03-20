@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -38,12 +37,12 @@ fun Kind34550CommunityRenderer(
     val moderatorTags = remember(tags) {
         tags.filter { it.isNotEmpty() && it[0] == "p" }
     }
-    val moderators = remember(moderatorTags) {
-        moderatorTags.take(5).mapNotNull { tag ->
-            val hex = tag.getOrNull(1) ?: return@mapNotNull null
-            shortenNpub(hexToNpub(hex))
-        }
+    val displayedModHexKeys = remember(moderatorTags) {
+        moderatorTags.take(5).mapNotNull { it.getOrNull(1) }
     }
+
+    // Fetch profiles for moderators
+    val modProfiles = rememberProfiles(displayedModHexKeys)
     val relays = remember(tags) {
         tags.filter { it.size >= 2 && it[0] == "relay" }
             .take(3)
@@ -113,7 +112,7 @@ fun Kind34550CommunityRenderer(
             }
         }
 
-        if (moderators.isNotEmpty()) {
+        if (displayedModHexKeys.isNotEmpty()) {
             Spacer(modifier = Modifier.size(12.dp))
             Surface(
                 shape = RoundedCornerShape(12.dp),
@@ -127,16 +126,18 @@ fun Kind34550CommunityRenderer(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    moderators.forEach { npub ->
-                        Text(
-                            text = npub,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 2.dp),
+                    displayedModHexKeys.forEach { hex ->
+                        val profile = modProfiles[hex]
+                        val npub = remember(hex) { hexToNpub(hex) }
+                        AuthorIdentityRow(
+                            displayName = profile?.first,
+                            npub = npub,
+                            pictureUrl = profile?.second,
+                            avatarSize = 20,
                         )
+                        Spacer(modifier = Modifier.size(4.dp))
                     }
-                    val remaining = moderatorTags.size - moderators.size
+                    val remaining = moderatorTags.size - displayedModHexKeys.size
                     if (remaining > 0) {
                         Text(
                             text = "... and $remaining more",

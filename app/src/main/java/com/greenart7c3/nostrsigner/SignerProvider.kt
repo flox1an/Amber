@@ -213,7 +213,7 @@ class SignerProvider : ContentProvider() {
                         }
                     }
                     val signPolicy = database.dao().getSignPolicy(packageName)
-                    val isRemembered = IntentUtils.isRemembered(signPolicy, permission) ?: return null
+                    val isRemembered = IntentUtils.isRemembered(signPolicy, permission, event) ?: return null
                     if (!isRemembered) {
                         scope.launch {
                             historyDatabase.dao().addHistory(

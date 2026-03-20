@@ -241,6 +241,8 @@ object BunkerRequestUtils {
         oldKey: String = "",
         deleteAfter: Long = 0L,
         relay: String = "",
+        scopedTypeSuffix: String = "",
+        closeActivity: Boolean = true,
     ) {
         onLoading(true)
         Amber.instance.applicationIOScope.launch {
@@ -301,9 +303,11 @@ object BunkerRequestUtils {
             application.application.isConnected = true
 
             val activity = Amber.instance.getMainActivity()
-            activity?.intent = null
-            if (application.application.closeApplication) {
-                activity?.finishAndRemoveTask()
+            if (closeActivity) {
+                activity?.intent = null
+                if (application.application.closeApplication) {
+                    activity?.finishAndRemoveTask()
+                }
             }
 
             delay(500)
@@ -313,6 +317,7 @@ object BunkerRequestUtils {
             }
 
             val type = getTypeFromBunker(bunkerRequest.request)
+            android.util.Log.d("AmberScope", "sendResult: type=$type kind=$kind rememberType=$rememberType relay=$relay suffix=$scopedTypeSuffix")
             if (rememberType != RememberType.NEVER) {
                 AmberUtils.acceptPermission(
                     application = application,
@@ -321,6 +326,7 @@ object BunkerRequestUtils {
                     kind = kind,
                     rememberType = rememberType,
                     relay = relay,
+                    scopedTypeSuffix = scopedTypeSuffix,
                 )
             }
 
@@ -357,7 +363,15 @@ object BunkerRequestUtils {
 
             // assume that everything worked and try to revert it if it fails
             EventNotificationConsumer(context).notificationManager().cancelAll()
+            application.permissions.forEach { p ->
+                android.util.Log.d("AmberScope", "  perm before save: type=${p.type} kind=${p.kind} acceptable=${p.acceptable} acceptUntil=${p.acceptUntil} relay=${p.relay}")
+            }
             database.dao().insertApplicationWithPermissions(application)
+            // Read back to verify
+            val readBack = database.dao().getAllByKey(key)
+            readBack.forEach { p ->
+                android.util.Log.d("AmberScope", "  perm AFTER save: type=${p.type} kind=${p.kind} acceptable=${p.acceptable} acceptUntil=${p.acceptUntil} relay=${p.relay} rememberType=${p.rememberType}")
+            }
             historyDatabase.dao().addHistory(
                 HistoryEntity(
                     0,
@@ -437,6 +451,8 @@ object BunkerRequestUtils {
         kind: Int?,
         onLoading: (Boolean) -> Unit,
         relay: String = "",
+        scopedTypeSuffix: String = "",
+        closeActivity: Boolean = true,
     ) {
         onLoading(true)
         Amber.instance.applicationIOScope.launch(Dispatchers.IO) {
@@ -468,11 +484,13 @@ object BunkerRequestUtils {
                 )
 
             clearRequests()
-            EventNotificationConsumer(Amber.instance).notificationManager().cancelAll()
-            val activity = Amber.instance.getMainActivity()
-            activity?.intent = null
-            if (application.application.closeApplication) {
-                activity?.finishAndRemoveTask()
+            if (closeActivity) {
+                EventNotificationConsumer(Amber.instance).notificationManager().cancelAll()
+                val activity = Amber.instance.getMainActivity()
+                activity?.intent = null
+                if (application.application.closeApplication) {
+                    activity?.finishAndRemoveTask()
+                }
             }
 
             if (rememberType != RememberType.NEVER) {
@@ -485,6 +503,7 @@ object BunkerRequestUtils {
                     rememberType,
                     account,
                     relay,
+                    scopedTypeSuffix = scopedTypeSuffix,
                 )
             }
 

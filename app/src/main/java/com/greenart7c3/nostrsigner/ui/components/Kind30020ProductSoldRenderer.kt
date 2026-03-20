@@ -52,10 +52,9 @@ fun Kind30020ProductSoldRenderer(
         if (buyerPubkey == null) return@remember null
         hexToNpub(buyerPubkey)
     }
-    val buyerNpubShort = remember(buyerNpub) {
-        if (buyerNpub == null) return@remember null
-        shortenNpub(buyerNpub)
-    }
+
+    // Fetch buyer profile
+    val buyerProfile = rememberProfile(buyerPubkey)
     val saleAmount = remember(tags) {
         tags.firstOrNull { it.size >= 2 && it[0] == "amount" }?.get(1)
     }
@@ -144,18 +143,17 @@ fun Kind30020ProductSoldRenderer(
                 }
 
                 // Buyer
-                if (buyerNpubShort != null) {
+                if (buyerNpub != null) {
                     Text(
                         text = "BUYER",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.size(4.dp))
-                    Text(
-                        text = buyerNpubShort,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontFamily = FontFamily.Monospace,
-                        color = MaterialTheme.colorScheme.onSurface,
+                    AuthorIdentityRow(
+                        displayName = buyerProfile?.first,
+                        npub = buyerNpub,
+                        pictureUrl = buyerProfile?.second,
                     )
                     Spacer(modifier = Modifier.size(12.dp))
                 }

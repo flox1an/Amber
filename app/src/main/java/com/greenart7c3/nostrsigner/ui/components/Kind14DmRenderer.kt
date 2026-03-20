@@ -8,11 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Account
@@ -26,17 +22,7 @@ fun Kind14DmRenderer(
     val recipientPubkey = tags.firstOrNull { it.size >= 2 && it[0] == "p" }?.get(1)
     val recipientNpub = if (recipientPubkey != null) hexToNpub(recipientPubkey) else null
 
-    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
-
-    LaunchedEffect(recipientPubkey) {
-        if (recipientPubkey == null) return@LaunchedEffect
-        try {
-            val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fetchAuthorProfile(recipientPubkey)
-            }
-            if (profile != null) authorProfile = profile
-        } catch (_: Exception) {}
-    }
+    val authorProfile = rememberProfile(recipientPubkey)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

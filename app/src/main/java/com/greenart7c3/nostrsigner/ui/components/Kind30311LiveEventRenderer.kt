@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -41,14 +40,17 @@ fun Kind30311LiveEventRenderer(
     val participantTags = remember(tags) {
         tags.filter { it.isNotEmpty() && it[0] == "p" }
     }
-    val participants = remember(participantTags) {
+    data class ParticipantInfo(val hex: String, val npub: String, val role: String?)
+    val displayedParticipants = remember(participantTags) {
         participantTags.take(5).mapNotNull { tag ->
             val hex = tag.getOrNull(1) ?: return@mapNotNull null
             val role = tag.getOrNull(3)?.ifBlank { null }
-            val npub = shortenNpub(hexToNpub(hex))
-            Pair(role, npub)
+            ParticipantInfo(hex, hexToNpub(hex), role)
         }
     }
+
+    // Fetch profiles for participants
+    val profiles = rememberProfiles(displayedParticipants.map { it.hex })
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -84,15 +86,27 @@ fun Kind30311LiveEventRenderer(
                         val isLive = status.equals("live", ignoreCase = true)
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isLive) AmberColors.successBg() else MaterialTheme.colorScheme.surfaceContainer,
+                            color = if (isLive) AmberColors.errorBg() else MaterialTheme.colorScheme.surfaceContainer,
                         ) {
-                            Text(
-                                text = status.uppercase(),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (isLive) AmberColors.success() else MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Medium,
+                            Row(
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                            )
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                if (isLive) {
+                                    Text(
+                                        text = "\u25CF",
+                                        color = AmberColors.error(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                                Text(
+                                    text = status.uppercase(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isLive) AmberColors.error() else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
                         }
                     }
                 }
@@ -134,7 +148,7 @@ fun Kind30311LiveEventRenderer(
         }
 
         // Participants
-        if (participants.isNotEmpty()) {
+        if (displayedParticipants.isNotEmpty()) {
             Spacer(modifier = Modifier.size(12.dp))
             Surface(
                 shape = RoundedCornerShape(12.dp),
@@ -148,26 +162,26 @@ fun Kind30311LiveEventRenderer(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.size(8.dp))
-                    participants.forEach { (role, npub) ->
+                    displayedParticipants.forEach { p ->
                         Row(
                             modifier = Modifier.padding(vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Text(
-                                text = npub,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontFamily = FontFamily.Monospace,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.weight(1f),
+                            val profile = profiles[p.hex]
+                            AuthorIdentityRow(
+                                displayName = profile?.first,
+                                npub = p.npub,
+                                pictureUrl = profile?.second,
+                                avatarSize = 20,
                             )
-                            if (role != null) {
+                            if (p.role != null) {
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
                                     color = MaterialTheme.colorScheme.secondaryContainer,
                                 ) {
                                     Text(
-                                        text = role,
+                                        text = p.role,
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
@@ -176,7 +190,7 @@ fun Kind30311LiveEventRenderer(
                             }
                         }
                     }
-                    val remaining = participantTags.size - participants.size
+                    val remaining = participantTags.size - displayedParticipants.size
                     if (remaining > 0) {
                         Text(
                             text = "... and $remaining more",

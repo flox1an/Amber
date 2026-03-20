@@ -14,11 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -52,17 +48,7 @@ fun Kind1984ReportRenderer(
         if (reportedPubkey != null) hexToNpub(reportedPubkey) else null
     }
 
-    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
-
-    LaunchedEffect(reportedPubkey) {
-        if (reportedPubkey == null) return@LaunchedEffect
-        try {
-            val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fetchAuthorProfile(reportedPubkey)
-            }
-            if (profile != null) authorProfile = profile
-        } catch (_: Exception) {}
-    }
+    val authorProfile = rememberProfile(reportedPubkey)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

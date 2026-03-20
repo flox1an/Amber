@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +49,12 @@ fun Kind9041ZapGoalRenderer(
             if (tag.size >= 4) tag[3].toLongOrNull() ?: 0L else 0L
         }
     }
+
+    // Fetch profiles for beneficiaries
+    val beneficiaryHexKeys = remember(zapBeneficiaries) {
+        zapBeneficiaries.mapNotNull { it.getOrNull(1) }
+    }
+    val profiles = rememberProfiles(beneficiaryHexKeys)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -156,6 +161,7 @@ fun Kind9041ZapGoalRenderer(
                             Spacer(modifier = Modifier.size(8.dp))
                             val pubkeyHex = tag[1]
                             val npub = remember(pubkeyHex) { hexToNpub(pubkeyHex) }
+                            val profile = profiles[pubkeyHex]
                             val weight = if (tag.size >= 4) tag[3].toLongOrNull() else null
                             val percentage = if (weight != null && totalWeight > 0) {
                                 "%.0f%%".format(weight * 100.0 / totalWeight)
@@ -166,13 +172,16 @@ fun Kind9041ZapGoalRenderer(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
-                                    text = shortenNpub(npub),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontFamily = FontFamily.Monospace,
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                androidx.compose.foundation.layout.Row(
                                     modifier = Modifier.weight(1f),
-                                )
+                                ) {
+                                    AuthorIdentityRow(
+                                        displayName = profile?.first,
+                                        npub = npub,
+                                        pictureUrl = profile?.second,
+                                        avatarSize = 20,
+                                    )
+                                }
                                 if (percentage != null) {
                                     Text(
                                         text = percentage,

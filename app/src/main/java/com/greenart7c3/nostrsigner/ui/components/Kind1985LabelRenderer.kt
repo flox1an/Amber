@@ -12,11 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Account
@@ -53,17 +49,7 @@ fun Kind1985LabelRenderer(
         if (targetPubkey != null) hexToNpub(targetPubkey) else null
     }
 
-    var authorProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
-
-    LaunchedEffect(targetPubkey) {
-        if (targetPubkey == null) return@LaunchedEffect
-        try {
-            val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fetchAuthorProfile(targetPubkey)
-            }
-            if (profile != null) authorProfile = profile
-        } catch (_: Exception) {}
-    }
+    val authorProfile = rememberProfile(targetPubkey)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

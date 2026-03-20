@@ -62,6 +62,7 @@ import com.greenart7c3.nostrsigner.models.Permission
 import com.greenart7c3.nostrsigner.service.toShortenHex
 import com.greenart7c3.nostrsigner.ui.RememberType
 import com.greenart7c3.nostrsigner.ui.navigation.Route
+import com.greenart7c3.nostrsigner.ui.theme.AmberColors
 import com.greenart7c3.nostrsigner.ui.theme.fromHex
 
 @Composable
@@ -320,8 +321,10 @@ fun LoginWithPubKey(
                     onReject(rememberType)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF6B00),
+                    containerColor = AmberColors.errorBg(),
+                    contentColor = AmberColors.error(),
                 ),
+                textColor = AmberColors.error(),
                 text = stringResource(R.string.cancel),
             )
 
@@ -332,6 +335,10 @@ fun LoginWithPubKey(
                 onClick = {
                     onAccept(localPermissions, selectedOption, true, rememberType, accounts[selectedAccountIndex])
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AmberColors.success(),
+                ),
+                textColor = Color.White,
                 text = stringResource(R.string.connect),
             )
         }

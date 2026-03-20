@@ -1,24 +1,27 @@
 package com.greenart7c3.nostrsigner.ui.components
 
 import android.content.Context
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,9 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.Amber
@@ -104,6 +108,37 @@ fun BunkerMultiEventHomeScreen(
         }
     }
 
+    // Track which request is being viewed in detail
+    var selectedRequest by remember { mutableStateOf<AmberBunkerRequest?>(null) }
+    val pendingRequests = bunkerRequests
+
+    // Detail view — compose BunkerSingleEventHomeScreen without closing activity
+    if (selectedRequest != null) {
+        var wasLoading by remember { mutableStateOf(false) }
+        BunkerSingleEventHomeScreen(
+            modifier = modifier,
+            bunkerRequest = selectedRequest!!,
+            account = accountParam,
+            onLoading = { loading ->
+                if (loading) wasLoading = true
+                if (!loading && wasLoading) {
+                    // Request was processed — navigate back
+                    wasLoading = false
+                    val justProcessedId = selectedRequest?.request?.id
+                    selectedRequest = null
+                    // If exactly one remains, jump to it
+                    val remaining = pendingRequests.filter { it.request.id != justProcessedId }
+                    if (remaining.size == 1) {
+                        selectedRequest = remaining.first()
+                    }
+                }
+                onLoading(loading)
+            },
+            closeActivity = false,
+        )
+        return
+    }
+
     Column(
         modifier,
     ) {
@@ -114,45 +149,32 @@ fun BunkerMultiEventHomeScreen(
         ) {
             AppIcon(key = key, name = appName, size = 32.dp)
             Text(
-                stringResource(R.string.is_requiring_some_permissions_please_review_them, appName),
-                Modifier.fillMaxWidth(),
+                text = "${pendingRequests.size} pending requests",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
             )
         }
 
         SigningAs(accountParam)
 
-        val allCheckedState = when {
-            bunkerRequests.all { it.checked.value } -> ToggleableState.On
-            bunkerRequests.none { it.checked.value } -> ToggleableState.Off
-            else -> ToggleableState.Indeterminate
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    val newValue = allCheckedState != ToggleableState.On
-                    bunkerRequests.forEach { it.checked.value = newValue }
-                },
-        ) {
-            TriStateCheckbox(
-                state = allCheckedState,
-                onClick = {
-                    val newValue = allCheckedState != ToggleableState.On
-                    bunkerRequests.forEach { it.checked.value = newValue }
-                },
-            )
-            Text(stringResource(R.string.select_deselect_all))
-        }
+        Spacer(Modifier.size(8.dp))
 
         Column(
             Modifier
                 .weight(1f)
+                .padding(horizontal = 4.dp)
                 .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            bunkerRequests.forEach { bunkerRequest ->
-                BunkerRequestCard(context = context, bunkerRequest = bunkerRequest)
+            pendingRequests.forEach { bunkerRequest ->
+                BunkerRequestCard(
+                    context = context,
+                    bunkerRequest = bunkerRequest,
+                    onDetailClick = { selectedRequest = bunkerRequest },
+                )
             }
+            Spacer(Modifier.size(4.dp))
         }
 
         if (hasRelayAuthEvents) {
@@ -295,6 +317,10 @@ fun BunkerMultiEventHomeScreen(
 
             AmberButton(
                 Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AmberColors.success(),
+                ),
+                textColor = Color.White,
                 text = stringResource(R.string.approve_all),
                 onClick = {
                     onLoading(true)
@@ -595,11 +621,12 @@ fun BunkerMultiEventHomeScreen(
 }
 
 @Composable
-private fun BunkerRequestCard(context: Context, bunkerRequest: AmberBunkerRequest) {
+private fun BunkerRequestCard(
+    context: Context,
+    bunkerRequest: AmberBunkerRequest,
+    onDetailClick: () -> Unit,
+) {
     val type = BunkerRequestUtils.getTypeFromBunker(bunkerRequest.request)
-    var showDetails by remember { mutableStateOf(false) }
-    val hasDetails = (type == SignerType.SIGN_EVENT && bunkerRequest.signedEvent != null) ||
-        ((type.toString().contains("ENCRYPT") || type.toString().contains("DECRYPT")) && bunkerRequest.encryptedData != null)
     val permission = if (type == SignerType.SIGN_EVENT) {
         val kind = (bunkerRequest.request as? BunkerRequestSign)?.event?.kind ?: 0
         Permission("sign_event", kind)
@@ -667,64 +694,74 @@ private fun BunkerRequestCard(context: Context, bunkerRequest: AmberBunkerReques
         }
     }
 
-    Card(
-        Modifier.padding(4.dp),
+    val kindIcon = if (type == SignerType.SIGN_EVENT) {
+        val kind = (bunkerRequest.request as? BunkerRequestSign)?.event?.kind ?: 0
+        kindIconEmoji(kind)
+    } else {
+        null
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onDetailClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors().copy(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        border = BorderStroke(1.dp, AmberColors.amberSubtle()),
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { bunkerRequest.checked.value = !bunkerRequest.checked.value },
+                .padding(horizontal = 14.dp, vertical = 14.dp),
         ) {
-            Checkbox(
-                checked = bunkerRequest.checked.value,
-                onCheckedChange = { bunkerRequest.checked.value = !bunkerRequest.checked.value },
-                colors = CheckboxDefaults.colors().copy(
-                    uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            )
-            Column(
-                Modifier
-                    .weight(1f)
-                    .padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
+            // Kind icon
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                modifier = Modifier.size(44.dp),
             ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Text(
+                        text = kindIcon ?: "\uD83D\uDD12",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+
+            Spacer(Modifier.size(12.dp))
+
+            // Title + preview
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = label,
-                    color = if (bunkerRequest.checked.value) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (preview.isNotBlank()) {
                     Text(
                         text = preview,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
-                    )
-                }
-                if (hasDetails) {
-                    RawJsonButton(
-                        onCLick = { showDetails = true },
-                        text = stringResource(R.string.show_details),
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 3.dp),
                     )
                 }
             }
-        }
-    }
 
-    if (showDetails) {
-        if (type == SignerType.SIGN_EVENT) {
-            EventDetailModal(
-                event = bunkerRequest.signedEvent!!,
-                onDismiss = { showDetails = false },
-            )
-        } else {
-            EncryptDecryptDetailModal(
-                type = type,
-                encryptedData = bunkerRequest.encryptedData,
-                onDismiss = { showDetails = false },
+            Spacer(Modifier.size(8.dp))
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
             )
         }
     }

@@ -15,11 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -46,17 +42,7 @@ fun Kind9734ZapRequestRenderer(
     }
     val zapMessage = content.ifBlank { null }
 
-    var recipientProfile by remember { mutableStateOf<Pair<String?, String?>?>(null) }
-    LaunchedEffect(recipientPubkey) {
-        if (recipientPubkey == null) return@LaunchedEffect
-        try {
-            val profile = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                fetchAuthorProfile(recipientPubkey)
-            }
-            if (profile != null) recipientProfile = profile
-        } catch (_: Exception) {
-        }
-    }
+    val recipientProfile = rememberProfile(recipientPubkey)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

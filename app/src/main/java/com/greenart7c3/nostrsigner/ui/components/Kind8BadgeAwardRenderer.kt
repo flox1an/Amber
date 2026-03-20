@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -41,12 +40,12 @@ fun Kind8BadgeAwardRenderer(
         tags.filter { it.isNotEmpty() && it[0] == "p" }
     }
     val recipientCount = pTags.size
-    val displayedRecipients = remember(pTags) {
-        pTags.take(10).mapNotNull { tag ->
-            val hex = tag.getOrNull(1) ?: return@mapNotNull null
-            shortenNpub(hexToNpub(hex))
-        }
+    val displayedHexKeys = remember(pTags) {
+        pTags.take(10).mapNotNull { it.getOrNull(1) }
     }
+
+    // Fetch profiles for displayed recipients
+    val profiles = rememberProfiles(displayedHexKeys)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -91,18 +90,20 @@ fun Kind8BadgeAwardRenderer(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                if (displayedRecipients.isNotEmpty()) {
+                if (displayedHexKeys.isNotEmpty()) {
                     Spacer(modifier = Modifier.size(8.dp))
-                    displayedRecipients.forEach { npub ->
-                        Text(
-                            text = npub,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 2.dp),
+                    displayedHexKeys.forEach { hex ->
+                        val profile = profiles[hex]
+                        val npub = remember(hex) { hexToNpub(hex) }
+                        AuthorIdentityRow(
+                            displayName = profile?.first,
+                            npub = npub,
+                            pictureUrl = profile?.second,
+                            avatarSize = 20,
                         )
+                        Spacer(modifier = Modifier.size(4.dp))
                     }
-                    val remaining = recipientCount - displayedRecipients.size
+                    val remaining = recipientCount - displayedHexKeys.size
                     if (remaining > 0) {
                         Text(
                             text = "... and $remaining more",

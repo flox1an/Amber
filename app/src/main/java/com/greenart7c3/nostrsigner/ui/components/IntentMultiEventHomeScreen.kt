@@ -3,24 +3,27 @@ package com.greenart7c3.nostrsigner.ui.components
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,9 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.Amber
@@ -83,6 +87,19 @@ fun IntentMultiEventHomeScreen(
     var rememberType by remember { mutableStateOf(RememberType.NEVER) }
     var relayAuthScope by remember { mutableStateOf(RelayAuthScope.SPECIFIC) }
 
+    // Track which intent is being viewed in detail (null = list view)
+    var selectedIntent by remember { mutableStateOf<IntentData?>(null) }
+
+    // Track processed intents to remove from list
+    val processedIds = remember { mutableSetOf<String>() }
+    val pendingIntents = intents.filter { it.id !in processedIds }
+
+    // If all processed, fall through to the empty case handled by the caller
+    // If viewing a detail that was just processed, go back to list
+    if (selectedIntent != null && selectedIntent!!.id in processedIds) {
+        selectedIntent = null
+    }
+
     LaunchedEffect(Unit) {
         launch(Dispatchers.IO) {
             localAccount = LocalPreferences.loadFromEncryptedStorage(
@@ -110,52 +127,67 @@ fun IntentMultiEventHomeScreen(
         }
     }
 
+    // --- Detail view for a single intent ---
+    if (selectedIntent != null) {
+        IntentSingleEventHomeScreen(
+            modifier = modifier,
+            packageName = packageName,
+            applicationName = appName,
+            intentData = selectedIntent!!,
+            account = accountParam,
+            onRemoveIntentData = { removedIntents, resultType ->
+                removedIntents.forEach { processedIds.add(it.id) }
+                // Navigate: if 1 remains, jump to it; otherwise back to list
+                val remaining = intents.filter { it.id !in processedIds }
+                selectedIntent = if (remaining.size == 1) remaining.first() else null
+                onRemoveIntentData(removedIntents, resultType)
+            },
+            onLoading = onLoading,
+        )
+        return
+    }
+
+    // --- List view ---
     Column(
         modifier,
     ) {
         LocalAppIcon(packageName)
 
-        Text(
-            stringResource(R.string.is_requiring_some_permissions_please_review_them2),
-            Modifier
+        // Header with count
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 4.dp),
-        )
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "${pendingIntents.size} pending requests",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f),
+            )
+        }
 
         SigningAs(accountParam)
 
-        val allCheckedState = when {
-            intents.all { it.checked.value } -> ToggleableState.On
-            intents.none { it.checked.value } -> ToggleableState.Off
-            else -> ToggleableState.Indeterminate
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    val newValue = allCheckedState != ToggleableState.On
-                    intents.forEach { it.checked.value = newValue }
-                },
-        ) {
-            TriStateCheckbox(
-                state = allCheckedState,
-                onClick = {
-                    val newValue = allCheckedState != ToggleableState.On
-                    intents.forEach { it.checked.value = newValue }
-                },
-            )
-            Text(stringResource(R.string.select_deselect_all))
-        }
+        Spacer(Modifier.size(8.dp))
 
+        // Tap any card to review & approve/deny individually
         Column(
             Modifier
                 .weight(1f)
+                .padding(horizontal = 4.dp)
                 .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            intents.forEach { intent ->
-                IntentRequestCard(context = context, intent = intent)
+            pendingIntents.forEach { intent ->
+                IntentRequestCard(
+                    context = context,
+                    intent = intent,
+                    onDetailClick = { selectedIntent = intent },
+                )
             }
+            Spacer(Modifier.size(4.dp))
         }
 
         if (hasRelayAuthEvents) {
@@ -193,7 +225,7 @@ fun IntentMultiEventHomeScreen(
             onReject = {},
             onChanged = {
                 rememberType = it
-                intents.forEach { intent ->
+                pendingIntents.forEach { intent ->
                     intent.rememberType.value = rememberType
                 }
             },
@@ -302,6 +334,10 @@ fun IntentMultiEventHomeScreen(
 
             AmberButton(
                 Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AmberColors.success(),
+                ),
+                textColor = Color.White,
                 text = stringResource(R.string.approve_all),
                 onClick = {
                     onLoading(true)
@@ -531,11 +567,12 @@ fun IntentMultiEventHomeScreen(
 }
 
 @Composable
-private fun IntentRequestCard(context: Context, intent: IntentData) {
+private fun IntentRequestCard(
+    context: Context,
+    intent: IntentData,
+    onDetailClick: () -> Unit,
+) {
     val type = intent.type
-    var showDetails by remember { mutableStateOf(false) }
-    val hasDetails = (type == SignerType.SIGN_EVENT && intent.event != null) ||
-        ((type.toString().contains("ENCRYPT") || type.toString().contains("DECRYPT")) && intent.encryptedData != null)
     val permission = if (type == SignerType.SIGN_EVENT) {
         Permission("sign_event", intent.event!!.kind)
     } else {
@@ -602,64 +639,70 @@ private fun IntentRequestCard(context: Context, intent: IntentData) {
         }
     }
 
-    Card(
-        Modifier.padding(4.dp),
+    val kindIcon = if (type == SignerType.SIGN_EVENT) kindIconEmoji(intent.event!!.kind) else null
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onDetailClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors().copy(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
-        border = BorderStroke(1.dp, AmberColors.amberSubtle()),
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { intent.checked.value = !intent.checked.value },
+                .padding(horizontal = 14.dp, vertical = 14.dp),
         ) {
-            Checkbox(
-                checked = intent.checked.value,
-                onCheckedChange = { intent.checked.value = !intent.checked.value },
-                colors = CheckboxDefaults.colors().copy(
-                    uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            )
-            Column(
-                Modifier
-                    .weight(1f)
-                    .padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
+            // Kind icon (larger)
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                modifier = Modifier.size(44.dp),
             ) {
+                androidx.compose.foundation.layout.Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Text(
+                        text = kindIcon ?: "\uD83D\uDD12",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            }
+
+            Spacer(Modifier.size(12.dp))
+
+            // Title + preview
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = label,
-                    color = if (intent.checked.value) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 if (preview.isNotBlank()) {
                     Text(
                         text = preview,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
-                    )
-                }
-                if (hasDetails) {
-                    RawJsonButton(
-                        onCLick = { showDetails = true },
-                        text = stringResource(R.string.show_details),
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 3.dp),
                     )
                 }
             }
-        }
-    }
 
-    if (showDetails) {
-        if (type == SignerType.SIGN_EVENT) {
-            EventDetailModal(
-                event = intent.event!!,
-                onDismiss = { showDetails = false },
-            )
-        } else {
-            EncryptDecryptDetailModal(
-                type = type,
-                encryptedData = intent.encryptedData,
-                onDismiss = { showDetails = false },
+            Spacer(Modifier.size(8.dp))
+
+            // Chevron
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
             )
         }
     }

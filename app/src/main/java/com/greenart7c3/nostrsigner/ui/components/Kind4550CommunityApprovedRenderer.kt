@@ -52,6 +52,10 @@ fun Kind4550CommunityApprovedRenderer(
     val originalAuthorNpub = remember(originalAuthorHex) {
         if (originalAuthorHex != null) hexToNpub(originalAuthorHex) else null
     }
+
+    // Fetch original author profile
+    val authorProfile = rememberProfile(originalAuthorHex)
+
     val eventKind = remember(tags) {
         tags.firstOrNull { it.isNotEmpty() && it[0] == "k" }?.getOrNull(1)
     }
@@ -151,11 +155,11 @@ fun Kind4550CommunityApprovedRenderer(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.width(90.dp),
                         )
-                        Text(
-                            text = shortenNpub(originalAuthorNpub),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        AuthorIdentityRow(
+                            displayName = authorProfile?.first,
+                            npub = originalAuthorNpub,
+                            pictureUrl = authorProfile?.second,
+                            avatarSize = 20,
                         )
                     }
                     Spacer(modifier = Modifier.size(8.dp))

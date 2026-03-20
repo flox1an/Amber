@@ -15,13 +15,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.greenart7c3.nostrsigner.models.Account
+import org.json.JSONObject
 
 @Composable
 fun Kind9ChatRenderer(
@@ -31,6 +36,31 @@ fun Kind9ChatRenderer(
 ) {
     val roomEventId = tags.firstOrNull { it.size >= 3 && it[0] == "e" && it[2] == "root" }?.get(1)
         ?: tags.firstOrNull { it.size >= 2 && it[0] == "e" }?.get(1)
+
+    // Fetch channel name from the kind 40 event
+    var channelName by remember { mutableStateOf<String?>(null) }
+    var isLoadingChannel by remember { mutableStateOf(false) }
+
+    if (roomEventId != null) {
+        LaunchedEffect(roomEventId) {
+            isLoadingChannel = true
+            try {
+                val fetched = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    fetchEvent(roomEventId)
+                }
+                if (fetched != null) {
+                    channelName = try {
+                        val json = JSONObject(fetched.content)
+                        json.optString("name", "").ifBlank { null }
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
+            } catch (_: Exception) {
+            }
+            isLoadingChannel = false
+        }
+    }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -66,12 +96,29 @@ fun Kind9ChatRenderer(
                             fontWeight = FontWeight.Medium,
                         )
                         Spacer(modifier = Modifier.size(2.dp))
-                        Text(
-                            text = "${roomEventId.take(8)}...${roomEventId.takeLast(8)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontFamily = FontFamily.Monospace,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        if (isLoadingChannel) {
+                            LoadingRow(text = "Loading channel...", spinnerSize = 12)
+                        } else if (channelName != null) {
+                            Text(
+                                text = channelName!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = "${roomEventId.take(8)}...${roomEventId.takeLast(8)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        } else {
+                            Text(
+                                text = "${roomEventId.take(8)}...${roomEventId.takeLast(8)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontFamily = FontFamily.Monospace,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
